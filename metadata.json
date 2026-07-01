@@ -1,0 +1,6 @@
+{
+  "name": "Fixhora",
+  "description": "Fixhora - Find trusted helpers nearby or earn by helping others.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,150 @@
+package com.example.ui.screens.auth
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.R
+import com.example.ui.theme.*
+import kotlinx.coroutines.delay
+
+@Composable
+fun SplashScreen(onSplashComplete: () -> Unit) {
+    val alpha = remember { Animatable(0f) }
+
+    LaunchedEffect(Unit) {
+        alpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1000)
+        )
+        delay(1500)
+        onSplashComplete()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.img_logo),
+                contentDescription = "FixHora Logo",
+                modifier = Modifier
+                    .size(120.dp)
+                    .alpha(alpha.value)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "FixHora",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = BluePrimary,
+                modifier = Modifier.alpha(alpha.value)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Connecting Skilled Workers with People Who Need Help.",
+                fontSize = 14.sp,
+                color = SecondaryGrey,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(horizontal = 48.dp)
+                    .alpha(alpha.value)
+            )
+        }
+    }
+}
+
+@Composable
+fun WelcomeScreen(
+    onSignInClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
+    onGuestClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(40.dp))
+        Image(
+            painter = painterResource(id = R.drawable.img_worker), // Assuming worker illustration acts as large welcome image
+            contentDescription = "Welcome Illustration",
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentScale = ContentScale.Fit
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            text = "Welcome to FixHora",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = DarkNavy
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Find trusted local workers or offer your skills to people nearby.",
+            fontSize = 16.sp,
+            color = SecondaryGrey,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Button(
+            onClick = onSignInClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+        ) {
+            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedButton(
+            onClick = onCreateAccountClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary)
+        ) {
+            Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        TextButton(onClick = onGuestClick) {
+            Text("Continue as Guest", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "By continuing, you agree to our Terms of Service and Privacy Policy.",
+            fontSize = 12.sp,
+            color = SecondaryGrey,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
