@@ -18,6 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
 import com.example.R
 import com.example.ui.theme.*
 import kotlinx.coroutines.delay
@@ -46,18 +50,26 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
-                contentDescription = "FixHora Logo",
+                contentDescription = "FixoraX Logo",
                 modifier = Modifier
                     .size(120.dp)
                     .alpha(alpha.value)
             )
-            Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "FixHora",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                        append("Fixora")
+                    }
+                    withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 48.sp)) {
+                        append("X")
+                    }
+                },
+                fontSize = 40.sp,
+                fontWeight = FontWeight.ExtraBold,
                 color = BluePrimary,
-                modifier = Modifier.alpha(alpha.value)
+                modifier = Modifier
+                    .alpha(alpha.value)
+                    .offset(y = (-28).dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -95,11 +107,21 @@ fun WelcomeScreen(
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Welcome to FixHora",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = DarkNavy)) {
+                    append("Welcome to ")
+                }
+                withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                    append("Fixora")
+                }
+                withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 42.sp)) {
+                    append("X")
+                }
+            },
+            fontSize = 32.sp,
+            fontWeight = FontWeight.ExtraBold,
             color = DarkNavy
         )
         Spacer(modifier = Modifier.height(16.dp))

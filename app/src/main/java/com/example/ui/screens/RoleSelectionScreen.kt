@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontStyle
 import com.example.ui.theme.*
 
 import androidx.compose.foundation.Image
@@ -66,51 +67,48 @@ fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Branding Area
                 Image(
                     painter = painterResource(id = R.drawable.img_logo),
-                    contentDescription = "Fixhora Logo",
+                    contentDescription = "FixoraX Logo",
                     modifier = Modifier.size(120.dp),
                     contentScale = ContentScale.Fit
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
                 val appName = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = OrangeSecondary)) {
-                        append("Fix")
+                    withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                        append("Fixora")
                     }
-                    withStyle(style = SpanStyle(color = BluePrimary)) {
-                        append("hora")
+                    withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 56.sp)) {
+                        append("X")
                     }
                 }
                 Text(
                     text = appName,
-                    fontSize = 44.sp,
+                    fontSize = 48.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = DarkNavy
+                    color = DarkNavy,
+                    modifier = Modifier.offset(y = (-28).dp)
                 )
-
-                Spacer(modifier = Modifier.height(32.dp))
 
                 // Heading Section
                 val isHindi = selectedLanguage == "हिंदी"
                 Text(
                     text = if (isHindi) "आप कैसे शुरुआत\nकरना चाहेंगे?" else "How would you\nlike to get started?",
-                    fontSize = if (isHindi) 36.sp else 42.sp,
+                    fontSize = if (isHindi) 28.sp else 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkNavy,
                     textAlign = TextAlign.Center,
-                    lineHeight = if (isHindi) 44.sp else 50.sp
+                    lineHeight = if (isHindi) 36.sp else 38.sp
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = if (isHindi) "जारी रखने के लिए एक भूमिका चुनें" else "Choose a role to continue",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = SecondaryGrey,
                     textAlign = TextAlign.Center
