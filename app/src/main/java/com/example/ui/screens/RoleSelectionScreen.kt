@@ -38,6 +38,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontStyle
+import com.example.data.session.UserRole
 import com.example.ui.theme.*
 
 import androidx.compose.foundation.Image
@@ -46,7 +47,11 @@ import androidx.compose.ui.layout.ContentScale
 import com.example.R
 
 @Composable
-fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
+fun RoleSelectionScreen(
+    signedInName: String?,
+    onRoleSelected: (UserRole) -> Unit,
+    onSignOut: () -> Unit
+) {
     var selectedLanguage by remember { mutableStateOf("English") }
 
     Scaffold(
@@ -129,7 +134,7 @@ fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
                         borderColor = LightBlueBorder,
                         buttonColor = BluePrimary,
                         illustrationId = R.drawable.img_customer,
-                        onClick = { onRoleSelected("user") }
+                        onClick = { onRoleSelected(UserRole.CUSTOMER) }
                     )
 
                     WideRoleSelectionCard(
@@ -138,11 +143,36 @@ fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
                         borderColor = LightOrangeBorder,
                         buttonColor = OrangeSecondary,
                         illustrationId = R.drawable.img_worker,
-                        onClick = { onRoleSelected("helper") }
+                        onClick = { onRoleSelected(UserRole.HELPER) }
                     )
                 }
 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Makes the session visible. Without this there was no way to tell whether the app
+                // considered you signed in, and no way to sign out.
+                if (signedInName != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isHindi) "साइन इन: $signedInName" else "Signed in as $signedInName",
+                            fontSize = 14.sp,
+                            color = SecondaryGrey
+                        )
+                        TextButton(onClick = onSignOut) {
+                            Text(
+                                text = if (isHindi) "साइन आउट" else "Sign out",
+                                fontSize = 14.sp,
+                                color = BluePrimary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
                 // Language Selection Section
                 Row(

@@ -68,7 +68,6 @@ secrets {
 // declared in the version catalog so re-enabling them is a one-line change.
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
   // implementation(libs.androidx.camera.camera2)
   // implementation(libs.androidx.camera.core)

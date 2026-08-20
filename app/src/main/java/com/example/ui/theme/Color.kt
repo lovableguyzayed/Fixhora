@@ -12,6 +12,10 @@ val BorderGrey = Color(0xFFE5E7EB)
 val LightBlueBorder = Color(0xFFCFE1FF)
 val LightOrangeBorder = Color(0xFFFFD9BA)
 
+// Status colours. The full semantic token set lands with the design system work; these are the
+// ones already needed by screens today.
+val SuccessGreen = Color(0xFF2E7D32)
+
 val LightBackground = Color(0xFFFFFFFF)
 val LightSurface = Color(0xFFFFFFFF) // Requirements say cards have White background
 val LightOnBackground = DarkNavy

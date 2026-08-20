@@ -4,6 +4,22 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Requested at runtime from PermissionRequestScreen. Coarse is enough to place a task in a
+         neighbourhood; fine is requested alongside it for map accuracy. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Runtime permission only from Android 13. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- The app works without GPS hardware; location is a convenience, not a requirement, so this
+         must not narrow Play Store eligibility. -->
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+
     <application
         android:name="com.example.FixhoraApplication"
         android:allowBackup="true"

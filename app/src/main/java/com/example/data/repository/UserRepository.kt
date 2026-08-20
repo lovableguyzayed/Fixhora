@@ -95,6 +95,38 @@ class UserRepository(private val userDao: UserDao) {
       }
     }
 
+  /** Whether a number already has an account. Used to route OTP sign-in and password reset. */
+  suspend fun accountExists(mobile: String): Boolean =
+    userDao.findByMobile(normalizeMobile(mobile)) != null
+
+  /**
+   * Signs in on the strength of a verified mobile number alone.
+   *
+   * Only ever called once an OTP has been confirmed, so it deliberately does not take a password.
+   */
+  suspend fun findByVerifiedMobile(mobile: String): UserEntity? =
+    userDao.findByMobile(normalizeMobile(mobile))
+
+  /**
+   * Replaces the password for [mobile], generating a fresh salt so the new hash shares nothing
+   * with the old one.
+   */
+  suspend fun resetPassword(mobile: String, newPassword: String): AuthResult =
+    withContext(Dispatchers.Default) {
+      try {
+        val user =
+          userDao.findByMobile(normalizeMobile(mobile))
+            ?: return@withContext AuthResult.InvalidCredentials
+        val salt = PasswordHasher.newSalt()
+        val updated =
+          user.copy(passwordSalt = salt, passwordHash = PasswordHasher.hash(newPassword, salt))
+        userDao.update(updated)
+        AuthResult.Success(updated)
+      } catch (e: Exception) {
+        AuthResult.Failure(e)
+      }
+    }
+
   /** Saves the profile fields collected after sign-up. Returns false if the account is gone. */
   suspend fun updateProfile(
     userId: String,

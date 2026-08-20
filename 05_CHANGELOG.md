@@ -1,5 +1,27 @@
 # Changelog
 
+## Batch 2 — Real authentication
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `Validators` + `FieldError`, and `AuthMessages` mapping codes to text | Not one auth field was validated anywhere. Validation returns codes, not sentences, so the rules stay language-free and a Hindi build can swap the messages without touching them. | Low. Pure functions, fully tested. |
+| New `AuthViewModel` holding sign-in / sign-up / profile state | The screens held their own `remember` state and had nowhere to put a result, which is why "Sign In" could only navigate blindly. | Medium. New state owner for four screens. |
+| Sign-in now actually verifies credentials | The button called `onLoginSuccess` unconditionally: an empty form signed you in. It now checks the password against the stored hash, shows one message for both "no such number" and "wrong password", and navigates only on success. | Medium. Existing testers must now register before they can sign in. |
+| Sign-up validates every field, enforces the terms checkbox, and creates a real account | Nothing was validated and no account was created; the terms checkbox was decorative. | Medium. |
+| Buttons disable and show a spinner while work is in flight | Nothing stopped a double submit, which with real writes would mean two registration attempts. | Low. |
+| Forgot-password steps 2 and 3 are functional | Both steps rendered fields hard-wired to `value = ""` with an empty `onValueChange` — nothing could be typed, and no password was ever changed. It now verifies a code and writes a new hash with a fresh salt. | Medium. |
+| OTP is generated, displayed and checked, behind a visible "Demo mode" notice | "Verify" previously navigated without reading the code. There is no SMS gateway, so claiming "OTP sent to your mobile" would leave the user waiting for a message that never arrives. The screen says so plainly and shows the code. | Low. Must be replaced by a real gateway before release. |
+| OTP entry auto-advances between boxes and accepts a pasted code | Six single-character fields with no focus handling is unusable on a phone. | Low. |
+| OTP for an unregistered number routes to sign-up with the number pre-filled | Verifying a number proves ownership; it does not create an account. Previously it walked into profile setup with nothing to attach the profile to. | Low. |
+| Profile setup writes to `UserEntity`, pre-filled from the account | The whole form was discarded on Continue. | Low. |
+| Permission screen requests real permissions; manifest declares location and notifications | The screen described permissions and requested none, so "Allow" and "Skip" behaved identically and location could never work. Now it shows granted state, and offers Settings only on a permanent denial. | Medium. First time these dialogs appear. |
+| Session-aware start destination, and `popUpTo` on every terminal navigation | Back after signing in returned to the sign-in form, and a signed-in user was sent through Welcome on every launch. | Medium. Touches the whole nav graph. |
+| `RoleSelectionScreen` takes a `UserRole`, shows who is signed in, and offers sign out | Roles were raw strings duplicated across files, and there was no way to see or end a session. | Low. |
+| Removed the "Continue with Google/Email" buttons and "Keep me signed in" | The social buttons only raised a "Coming soon" toast, and the checkbox did nothing — sessions now always persist. | Low. Dead controls; nothing is lost. |
+| Removed `accompanist-permissions` | Batch 0 enabled it for this work, but the platform's own permission launcher covers the case with no extra dependency. | Low. |
+
+**Still demo-only:** OTP codes are generated on-device and shown on screen. This is not authentication against a phone number — it must be wired to a real SMS provider before release.
+
 ## Batch 1 — Data foundation & session
 
 | Changed | Reason | Risk |
