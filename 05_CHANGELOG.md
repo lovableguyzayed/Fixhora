@@ -1,5 +1,19 @@
 # Changelog
 
+## Batch 0 — Build hygiene & dependency cleanup
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Added `gradlew`, `gradlew.bat`, `gradle/wrapper/` (Gradle 9.1.0) | Repo had no wrapper at all, so it could only be built by whatever Gradle version a machine happened to have. Now `./gradlew assembleDebug` works from a clean clone and CI is possible. | Low. If Gradle 9.1.0 turns out to be wrong for AGP 9.1.1, only `gradle-wrapper.properties` needs a version bump. |
+| Debug build no longer uses the custom `debugConfig` signing config | It pointed at `${rootDir}/debug.keystore`, which is gitignored and not in the repo — `assembleDebug` failed on any fresh clone. AGP's auto-generated `~/.android/debug.keystore` is used instead. | Low. Debug APKs get a different signature than before, so an existing debug install must be uninstalled before the new one installs. |
+| Release signing only applied when the keystore file actually exists | `assembleRelease` previously hard-failed on a missing `my-upload-key.jks`. Now it produces an unsigned release build instead of erroring. | Low. A real release still signs exactly as before once `KEYSTORE_PATH`/`STORE_PASSWORD`/`KEY_PASSWORD` are set. |
+| Removed Retrofit, OkHttp, logging-interceptor, Moshi (+ its KSP processor), converter-moshi, Firebase BOM | Zero references anywhere in `app/src`. They pulled an extra KSP round and Firebase's BOM into every build for nothing. | Low. Nothing imports them. Re-adding is a catalog entry away if a backend lands. |
+| Enabled `play-services-location`, `datastore-preferences`, `accompanist-permissions` | Needed by Batch 1 (session) and Batch 4 (real GPS). | Low. |
+| `rootProject.name`: `"My Application"` → `"Fixhora"` | Template leftover; made the Android Studio project name meaningless. | Low. |
+| `.env.example`: removed `GEMINI_API_KEY` | Gemini is not used anywhere in the app. The Secrets plugin reads this file, so a fake key was being compiled into `BuildConfig`. | Low. File is kept (the plugin requires it) and documents the expected format. |
+| `metadata.json`: dropped the `SERVER_SIDE_GEMINI_API` capability claim | The app makes no Gemini calls. | Low. |
+
+
 ## [WP-001] Implement TaskViewModel
 **Status:** Completed
 **Description:** Created a `TaskViewModel` state holder to persist task draft selections across the task creation flow.

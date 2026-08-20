@@ -2,5 +2,5 @@
   "name": "FixoraX",
   "description": "FixoraX - Find trusted helpers nearby or earn by helping others.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
