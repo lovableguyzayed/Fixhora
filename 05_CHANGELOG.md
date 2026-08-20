@@ -1,5 +1,24 @@
 # Changelog
 
+## Batch 1 — Data foundation & session
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `UserEntity` / `UserDao` / `UserRepository`, with `mobile` uniquely indexed | The app had no concept of a user at all. Profile data collected during sign-up was dropped on the floor and there was nothing to attach a task to. | Medium. New table; exercised for the first time in Batch 2. |
+| New `PasswordHasher` — salted PBKDF2-HMAC-SHA256, 100k iterations | Storing a password in a local database in plain text exposes it to anyone with the device or a backup, and people reuse passwords. Implemented over `Mac` rather than `SecretKeyFactory` because `PBKDF2WithHmacSHA256` only exists from API 26 and `minSdk` is 24. | Low. Verified against published PBKDF2-HMAC-SHA256 vectors. |
+| New `SessionManager` (DataStore) + `Session`/`UserRole`/`ThemePreference`/`AppLanguage` | Nothing remembered who was signed in, so every restart was an anonymous restart. Guest browsing stays a first-class state. | Low. |
+| New `TaskStatus` enum + Room `Converters`, replacing raw status strings | Statuses were free-form strings compared in five different files, which is how `"pending"` ended up as a tab that no task could ever match. Storage values are unchanged, so no data is reinterpreted. | Medium. Touches every status comparison in the app. |
+| `TaskEntity` gains `ownerId`, `acceptedByHelperId`, `createdAt`, `latitude`, `longitude`; indexed on `status` and `ownerId` | Tasks had no author, no age and no coordinates — which is why the helper feed had to invent "10 mins ago" and "2.5 km away". Adding the columns now avoids a second migration later. | Medium. Schema change. |
+| Photo URIs stored newline-separated instead of comma-separated | A comma is legal inside a URI and would have corrupted the split. Existing rows are converted by the migration. | Low. |
+| `AppDatabase` v2 → v3 with an explicit `MIGRATION_2_3` | `fallbackToDestructiveMigration()` was unconditional, so any schema change silently wiped a user's data in release too. `tasks` is rebuilt rather than `ALTER`-ed, because a SQLite DEFAULT that the entity does not declare fails Room's schema validation at open time. | **High — the least verifiable change in this batch.** Debug still falls back destructively, so a mistake shows up as a wipe in testing, not in release. |
+| `insertDummyData()` (100 fake tasks) replaced by `DemoDataSeeder` (10, Indian context) behind `BuildConfig.DEBUG` | Release builds were seeding 100 fake tasks. Both ViewModels also called it on init, so a race could double the data set. Seeding now happens once, from `FixhoraApplication`, in debug only. | Low. Release feed now starts genuinely empty. |
+| `saveDraft` / `submitTask` wrapped in `withTransaction`; submit promotes the draft row in place | Submit previously inserted a copy and then deleted the draft in two unguarded steps, so a failure in between left an orphan. Promoting in place means the task never exists twice. | Low. |
+| `TaskRepository.completedTasks` renamed to `openTasks` | The name said "completed" while the query returned `status = 'submitted'` — the opposite of what it fetched. | Low. |
+| Pulled forward from Batch 3: `submitTask()` now cancels the pending autosave | A debounced save landing after submission recreated the draft the user had just posted. The fix is one line inside a function this batch rewrote, so holding it back would have meant knowingly shipping the bug. | Low. |
+| `WorkerTasksScreen` tabs mapped to real statuses; dead `"Pending"` tab removed | `"In Progress"` and `"Cancelled"` fell through to `else -> false` and could never show anything; no task ever had status `"pending"`. | Low. Wiring a control that *sets* `IN_PROGRESS` is Batch 6, so that tab stays empty until then. |
+
+**Known, deliberately not fixed in this batch:** `acceptedByHelperId` is written by nothing yet (needs helper identity, Batch 6), and `HelperViewModel.startTask` has no button wired to it yet (Batch 6). Both are schema/API groundwork that would otherwise need a second migration.
+
 ## Batch 0 — Build hygiene & dependency cleanup
 
 | Changed | Reason | Risk |

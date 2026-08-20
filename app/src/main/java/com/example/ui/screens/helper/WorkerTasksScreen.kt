@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 import com.example.data.room.TaskEntity
+import com.example.data.room.TaskStatus
 import com.example.ui.screens.taskflow.dummyCategories
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +33,8 @@ import com.example.ui.screens.taskflow.dummyCategories
 fun WorkerTasksScreen(viewModel: HelperViewModel) {
     val allTasks by viewModel.allTasks.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    val tabs = listOf("All Tasks", "New Requests", "Pending", "Accepted", "In Progress", "Completed", "Cancelled")
+    // "Pending" was dropped: no task ever carried that status, so the tab was always empty.
+    val tabs = listOf("All Tasks", "New Requests", "Accepted", "In Progress", "Completed", "Cancelled")
     var selectedTab by remember { mutableStateOf("All Tasks") }
 
     Scaffold(
@@ -108,14 +110,14 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
 
             // Task List
             val filteredTasks = if (selectedTab == "All Tasks") allTasks else allTasks.filter {
-                val statusMatch = when (selectedTab) {
-                    "New Requests" -> it.status == "submitted"
-                    "Pending" -> it.status == "pending"
-                    "Accepted" -> it.status == "accepted"
-                    "Completed" -> it.status == "completed"
+                when (selectedTab) {
+                    "New Requests" -> it.status == TaskStatus.SUBMITTED
+                    "Accepted" -> it.status == TaskStatus.ACCEPTED
+                    "In Progress" -> it.status == TaskStatus.IN_PROGRESS
+                    "Completed" -> it.status == TaskStatus.COMPLETED
+                    "Cancelled" -> it.status == TaskStatus.CANCELLED
                     else -> false
                 }
-                statusMatch
             }
 
             if (filteredTasks.isEmpty()) {
@@ -169,11 +171,13 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
     val category = dummyCategories.find { it.id == task.categoryId }?.title ?: "General Service"
     val budgetText = if (task.minBudget.isNotBlank() && task.maxBudget.isNotBlank()) "₹${task.minBudget} - ₹${task.maxBudget}" else if (task.minBudget.isNotBlank()) "Min ₹${task.minBudget}" else if (task.maxBudget.isNotBlank()) "Max ₹${task.maxBudget}" else "Budget Negotiable"
     val displayStatus = when (task.status) {
-        "submitted" -> "New"
-        "pending" -> "Pending"
-        "accepted" -> "Accepted"
-        "completed" -> "Completed"
-        else -> "Draft"
+        TaskStatus.SUBMITTED -> "New"
+        TaskStatus.ACCEPTED -> "Accepted"
+        TaskStatus.IN_PROGRESS -> "In Progress"
+        TaskStatus.COMPLETED -> "Completed"
+        TaskStatus.CANCELLED -> "Cancelled"
+        TaskStatus.REJECTED -> "Rejected"
+        TaskStatus.DRAFT -> "Draft"
     }
 
     Card(

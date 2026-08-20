@@ -24,13 +24,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
+import com.example.data.room.TaskStatus
 import com.example.ui.screens.taskflow.dummyCategories
 
 @Composable
 fun WorkerChatScreen(viewModel: HelperViewModel) {
     val allTasks by viewModel.allTasks.collectAsState()
-    val activeTasks = allTasks.filter { it.status == "accepted" || it.status == "completed" }
+    val activeTasks =
+        allTasks.filter { it.status.isActiveEngagement || it.status == TaskStatus.COMPLETED }
     var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
 
     if (selectedTask == null) {
@@ -268,7 +271,11 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 Spacer(modifier = Modifier.height(16.dp))
             }
             items(messages) { message ->
-                MessageBubble(text = message.text, isSender = message.senderId == "worker", time = "Just now")
+                MessageBubble(
+                    text = message.text,
+                    isSender = message.senderId == ChatRepository.SENDER_WORKER,
+                    time = "Just now"
+                )
             }
             item {
                 MessageBubble(text = "Hello! I saw your job request for ${task.descriptionTitle.ifEmpty { category }}. I'm available today.", isSender = false, time = "10:28 AM")

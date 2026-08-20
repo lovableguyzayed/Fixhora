@@ -1,59 +1,65 @@
 package com.example.data.repository
 
-import com.example.data.room.TaskDao
+import androidx.room.withTransaction
+import com.example.data.room.AppDatabase
 import com.example.data.room.TaskEntity
+import com.example.data.room.TaskStatus
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 
-class TaskRepository(private val taskDao: TaskDao) {
-    val completedTasks: Flow<List<TaskEntity>> = taskDao.getTasksByStatus("submitted")
-    val allTasks: Flow<List<TaskEntity>> = taskDao.getAllTasks()
+class TaskRepository(private val database: AppDatabase) {
 
-    suspend fun insertDummyData() {
-        val existingTasks = taskDao.getAllTasks().first()
-        if (existingTasks.size < 50) {
-            val categories = listOf("repairs", "cleaning", "moving", "tech", "errands", "painting", "car", "tutoring", "more")
-            val locations = listOf("New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "Phoenix, AZ")
-            for (i in 1..100) {
-                val cat = categories[i % categories.size]
-                val task = TaskEntity(
-                    status = "submitted",
-                    categoryId = cat,
-                    locationQuery = locations[i % locations.size],
-                    useCurrentLocation = i % 2 == 0,
-                    selectedDistance = (i % 50) + 5,
-                    descriptionTitle = "Urgent $cat needed",
-                    descriptionDetails = "This is a detailed description for test task $i. I need some help with $cat right away.",
-                    minBudget = "${(i % 10) * 10 + 20}",
-                    maxBudget = "${(i % 10) * 10 + 100}",
-                    photoUris = ""
-                )
-                taskDao.insertTask(task)
-            }
-        }
+  private val taskDao = database.taskDao()
+
+  /** Tasks a helper can still pick up. */
+  val openTasks: Flow<List<TaskEntity>> = taskDao.getTasksByStatus(TaskStatus.SUBMITTED)
+
+  /** Every posted task, in any state. Drafts stay private to their author. */
+  val allPostedTasks: Flow<List<TaskEntity>> = taskDao.getAllPostedTasks()
+
+  suspend fun getDraftTask(ownerId: String): TaskEntity? = taskDao.getDraftTask(ownerId)
+
+  /**
+   * Writes the in-progress draft, replacing the owner's previous one.
+   *
+   * Read-then-write runs inside a transaction so that two rapid autosaves cannot both miss the
+   * existing draft and leave two rows behind.
+   */
+  suspend fun saveDraft(task: TaskEntity) {
+    database.withTransaction {
+      val existing = taskDao.getDraftTask(task.ownerId)
+      val draft = task.copy(status = TaskStatus.DRAFT)
+      if (existing == null) {
+        taskDao.insertTask(draft)
+      } else {
+        taskDao.updateTask(draft.copy(id = existing.id, createdAt = existing.createdAt))
+      }
     }
+  }
 
-    suspend fun getDraftTask(): TaskEntity? = taskDao.getDraftTask()
-
-    suspend fun saveDraft(task: TaskEntity) {
-        val existingDraft = taskDao.getDraftTask()
-        if (existingDraft != null) {
-            taskDao.updateTask(task.copy(id = existingDraft.id))
-        } else {
-            taskDao.insertTask(task)
-        }
+  /**
+   * Posts the task.
+   *
+   * The draft row is promoted in place rather than copied to a new row and deleted, so there is no
+   * window in which the task exists twice, and no way for a failure between the two writes to
+   * leave an orphaned draft behind.
+   */
+  suspend fun submitTask(task: TaskEntity) {
+    database.withTransaction {
+      val existing = taskDao.getDraftTask(task.ownerId)
+      val posted = task.copy(status = TaskStatus.SUBMITTED)
+      if (existing == null) {
+        taskDao.insertTask(posted.copy(createdAt = System.currentTimeMillis()))
+      } else {
+        taskDao.updateTask(posted.copy(id = existing.id, createdAt = System.currentTimeMillis()))
+      }
     }
+  }
 
-    suspend fun submitTask(task: TaskEntity) {
-        taskDao.insertTask(task.copy(status = "submitted"))
-        // Delete the draft after submission
-        val draft = taskDao.getDraftTask()
-        if (draft != null) {
-            taskDao.deleteTaskById(draft.id)
-        }
-    }
+  suspend fun discardDraft(ownerId: String) {
+    database.withTransaction { taskDao.getDraftTask(ownerId)?.let { taskDao.deleteTaskById(it.id) } }
+  }
 
-    suspend fun updateTaskStatus(task: TaskEntity, newStatus: String) {
-        taskDao.updateTask(task.copy(status = newStatus))
-    }
+  suspend fun updateTaskStatus(task: TaskEntity, newStatus: TaskStatus) {
+    taskDao.updateTask(task.copy(status = newStatus))
+  }
 }

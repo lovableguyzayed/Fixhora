@@ -49,7 +49,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
     
     val application = LocalContext.current.applicationContext as FixhoraApplication
     val viewModel: TaskViewModel = viewModel(
-        factory = TaskViewModel.Factory(application.taskRepository)
+        factory = TaskViewModel.Factory(application.taskRepository, application.sessionManager)
     )
     
     Scaffold(
