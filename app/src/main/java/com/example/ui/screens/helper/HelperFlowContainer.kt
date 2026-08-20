@@ -87,23 +87,15 @@ fun HelperFlowContainer(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                if (screen == HelperScreen.Chat) {
-                                    BadgedBox(badge = { Badge { Text("3") } }) {
-                                        Icon(
-                                            screen.icon,
-                                            contentDescription = screen.title,
-                                            tint = if (isSelected) FixTheme.colors.primary else com.example.ui.theme.FixTheme.colors.textSecondary,
-                                            modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                                        )
-                                    }
-                                } else {
-                                    Icon(
-                                        screen.icon,
-                                        contentDescription = screen.title,
-                                        tint = if (isSelected) FixTheme.colors.primary else com.example.ui.theme.FixTheme.colors.textSecondary,
-                                        modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                                    )
-                                }
+                                // The Chat tab carried a hardcoded "3" badge. Nothing records
+                                // whether a message has been read, so there is no unread count to
+                                // show and the number was pure decoration.
+                                Icon(
+                                    screen.icon,
+                                    contentDescription = screen.title,
+                                    tint = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textSecondary,
+                                    modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
+                                )
                                 if (isSelected) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
@@ -125,17 +117,28 @@ fun HelperFlowContainer(
             startDestination = HelperScreen.Home.route,
             modifier = Modifier.padding(paddingValues)
         ) {
+            // Asking a question about a job jumps to the Chat tab with that conversation open,
+            // which is what makes the "Chat" action on a job card lead somewhere.
+            fun openChat(taskId: Int) {
+                viewModel.requestChat(taskId)
+                navController.navigate(HelperScreen.Chat.route) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+
             composable(HelperScreen.Home.route) {
-                WorkerHomeScreen(viewModel = viewModel)
+                WorkerHomeScreen(viewModel = viewModel, onOpenChat = ::openChat)
             }
             composable(HelperScreen.Map.route) {
-                WorkerMapScreen(viewModel = viewModel)
+                WorkerMapScreen(viewModel = viewModel, onOpenChat = ::openChat)
             }
             composable(HelperScreen.Chat.route) {
                 WorkerChatScreen(viewModel = viewModel)
             }
             composable(HelperScreen.Tasks.route) {
-                WorkerTasksScreen(viewModel = viewModel)
+                WorkerTasksScreen(viewModel = viewModel, onOpenChat = ::openChat)
             }
         }
     }

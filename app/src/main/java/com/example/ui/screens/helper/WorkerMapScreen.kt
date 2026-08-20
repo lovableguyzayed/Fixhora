@@ -1,456 +1,188 @@
 package com.example.ui.screens.helper
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.room.TaskEntity
+import com.example.ui.components.EmptyState
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 
+/**
+ * Browse open jobs by category.
+ *
+ * This was a fake map: markers were placed at fixed screen offsets with `index * 20.dp` spacing,
+ * each labelled with a budget or the word "Bid", and every one flagged urgent by
+ * `val isUrgent = true // Mock logic`. None of that reflected where anything actually was. There
+ * is no maps SDK in this build, so the screen now does the thing it can genuinely do — filter the
+ * open jobs — and says plainly that the map itself is not here yet.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerMapScreen(viewModel: HelperViewModel) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("All") }
-    val tasks by viewModel.availableTasks.collectAsState()
-    
-    var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
-    var showBidSheet by remember { mutableStateOf(false) }
-
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1500)
-        isLoading = false
-    }
-
-    val categories = listOf("All", "🔥 Trending", "⭐ Recommended", "🛠 Electrician", "🚰 Plumber", "🎨 Painter", "🧹 Cleaner", "🔧 Mechanic")
+fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
+    val tasks by viewModel.mapTasks.collectAsState()
+    val query by viewModel.mapQuery.collectAsState()
+    val selectedCategoryId by viewModel.mapCategoryId.collectAsState()
+    val ownerNames by viewModel.ownerNames.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Interactive Map View", fontWeight = FontWeight.SemiBold) },
-                actions = {
-                    IconButton(onClick = { /* Open Filters */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filters", tint = FixTheme.colors.textPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                title = { Text("Browse jobs", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
         },
-        floatingActionButton = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.End,
-                modifier = Modifier.padding(bottom = 80.dp) // padding to avoid bottom navigation overlapping
-            ) {
-                FloatingActionButton(
-                    onClick = { /* Refresh */ },
-                    containerColor = FixTheme.colors.surface,
-                    contentColor = FixTheme.colors.textPrimary,
-                    shape = CircleShape,
-                    elevation = FloatingActionButtonDefaults.elevation(4.dp)
-                ) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Refresh Nearby Jobs")
-                }
-                FloatingActionButton(
-                    onClick = { /* Current Location */ },
-                    containerColor = FixTheme.colors.primary,
-                    contentColor = FixTheme.colors.onPrimary,
-                    shape = CircleShape,
-                    elevation = FloatingActionButtonDefaults.elevation(4.dp)
-                ) {
-                    Icon(Icons.Default.MyLocation, contentDescription = "Current Location")
-                }
-            }
-        }
+        containerColor = FixTheme.colors.surfaceAlt
     ) { paddingValues ->
-        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            // Mock Map Background
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(FixTheme.colors.surfaceAlt) // Light grey map placeholder
-            ) {
-                // Placeholder map grid lines or text
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(100.dp), tint = FixTheme.colors.textSecondary.copy(alpha = 0.3f))
-                    Text("Interactive Map View", color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Bold)
-                }
-
-                // Mock Markers
-                if (isLoading) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = FixTheme.colors.primary)
-                    }
-                } else if (tasks.isNotEmpty()) {
-                    // Dummy positions for markers
-                    val positions = listOf(
-                        Alignment.TopStart, Alignment.TopEnd, Alignment.CenterStart, Alignment.CenterEnd, Alignment.BottomStart
-                    )
-                    
-                    tasks.take(5).forEachIndexed { index, task ->
-                        Box(
-                            modifier = Modifier
-                                .align(positions[index % positions.size])
-                                .padding(top = 100.dp, bottom = 100.dp, start = 40.dp, end = 40.dp)
-                                .offset(
-                                    x = (index * 20).dp,
-                                    y = (index * 30).dp
-                                )
-                        ) {
-                            MapMarker(
-                                task = task,
-                                onClick = { selectedTask = task }
-                            )
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = viewModel::onMapQueryChange,
+                placeholder = { Text("Search open jobs") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.onMapQueryChange("") }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear search")
                         }
                     }
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = FixTheme.colors.border,
+                    focusedBorderColor = FixTheme.colors.primary,
+                    unfocusedContainerColor = FixTheme.colors.surface,
+                    focusedContainerColor = FixTheme.colors.surface
+                )
+            )
+
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    CategoryChip(
+                        label = "All",
+                        selected = selectedCategoryId == null,
+                        onClick = { viewModel.onMapCategorySelected(null) }
+                    )
+                }
+                // Real categories, the same list the customer picks from, instead of the invented
+                // "🔥 Trending / ⭐ Recommended / 🛠 Electrician" chips that matched nothing.
+                items(dummyCategories) { category ->
+                    CategoryChip(
+                        label = category.title,
+                        selected = selectedCategoryId == category.id,
+                        onClick = { viewModel.onMapCategorySelected(category.id) }
+                    )
                 }
             }
 
-            // Top UI Area
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search jobs...") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.Mic, contentDescription = "Voice Search") },
-                        modifier = Modifier
-                            .weight(1f)
-                            .shadow(2.dp, RoundedCornerShape(24.dp))
-                            .background(FixTheme.colors.surface, RoundedCornerShape(24.dp)),
-                        shape = RoundedCornerShape(24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = FixTheme.colors.surface,
-                            unfocusedContainerColor = FixTheme.colors.surface,
-                            focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent
-                        ),
-                        singleLine = true
+            MapPreviewNotice()
+
+            if (tasks.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    EmptyState(
+                        icon = Icons.Default.SearchOff,
+                        title = if (query.isNotBlank() || selectedCategoryId != null) {
+                            "No open jobs match"
+                        } else {
+                            "No open jobs right now"
+                        },
+                        description = if (query.isNotBlank() || selectedCategoryId != null) {
+                            "Try another category, or clear the filters."
+                        } else {
+                            "New requests appear here as soon as customers post them."
+                        },
+                        actionText = if (query.isNotBlank() || selectedCategoryId != null) "Clear filters" else null,
+                        onAction = if (query.isNotBlank() || selectedCategoryId != null) {
+                            {
+                                viewModel.onMapQueryChange("")
+                                viewModel.onMapCategorySelected(null)
+                            }
+                        } else null
                     )
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(categories) { category ->
-                        FilterChip(
-                            selected = selectedCategory == category,
-                            onClick = { selectedCategory = category },
-                            label = { Text(category, fontWeight = FontWeight.Medium) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = FixTheme.colors.primary,
-                                selectedLabelColor = FixTheme.colors.onPrimary
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                enabled = true,
-                                selected = selectedCategory == category,
-                                borderColor = if (selectedCategory == category) FixTheme.colors.primary else FixTheme.colors.border
-                            )
+            } else {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(tasks, key = { it.id }) { task ->
+                        WorkerJobCard(
+                            task = task,
+                            posterName = posterLabel(task.ownerId, ownerNames),
+                            onAccept = { viewModel.acceptTask(task) },
+                            onDecline = { viewModel.rejectTask(task) },
+                            onMessage = { onOpenChat(task.id) }
                         )
                     }
                 }
             }
         }
-
-        // Job Details Bottom Sheet
-        if (selectedTask != null && !showBidSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { selectedTask = null },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
-            ) {
-                JobDetailsContent(
-                    task = selectedTask!!,
-                    onPlaceBidClick = { showBidSheet = true },
-                    onAcceptClick = { 
-                        viewModel.acceptTask(selectedTask!!)
-                        selectedTask = null 
-                    },
-                    onChatClick = { /* Chat */ }
-                )
-            }
-        }
-
-        // Place Bid Bottom Sheet
-        if (showBidSheet && selectedTask != null) {
-            ModalBottomSheet(
-                onDismissRequest = { showBidSheet = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-            ) {
-                PlaceBidContent(
-                    task = selectedTask!!,
-                    onSubmit = { 
-                        viewModel.acceptTask(selectedTask!!) // Treating a placed bid as accepting for now for demo purposes
-                        showBidSheet = false
-                        selectedTask = null 
-                    },
-                    onCancel = { showBidSheet = false }
-                )
-            }
-        }
     }
 }
 
 @Composable
-fun MapMarker(task: TaskEntity, onClick: () -> Unit) {
-    val isUrgent = true // Mock logic
-    val markerColor = if (isUrgent) FixTheme.colors.accentGraphic else FixTheme.colors.primary
-    
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
+private fun CategoryChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) },
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = FixTheme.colors.primary,
+            selectedLabelColor = FixTheme.colors.onPrimary,
+            containerColor = FixTheme.colors.surface,
+            labelColor = FixTheme.colors.textPrimary
+        ),
+        border = FilterChipDefaults.filterChipBorder(
+            enabled = true,
+            selected = selected,
+            borderColor = if (selected) FixTheme.colors.primary else FixTheme.colors.border
+        )
+    )
+}
+
+/** Says outright that the map is missing, rather than drawing something that looks like one. */
+@Composable
+private fun MapPreviewNotice() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .background(FixTheme.colors.infoSurface, RoundedCornerShape(12.dp))
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .background(markerColor, RoundedCornerShape(12.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Bid",
-                color = FixTheme.colors.surface,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp
-            )
-        }
         Icon(
-            imageVector = Icons.Default.LocationOn,
+            Icons.Default.Map,
             contentDescription = null,
-            tint = markerColor,
-            modifier = Modifier.size(32.dp).offset(y = (-4).dp)
+            tint = FixTheme.colors.info,
+            modifier = Modifier.size(20.dp)
         )
-    }
-}
-
-@Composable
-fun JobDetailsContent(
-    task: TaskEntity,
-    onPlaceBidClick: () -> Unit,
-    onAcceptClick: () -> Unit,
-    onChatClick: () -> Unit
-) {
-    val category = dummyCategories.find { it.id == task.categoryId } ?: dummyCategories.first()
-    
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 24.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier.size(48.dp).clip(CircleShape).background(FixTheme.colors.border),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Customer Name", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.Verified, contentDescription = "Verified", tint = FixTheme.colors.primary, modifier = Modifier.size(16.dp))
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("4.8", fontSize = 14.sp, color = FixTheme.colors.textSecondary)
-                    }
-                }
-            }
-            Surface(
-                color = FixTheme.colors.accentGraphic.copy(alpha = 0.1f),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Urgent", color = FixTheme.colors.accentGraphic, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = task.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            color = FixTheme.colors.textPrimary
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task as soon as possible." },
-            color = FixTheme.colors.textSecondary,
-            fontSize = 16.sp,
-            lineHeight = 24.sp
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            JobDetailItem(icon = Icons.Default.LocationOn, title = "Distance", value = "2.5 km away")
-            JobDetailItem(icon = Icons.Default.AccessTime, title = "Posted", value = "10 mins ago")
-            JobDetailItem(
-                icon = Icons.Default.AccountBalanceWallet,
-                title = "Budget",
-                value = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Negotiable",
-                valueColor = FixTheme.colors.textPrimary,
-                valueWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Button(
-                onClick = onAcceptClick,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
-            ) {
-                Text("Accept Job", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-            Button(
-                onClick = onPlaceBidClick,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.textPrimary)
-            ) {
-                Text("Place Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            TextButton(onClick = onChatClick) {
-                Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Chat with Customer", fontSize = 16.sp, fontWeight = FontWeight.Medium)
-            }
-        }
-    }
-}
-
-@Composable
-fun JobDetailItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    value: String,
-    valueColor: Color = FixTheme.colors.textSecondary,
-    valueWeight: FontWeight = FontWeight.Medium
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier.size(36.dp).background(FixTheme.colors.surfaceAlt, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = FixTheme.colors.primary, modifier = Modifier.size(18.dp))
-        }
         Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(title, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
-            Text(value, fontSize = 14.sp, color = valueColor, fontWeight = valueWeight)
-        }
-    }
-}
-
-@Composable
-fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit) {
-    var bidAmount by remember { mutableStateOf("") }
-    var estimatedTime by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 24.dp)
-    ) {
-        Text("Place Bid", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Submit a competitive bid for this task.", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        OutlinedTextField(
-            value = bidAmount,
-            onValueChange = { bidAmount = it },
-            label = { Text("Bid Amount (₹)") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
+        Text(
+            text = "Map view isn't available yet — jobs are listed by category for now.",
+            fontSize = 13.sp,
+            color = FixTheme.colors.textPrimary,
+            textAlign = TextAlign.Start
         )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        OutlinedTextField(
-            value = estimatedTime,
-            onValueChange = { estimatedTime = it },
-            label = { Text("Estimated Completion Time") },
-            placeholder = { Text("e.g., 2 hours, Today at 5 PM") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        OutlinedTextField(
-            value = message,
-            onValueChange = { message = it },
-            label = { Text("Message to Customer (Optional)") },
-            placeholder = { Text("I have 5 years of experience...") },
-            modifier = Modifier.fillMaxWidth().height(100.dp),
-            shape = RoundedCornerShape(12.dp),
-            maxLines = 4
-        )
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Cancel", fontSize = 16.sp)
-            }
-            Button(
-                onClick = onSubmit,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
-            ) {
-                Text("Submit Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            }
-        }
     }
 }

@@ -1,5 +1,25 @@
 # Changelog
 
+## Batch 6 — Worker screens: honest & functional
+
+Every number on the worker dashboard was invented, and most of its controls did nothing.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `TaskFilters.kt`: `TaskTab` enum, search matching, `HelperStats` | The tabs were strings matched in a `when` that ended `else -> false`, so "In Progress" and "Cancelled" could never show anything, and a "Pending" tab existed for a status no task ever had. | Low. Covered by `TaskFiltersTest`. |
+| New `WorkerFormatting.kt`: relative time, poster name, budget, location | Replaces strings that were printed regardless of the data behind them. | Low. Covered by `WorkerFormattingTest`. |
+| `HelperViewModel` derives stats, search and filter state from the database | The screens held their own `remember` state, so a typed query had nowhere to go. | Medium. |
+| **Removed the "Performance Overview" card** | ₹1,250 earnings, 142 jobs completed, a 4.9★ rating, "< 5m" response time and 95/98/96% rings — none had any data behind it. Payments, ratings and response times are not tracked. Replaced with three counts the app can prove: open nearby, active, completed. | Low. |
+| Summary tiles (3/1/2/5/0) now count real statuses | The five numbers were literals. | Low. |
+| Job cards show the real poster, age, address and budget | Each card read "Customer Name" with a verified tick and a 4.8 rating, "10 mins ago", and "2.5 km away" for anything posted with the location switch on. Distance needs the helper's own position, which is not tracked, so the address is shown instead. | Low. |
+| Search wired on Tasks, Chat and Browse | All three accepted typing and filtered nothing. | Low. |
+| "Chat" on a job card opens that conversation | It was an empty lambda. It now switches to the Chat tab with the thread open. | Medium. New cross-tab navigation. |
+| "Navigate" opens a `geo:` intent | Was an empty lambda. Needs no API key and works with any installed maps app; a device with none is a no-op, not a crash. | Low. |
+| Task actions follow the real lifecycle | Accept → Start → Done, each writing a real status. `startTask` finally has a control, so the "In Progress" tab can populate. | Low. |
+| **Removed:** "Place Bid" / "Submit Proposal", top-bar Search/Filter/Sort, notification bell + "2" badge, Chat tab "3" badge, online/offline pill, Call, More, Attach, voice note, "0 bids", "Urgent" | None was implemented. Bidding, notifications, presence and read receipts do not exist in this app; the badges were literals. | Medium. Visible controls disappear. |
+| The Map tab became a category browser | Markers sat at fixed screen offsets (`index * 20.dp`) with `val isUrgent = true // Mock logic`, presented as geography. There is no maps SDK, so the screen now filters real jobs and says plainly that the map is not available yet. | Medium. Largest visual change. |
+| Chat: no more injected greeting; real timestamps; empty state | Every conversation opened with a fabricated "Hello! I saw your job request…" attributed to the customer, and every message read "Just now". | Low. |
+
 ## Launcher icon fix
 
 The app had no launcher icon, despite a full icon set being in the repository.

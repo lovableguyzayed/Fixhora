@@ -220,7 +220,11 @@ fun FixhoraApp() {
       val helperViewModel: HelperViewModel =
         viewModel(
           factory =
-            HelperViewModel.Factory(application.taskRepository, application.chatRepository)
+            HelperViewModel.Factory(
+              application.taskRepository,
+              application.chatRepository,
+              application.userRepository,
+            )
         )
       HelperFlowContainer(
         onBackToRoles = { navController.popBackStack() },

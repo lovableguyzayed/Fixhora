@@ -1,12 +1,11 @@
 package com.example.ui.screens.helper
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
@@ -16,83 +15,78 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.*
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.ui.components.EmptyState
 import com.example.ui.components.StatusBadge
 import com.example.ui.components.StatusTone
 import com.example.ui.screens.taskflow.dummyCategories
+import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerTasksScreen(viewModel: HelperViewModel) {
+fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
+    val tasks by viewModel.filteredTasks.collectAsState()
+    val query by viewModel.taskQuery.collectAsState()
+    val selectedTab by viewModel.selectedTab.collectAsState()
     val allTasks by viewModel.allTasks.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
-    // "Pending" was dropped: no task ever carried that status, so the tab was always empty.
-    val tabs = listOf("All Tasks", "New Requests", "Accepted", "In Progress", "Completed", "Cancelled")
-    var selectedTab by remember { mutableStateOf("All Tasks") }
+    val ownerNames by viewModel.ownerNames.collectAsState()
+    val context = LocalContext.current
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt),
         topBar = {
             TopAppBar(
-                title = { Text("My Tasks", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
-                actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = FixTheme.colors.textPrimary)
-                    }
-                    IconButton(onClick = { /* Filter */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = FixTheme.colors.textPrimary)
-                    }
-                    IconButton(onClick = { /* Sort */ }) {
-                        Icon(Icons.Default.Sort, contentDescription = "Sort", tint = FixTheme.colors.textPrimary)
-                    }
-                },
+                title = { Text("My tasks", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+                // The Search / Filter / Sort icons are gone. Search is the field below, and
+                // neither filter nor sort was ever implemented.
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
-        }
+        },
+        containerColor = FixTheme.colors.surfaceAlt
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).background(FixTheme.colors.surfaceAlt)) {
-            // Search Bar
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { Text("Search tasks, customers, locations...", color = FixTheme.colors.textSecondary, fontSize = 14.sp) },
+                value = query,
+                onValueChange = viewModel::onTaskQueryChange,
+                placeholder = { Text("Search by title, address or category") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.onTaskQueryChange("") }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear search")
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(24.dp),
+                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = FixTheme.colors.border,
                     focusedBorderColor = FixTheme.colors.primary,
                     unfocusedContainerColor = FixTheme.colors.surface,
                     focusedContainerColor = FixTheme.colors.surface
-                ),
-                singleLine = true
+                )
             )
 
-            // Tabs
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(tabs) { tab ->
+                items(TaskTab.entries.toList()) { tab ->
                     val isSelected = selectedTab == tab
+                    val count =
+                        if (tab.status == null) allTasks.size else allTasks.count { it.status == tab.status }
                     FilterChip(
                         selected = isSelected,
-                        onClick = { selectedTab = tab },
+                        onClick = { viewModel.onTabSelected(tab) },
                         label = {
                             Text(
-                                text = if (tab == "All Tasks") "$tab (${allTasks.size})" else tab,
+                                text = "${tab.label} ($count)",
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
@@ -111,32 +105,25 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                 }
             }
 
-            // Task List
-            val filteredTasks = if (selectedTab == "All Tasks") allTasks else allTasks.filter {
-                when (selectedTab) {
-                    "New Requests" -> it.status == TaskStatus.SUBMITTED
-                    "Accepted" -> it.status == TaskStatus.ACCEPTED
-                    "In Progress" -> it.status == TaskStatus.IN_PROGRESS
-                    "Completed" -> it.status == TaskStatus.COMPLETED
-                    "Cancelled" -> it.status == TaskStatus.CANCELLED
-                    else -> false
-                }
-            }
-
-            if (filteredTasks.isEmpty()) {
+            if (tasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
                         icon = Icons.AutoMirrored.Filled.Assignment,
-                        title = if (selectedTab == "All Tasks") {
-                            "No tasks yet"
-                        } else {
-                            "Nothing in \"$selectedTab\""
+                        title = when {
+                            query.isNotBlank() -> "Nothing matches \"$query\""
+                            selectedTab == TaskTab.ALL -> "No tasks yet"
+                            else -> "Nothing in \"${selectedTab.label}\""
                         },
-                        description = if (selectedTab == "All Tasks") {
-                            "New customer requests will appear here as soon as they are posted."
-                        } else {
-                            "Tasks move here as their status changes."
-                        }
+                        description = when {
+                            query.isNotBlank() -> "Try a different word, or clear the search."
+                            selectedTab == TaskTab.ALL ->
+                                "Customer requests appear here as soon as they are posted."
+                            else -> "Tasks move here as their status changes."
+                        },
+                        actionText = if (query.isNotBlank()) "Clear search" else null,
+                        onAction = if (query.isNotBlank()) {
+                            { viewModel.onTaskQueryChange("") }
+                        } else null
                     )
                 }
             } else {
@@ -145,11 +132,16 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredTasks) { task ->
+                    items(tasks, key = { it.id }) { task ->
                         WorkerTaskCard(
                             task = task,
+                            posterName = posterLabel(task.ownerId, ownerNames),
                             onAccept = { viewModel.acceptTask(task) },
-                            onReject = { viewModel.rejectTask(task) }
+                            onDecline = { viewModel.rejectTask(task) },
+                            onStart = { viewModel.startTask(task) },
+                            onComplete = { viewModel.completeTask(task) },
+                            onChat = { onOpenChat(task.id) },
+                            onNavigate = { context.openDirectionsTo(task) }
                         )
                     }
                 }
@@ -158,96 +150,98 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
     }
 }
 
-// Map TaskEntity to display format
+/**
+ * Hands the address to whatever maps app the device has.
+ *
+ * The "Navigate" button used to do nothing. A `geo:` intent needs no API key and works with any
+ * installed maps app; if there is none, the tap is a no-op rather than a crash.
+ */
+private fun android.content.Context.openDirectionsTo(task: TaskEntity) {
+    val destination =
+        when {
+            task.latitude != null && task.longitude != null ->
+                "geo:${task.latitude},${task.longitude}?q=${Uri.encode(task.locationQuery.ifBlank { "Task location" })}"
+            task.locationQuery.isNotBlank() -> "geo:0,0?q=${Uri.encode(task.locationQuery)}"
+            else -> return
+        }
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(destination)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    if (intent.resolveActivity(packageManager) != null) startActivity(intent)
+}
+
 @Composable
-fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit) {
-    val category = dummyCategories.find { it.id == task.categoryId }?.title ?: "General Service"
-    val budgetText = if (task.minBudget.isNotBlank() && task.maxBudget.isNotBlank()) "₹${task.minBudget} - ₹${task.maxBudget}" else if (task.minBudget.isNotBlank()) "Min ₹${task.minBudget}" else if (task.maxBudget.isNotBlank()) "Max ₹${task.maxBudget}" else "Budget Negotiable"
-    val displayStatus = when (task.status) {
-        TaskStatus.SUBMITTED -> "New"
-        TaskStatus.ACCEPTED -> "Accepted"
-        TaskStatus.IN_PROGRESS -> "In Progress"
-        TaskStatus.COMPLETED -> "Completed"
-        TaskStatus.CANCELLED -> "Cancelled"
-        TaskStatus.REJECTED -> "Rejected"
-        TaskStatus.DRAFT -> "Draft"
-    }
+fun WorkerTaskCard(
+    task: TaskEntity,
+    posterName: String,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onStart: () -> Unit,
+    onComplete: () -> Unit,
+    onChat: () -> Unit,
+    onNavigate: () -> Unit
+) {
+    val category = dummyCategories.find { it.id == task.categoryId }
+    val postedAgo = relativeTimeLabel(task.createdAt, System.currentTimeMillis())
 
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { /* View Details */ },
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header: Customer Info & Status
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier.size(48.dp).clip(CircleShape).background(FixTheme.colors.border),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary)
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FixTheme.colors.textPrimary)
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = "Rating", tint = FixTheme.colors.accentGraphic, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("New User", fontSize = 12.sp, color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
-                            Text(" • Just now", fontSize = 12.sp, color = FixTheme.colors.textSecondary)
-                        }
-                    }
-                }
-                
-                Column(horizontalAlignment = Alignment.End) {
-                    StatusBadge(
-                        text = displayStatus,
-                        tone = when (task.status) {
-                            TaskStatus.SUBMITTED -> StatusTone.SUCCESS
-                            TaskStatus.ACCEPTED -> StatusTone.INFO
-                            TaskStatus.IN_PROGRESS -> StatusTone.WARNING
-                            TaskStatus.COMPLETED -> StatusTone.SUCCESS
-                            TaskStatus.CANCELLED, TaskStatus.REJECTED -> StatusTone.DANGER
-                            TaskStatus.DRAFT -> StatusTone.NEUTRAL
-                        }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        posterName,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = FixTheme.colors.textPrimary
                     )
+                    Text(postedAgo, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
                 }
+                StatusBadge(text = task.status.displayLabel(), tone = task.status.tone())
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Job Details
-            Text(task.descriptionTitle.ifEmpty { "Need Help with $category" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = FixTheme.colors.textPrimary)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task." },
-                fontSize = 14.sp,
-                color = FixTheme.colors.textSecondary,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Job Metadata Grid
+            Text(
+                task.descriptionTitle.ifBlank { category?.title ?: "Untitled request" },
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = FixTheme.colors.textPrimary
+            )
+            if (task.descriptionDetails.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    task.descriptionDetails,
+                    fontSize = 14.sp,
+                    color = FixTheme.colors.textSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    TaskMetaRow(Icons.Default.Category, category)
+                    TaskMetaRow(Icons.Default.Category, category?.title ?: "Uncategorised")
                     Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(Icons.Default.LocationOn, if (task.useCurrentLocation) "Current Location" else task.locationQuery.ifEmpty { "Not specified" })
+                    TaskMetaRow(
+                        Icons.Default.LocationOn,
+                        locationLabel(task.locationQuery, task.latitude != null)
+                    )
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    TaskMetaRow(Icons.Default.AccountBalanceWallet, budgetText)
+                    TaskMetaRow(
+                        Icons.Default.AccountBalanceWallet,
+                        budgetLabel(task.minBudget, task.maxBudget)
+                    )
                     Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(Icons.Default.Schedule, "ASAP")
+                    TaskMetaRow(Icons.Default.MyLocation, "Within ${task.selectedDistance} km")
                 }
             }
 
@@ -255,61 +249,113 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
             HorizontalDivider(color = FixTheme.colors.border)
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Actions based on status
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (displayStatus == "New") {
-                    Text("0 bids", fontSize = 12.sp, color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
-                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.weight(1f)) {
+            // Each state offers only actions that actually do something in this build.
+            when (task.status) {
+                TaskStatus.SUBMITTED ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         OutlinedButton(
-                            onClick = onReject,
+                            onClick = onDecline,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.danger),
-                            modifier = Modifier.weight(1f).padding(end = 8.dp)
-                        ) {
-                            Text("Reject", fontWeight = FontWeight.Bold)
-                        }
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border),
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Decline", fontWeight = FontWeight.SemiBold) }
                         Button(
                             onClick = onAccept,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = FixTheme.colors.primary,
+                                contentColor = FixTheme.colors.onPrimary
+                            ),
                             modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Accept", fontWeight = FontWeight.Bold)
-                        }
+                        ) { Text("Accept", fontWeight = FontWeight.Bold) }
                     }
-                } else if (displayStatus == "Accepted") {
-                    TextButton(onClick = { /* Chat */ }) {
-                        Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Chat")
-                    }
-                    Button(
-                        onClick = { /* Navigate / Start */ },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
+
+                TaskStatus.ACCEPTED ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(16.dp))
+                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat, Modifier.weight(1f))
+                        CardAction(Icons.Default.Navigation, "Directions", onNavigate, Modifier.weight(1f))
+                        Button(
+                            onClick = onStart,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = FixTheme.colors.primary,
+                                contentColor = FixTheme.colors.onPrimary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Start", fontWeight = FontWeight.Bold) }
+                    }
+
+                TaskStatus.IN_PROGRESS ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat, Modifier.weight(1f))
+                        CardAction(Icons.Default.Navigation, "Directions", onNavigate, Modifier.weight(1f))
+                        Button(
+                            onClick = onComplete,
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = FixTheme.colors.success,
+                                contentColor = FixTheme.colors.onPrimary
+                            ),
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Done", fontWeight = FontWeight.Bold) }
+                    }
+
+                TaskStatus.COMPLETED ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = FixTheme.colors.success,
+                            modifier = Modifier.size(18.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Navigate", fontWeight = FontWeight.Bold)
+                        Text(
+                            "Finished",
+                            color = FixTheme.colors.success,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat)
                     }
-                } else {
-                    TextButton(onClick = { /* Details */ }) {
-                        Text("View Details")
-                    }
-                    Button(
-                        onClick = { /* Place Bid */ },
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
-                    ) {
-                        Text("Place Bid", fontWeight = FontWeight.Bold)
-                    }
-                }
+
+                else ->
+                    Text(
+                        "No actions available for this task.",
+                        fontSize = 13.sp,
+                        color = FixTheme.colors.textSecondary
+                    )
             }
         }
+    }
+}
+
+@Composable
+private fun CardAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    TextButton(onClick = onClick, modifier = modifier) {
+        Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = FixTheme.colors.primary)
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(label, color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
     }
 }
 
@@ -318,6 +364,33 @@ fun TaskMetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Str
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, tint = FixTheme.colors.textSecondary, modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = FixTheme.colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            text,
+            fontSize = 12.sp,
+            color = FixTheme.colors.textPrimary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
+
+fun TaskStatus.displayLabel(): String =
+    when (this) {
+        TaskStatus.DRAFT -> "Draft"
+        TaskStatus.SUBMITTED -> "New"
+        TaskStatus.ACCEPTED -> "Accepted"
+        TaskStatus.IN_PROGRESS -> "In progress"
+        TaskStatus.COMPLETED -> "Completed"
+        TaskStatus.CANCELLED -> "Cancelled"
+        TaskStatus.REJECTED -> "Declined"
+    }
+
+fun TaskStatus.tone(): StatusTone =
+    when (this) {
+        TaskStatus.SUBMITTED -> StatusTone.INFO
+        TaskStatus.ACCEPTED -> StatusTone.WARNING
+        TaskStatus.IN_PROGRESS -> StatusTone.WARNING
+        TaskStatus.COMPLETED -> StatusTone.SUCCESS
+        TaskStatus.CANCELLED, TaskStatus.REJECTED -> StatusTone.DANGER
+        TaskStatus.DRAFT -> StatusTone.NEUTRAL
+    }
