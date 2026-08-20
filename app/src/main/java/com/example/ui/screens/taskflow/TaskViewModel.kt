@@ -1,8 +1,10 @@
 package com.example.ui.screens.taskflow
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
@@ -16,6 +18,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/** Where a "Post Task" press has got to. Navigation waits on [SUCCESS]. */
+enum class SubmitState {
+  IDLE,
+  SUBMITTING,
+  SUCCESS,
+  ERROR,
+}
 
 data class TaskDraftState(
   val categoryId: String? = null,
@@ -35,10 +45,17 @@ data class TaskDraftState(
 class TaskViewModel(
   private val repository: TaskRepository,
   private val sessionManager: SessionManager,
+  private val photoStore: TaskPhotoStore,
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow(TaskDraftState())
   val uiState: StateFlow<TaskDraftState> = _uiState.asStateFlow()
+
+  private val _submitState = MutableStateFlow(SubmitState.IDLE)
+  val submitState: StateFlow<SubmitState> = _submitState.asStateFlow()
+
+  private val _isImportingPhotos = MutableStateFlow(false)
+  val isImportingPhotos: StateFlow<Boolean> = _isImportingPhotos.asStateFlow()
 
   /** Whose draft this is. Null until the session has been read for the first time. */
   private var ownerId: String? = null
@@ -118,19 +135,36 @@ class TaskViewModel(
       }
   }
 
+  /**
+   * Posts the task and reports the outcome through [submitState].
+   *
+   * The screen navigates on [SubmitState.SUCCESS] rather than on the button press, so a failed
+   * write can no longer show the user a "Task posted successfully!" screen for a task that was
+   * never saved.
+   */
   fun submitTask() {
+    if (_submitState.value == SubmitState.SUBMITTING) return
     val currentState = _uiState.value
     // A debounced autosave still in flight would otherwise land after the draft has been
     // promoted and recreate it, leaving the user with a stale draft they never asked for.
     saveJob?.cancel()
+    _submitState.value = SubmitState.SUBMITTING
     viewModelScope.launch {
-      try {
-        repository.submitTask(toEntity(currentState, TaskStatus.SUBMITTED))
-        clearDraft()
-      } catch (e: Exception) {
-        e.printStackTrace()
-      }
+      _submitState.value =
+        try {
+          repository.submitTask(toEntity(currentState, TaskStatus.SUBMITTED))
+          clearDraft()
+          SubmitState.SUCCESS
+        } catch (e: Exception) {
+          e.printStackTrace()
+          SubmitState.ERROR
+        }
     }
+  }
+
+  /** Clears a failed submission so the user can correct something and try again. */
+  fun dismissSubmitError() {
+    if (_submitState.value == SubmitState.ERROR) _submitState.value = SubmitState.IDLE
   }
 
   fun updateCategory(categoryId: String) {
@@ -163,13 +197,40 @@ class TaskViewModel(
     saveDraft()
   }
 
-  fun addPhotoUri(uri: String) {
-    _uiState.update { if (uri in it.photoUris) it else it.copy(photoUris = it.photoUris + uri) }
-    saveDraft()
+  /**
+   * Copies picked photos into app storage and attaches the copies.
+   *
+   * Importing happens here rather than in the picker callback because copying is file I/O and the
+   * callback runs on the main thread.
+   */
+  fun importPhotos(uris: List<Uri>) {
+    if (uris.isEmpty()) return
+    viewModelScope.launch {
+      _isImportingPhotos.value = true
+      try {
+        val room = MAX_PHOTOS - _uiState.value.photoUris.size
+        uris.take(room.coerceAtLeast(0)).forEach { uri ->
+          photoStore.import(uri)?.let { stored ->
+            _uiState.update { it.copy(photoUris = it.photoUris + stored) }
+          }
+        }
+        saveDraft()
+      } finally {
+        _isImportingPhotos.value = false
+      }
+    }
   }
 
   fun removePhotoUri(uri: String) {
     _uiState.update { it.copy(photoUris = it.photoUris - uri) }
+    saveDraft()
+    // The stored copy is ours, so removing the thumbnail must reclaim the disk space too.
+    viewModelScope.launch { photoStore.delete(uri) }
+  }
+
+  /** Attaches an already-addressable image, used only by the debug sample-data shortcut. */
+  fun attachPhotoDirectly(uri: String) {
+    _uiState.update { if (uri in it.photoUris) it else it.copy(photoUris = it.photoUris + uri) }
     saveDraft()
   }
 
@@ -187,20 +248,53 @@ class TaskViewModel(
     _uiState.value = TaskDraftState()
   }
 
+  /** True once the user has entered anything worth warning them about losing. */
+  fun hasUnsavedContent(): Boolean =
+    with(_uiState.value) {
+      categoryId != null ||
+        locationQuery.isNotBlank() ||
+        descriptionTitle.isNotBlank() ||
+        descriptionDetails.isNotBlank() ||
+        minBudget.isNotBlank() ||
+        maxBudget.isNotBlank() ||
+        photoUris.isNotEmpty()
+    }
+
+  /** Abandons the draft: clears the form, deletes the row, and reclaims the copied photos. */
+  fun discardDraft() {
+    val photos = _uiState.value.photoUris
+    val owner = ownerId ?: TaskEntity.GUEST_OWNER_ID
+    saveJob?.cancel()
+    clearDraft()
+    viewModelScope.launch {
+      try {
+        repository.discardDraft(owner)
+        photoStore.deleteAll(photos)
+      } catch (e: Exception) {
+        e.printStackTrace()
+      }
+    }
+  }
+
   class Factory(
     private val repository: TaskRepository,
     private val sessionManager: SessionManager,
+    private val photoStore: TaskPhotoStore,
   ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
       if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-        return TaskViewModel(repository, sessionManager) as T
+        return TaskViewModel(repository, sessionManager, photoStore) as T
       }
       throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
   }
 
-  private companion object {
-    const val AUTOSAVE_DEBOUNCE_MS = 500L
+  companion object {
+    const val MAX_PHOTOS = 5
+    private const val AUTOSAVE_DEBOUNCE_MS = 500L
+
+    /** Distances offered by the service-area picker, in kilometres. */
+    val DISTANCE_OPTIONS_KM = listOf(5, 10, 25, 50)
   }
 }

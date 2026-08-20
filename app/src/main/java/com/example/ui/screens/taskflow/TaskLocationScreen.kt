@@ -207,8 +207,14 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
         
+        // This card used to read a hardcoded "Within 5 km" and do nothing when tapped, while
+        // selectedDistance was never set from anywhere.
+        var showDistancePicker by remember { mutableStateOf(false) }
+
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDistancePicker = true },
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
@@ -224,11 +230,68 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Within 5 km", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    Text("You will receive offers from helpers nearby", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        "Within ${uiState.selectedDistance} km",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        "Tap to change how far helpers can be",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = "Change service area",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+        }
+
+        if (showDistancePicker) {
+            AlertDialog(
+                onDismissRequest = { showDistancePicker = false },
+                title = { Text("Service area") },
+                text = {
+                    Column {
+                        Text(
+                            "Helpers within this distance will see your task.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TaskViewModel.DISTANCE_OPTIONS_KM.forEach { km ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.updateSelectedDistance(km)
+                                        showDistancePicker = false
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = uiState.selectedDistance == km,
+                                    onClick = {
+                                        viewModel.updateSelectedDistance(km)
+                                        showDistancePicker = false
+                                    },
+                                    colors = RadioButtonDefaults.colors(selectedColor = BluePrimary)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Within $km km", fontSize = 16.sp)
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDistancePicker = false }) {
+                        Text("Done", color = BluePrimary)
+                    }
+                }
+            )
         }
         
         Spacer(modifier = Modifier.height(12.dp))

@@ -1,5 +1,23 @@
 # Changelog
 
+## Batch 3 — Task flow correctness
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `TaskPhotoStore`: picked photos are copied into app storage | **The planned fix was wrong.** The plan said to call `takePersistableUriPermission` on the picker's URI, but the Android photo picker grants read access only "until the device restarts or your app stops" and those grants are *not* persistable — the call throws `SecurityException` on Android 13+, while quietly succeeding on older devices that fall back to `ACTION_OPEN_DOCUMENT`. Copying is the only fix that works on every supported version, and it also keeps a task's photos if the user later deletes the original from their gallery. | Medium. Photos now consume app storage; see the limitation below. |
+| Photo import moved into the ViewModel, with a visible "Saving photos…" state | Copying is file I/O and the picker callback runs on the main thread. | Low. |
+| Removing a photo deletes its stored copy | Otherwise every removed photo leaked disk space that nothing would ever reclaim. | Low. |
+| New `SubmitState`; the Review screen navigates on success, not on the tap | "Post Task" fired the write and navigated in the same breath, so a failed save still showed "Task Posted successfully!". It now shows a spinner, and on failure an error with a "Try Again" button, keeping the user's input. | Medium. Changes what the success screen means. |
+| Review no longer falls back to the first category | `dummyCategories.first()` meant an uncategorised task displayed as "Home Repairs" — the review screen stated something the user had not chosen. Now reads "Not selected" with a link to fix it. | Low. |
+| Review no longer invents a title or description | Empty fields rendered as "Need Help with X" / "Looking for someone to help me out", which is a different task than the blank one being reviewed. | Low. |
+| Service-area card is a real picker (5 / 10 / 25 / 50 km) | The card was hardcoded to "Within 5 km" and `updateSelectedDistance()` was never called from anywhere, so the field the review screen displayed could never change. | Low. |
+| Back press asks before discarding a draft, and discarding cleans up | Leaving the flow was the one place a user could silently lose everything they had typed. Discarding now also deletes the draft row and the copied photos. | Low. |
+| Removed the "Skip" action on the Photos step | That screen also holds the required task title, so "Skip" walked straight past its validation and posted an untitled task. | Low. Photos are still optional — the Continue button only requires a title. |
+| "Edit" on Review pops back instead of rebuilding the flow | It navigated with `popUpTo(Category) { inclusive = true }`, tearing down and recreating every step. Now it pops to the first step with the rest intact. | Low. |
+| Debug sample-photo button gated behind `BuildConfig.DEBUG` | It was visible in release builds, offering real users stock photos of someone else's plumbing as their task's evidence. | Low. |
+
+**Known limitation:** photos are copied at full resolution. Five photos from a modern phone camera can be 20–30 MB of app storage per task. Downscaling on import belongs on the roadmap.
+
 ## Batch 2 — Real authentication
 
 | Changed | Reason | Risk |

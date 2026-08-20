@@ -1,6 +1,6 @@
 package com.example.ui.screens
 
-import androidx.compose.foundation.Canvas
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -49,9 +49,61 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
     
     val application = LocalContext.current.applicationContext as FixhoraApplication
     val viewModel: TaskViewModel = viewModel(
-        factory = TaskViewModel.Factory(application.taskRepository, application.sessionManager)
+        factory = TaskViewModel.Factory(
+            application.taskRepository,
+            application.sessionManager,
+            application.taskPhotoStore
+        )
     )
-    
+
+    var showDiscardDialog by remember { mutableStateOf(false) }
+
+    // Leaving the flow with work in progress is the one place a user can silently lose everything
+    // they typed, so it asks first. With an empty form there is nothing to warn about.
+    fun attemptLeaveFlow() {
+        if (currentRoute == "success") {
+            onBackToRoles()
+        } else if (viewModel.hasUnsavedContent()) {
+            showDiscardDialog = true
+        } else {
+            onBackToRoles()
+        }
+    }
+
+    fun goBack() {
+        if (navController.previousBackStackEntry != null) {
+            navController.popBackStack()
+        } else {
+            attemptLeaveFlow()
+        }
+    }
+
+    BackHandler(enabled = currentRoute != "success") { goBack() }
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text("Discard this task?") },
+            text = {
+                Text("Your category, details and photos for this task will be removed. This cannot be undone.")
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDiscardDialog = false
+                    viewModel.discardDraft()
+                    onBackToRoles()
+                }) {
+                    Text("Discard", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text("Keep editing", color = BluePrimary)
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             if (currentRoute != "success") {
@@ -65,13 +117,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                         ) 
                     },
                     navigationIcon = {
-                        IconButton(onClick = { 
-                            if (navController.previousBackStackEntry != null) {
-                                navController.popBackStack()
-                            } else {
-                                onBackToRoles()
-                            }
-                        }) {
+                        IconButton(onClick = { goBack() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
                                 contentDescription = "Back",
@@ -83,20 +129,15 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                         }
                     },
                     actions = {
-                        if (currentScreen == TaskScreen.Photos) {
-                            TextButton(onClick = { navController.navigate(TaskScreen.Review.route) }) {
-                                Text(
-                                    text = "Skip",
-                                    color = BluePrimary,
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 16.sp
-                                )
-                            }
-                        } else if (currentScreen == TaskScreen.Review) {
-                            TextButton(onClick = { 
-                                navController.navigate(TaskScreen.Category.route) {
-                                    popUpTo(TaskScreen.Category.route) { inclusive = true }
-                                }
+                        // The "Skip" action that used to sit on the Photos step is gone: that
+                        // screen also holds the task title, which is required, so skipping it
+                        // walked straight past the validation and posted an untitled task.
+                        if (currentScreen == TaskScreen.Review) {
+                            TextButton(onClick = {
+                                // Return to the first step, keeping the steps in between so the
+                                // user can walk forward again. The previous version popped the
+                                // whole flow inclusively and rebuilt it from scratch.
+                                navController.popBackStack(TaskScreen.Category.route, inclusive = false)
                             }) {
                                 Text(
                                     text = "Edit",

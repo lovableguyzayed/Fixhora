@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,8 +37,16 @@ fun TaskReviewScreen(
     viewModel: TaskViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val submitState by viewModel.submitState.collectAsState()
     val scrollState = rememberScrollState()
-    val category = dummyCategories.find { it.id == uiState.categoryId } ?: dummyCategories.first()
+    // No fallback to the first category: falling back to "Home Repairs" told the user their task
+    // was categorised when it was not.
+    val category = dummyCategories.find { it.id == uiState.categoryId }
+
+    // The success screen is reached because the task was written, not because a button was tapped.
+    LaunchedEffect(submitState) {
+        if (submitState == SubmitState.SUCCESS) onSubmit()
+    }
 
     Column(
         modifier = Modifier
@@ -65,12 +74,17 @@ fun TaskReviewScreen(
         // Category Card
         ReviewCard(
             label = "Category",
-            title = category.title,
-            subtitle = category.subtitle,
+            title = category?.title ?: "Not selected",
+            subtitle = category?.subtitle ?: "Tap Edit to choose a category",
             onEditClick = { onNavigateToStep(TaskScreen.Category.route) },
             icon = {
-                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(category.iconTint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
-                    Icon(category.icon, contentDescription = null, tint = category.iconTint)
+                val tint = category?.iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant
+                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(tint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
+                    Icon(
+                        category?.icon ?: Icons.Default.HelpOutline,
+                        contentDescription = null,
+                        tint = tint
+                    )
                 }
             }
         )
@@ -80,8 +94,8 @@ fun TaskReviewScreen(
         // Description Card
         ReviewCard(
             label = "Task Description",
-            title = uiState.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
-            subtitle = uiState.descriptionDetails.ifEmpty { "Looking for someone to help me out." },
+            title = uiState.descriptionTitle.ifEmpty { "No title yet" },
+            subtitle = uiState.descriptionDetails.ifEmpty { "No details added" },
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             icon = {
                 Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(BluePrimary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
@@ -197,11 +211,38 @@ fun TaskReviewScreen(
             }
         }
         
+        if (submitState == SubmitState.ERROR) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.ErrorOutline,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        "Your task could not be saved on this device. Nothing was lost — tap Post Task to try again.",
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        }
+
+        val isSubmitting = submitState == SubmitState.SUBMITTING
         Button(
             onClick = {
+                viewModel.dismissSubmitError()
                 viewModel.submitTask()
-                onSubmit()
             },
+            enabled = !isSubmitting,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
@@ -209,13 +250,23 @@ fun TaskReviewScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text(
-                text = "Post Task",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+            if (isSubmitting) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text("Posting…", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            } else {
+                Text(
+                    text = if (submitState == SubmitState.ERROR) "Try Again" else "Post Task",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+            }
         }
         
         Row(

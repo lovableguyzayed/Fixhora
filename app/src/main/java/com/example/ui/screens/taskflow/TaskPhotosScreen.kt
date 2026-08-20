@@ -34,18 +34,27 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import com.example.BuildConfig
 
 @Composable
 fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    
+    val isImporting by viewModel.isImportingPhotos.collectAsState()
+    val remainingSlots = TaskViewModel.MAX_PHOTOS - uiState.photoUris.size
+
+    // The picker only grants read access until the app stops, so the ViewModel copies each photo
+    // into app storage rather than storing the picker's URI.
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
-    ) { uris ->
-        uris.forEach { uri ->
-            if (uiState.photoUris.size < 5 && !uiState.photoUris.contains(uri.toString())) {
-                viewModel.addPhotoUri(uri.toString())
-            }
+        contract = ActivityResultContracts.PickMultipleVisualMedia(
+            maxItems = TaskViewModel.MAX_PHOTOS
+        )
+    ) { uris -> viewModel.importPhotos(uris) }
+
+    fun launchPicker() {
+        if (remainingSlots > 0 && !isImporting) {
+            photoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
         }
     }
 
@@ -77,11 +86,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
-                .clickable {
-                    if (uiState.photoUris.size < 5) {
-                        photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                    }
-                },
+                .clickable(enabled = remainingSlots > 0 && !isImporting) { launchPicker() },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = BorderStroke(1.dp, BluePrimary.copy(alpha = 0.3f))
@@ -91,18 +96,43 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(BluePrimary.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, tint = BluePrimary)
+                if (isImporting) {
+                    CircularProgressIndicator(color = BluePrimary, modifier = Modifier.size(32.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Saving photos…", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text(
+                        "Copying them into the app so they stay with your task.",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(BluePrimary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, tint = BluePrimary)
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        if (remainingSlots > 0) "Upload photos" else "All ${TaskViewModel.MAX_PHOTOS} photos added",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        if (remainingSlots > 0) {
+                            "Tap to select up to $remainingSlots more from your gallery"
+                        } else {
+                            "Remove one to add a different photo"
+                        },
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Upload photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                Text("Tap to select photos from gallery", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -115,7 +145,11 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Added photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text("${uiState.photoUris.size}/5", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                "${uiState.photoUris.size}/${TaskViewModel.MAX_PHOTOS}",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         
         Spacer(modifier = Modifier.height(12.dp))
@@ -153,15 +187,13 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 }
             }
             
-            if (uiState.photoUris.size < 5) {
+            if (remainingSlots > 0) {
                 item {
                     // Add More Button
                     OutlinedCard(
                         modifier = Modifier
                             .size(80.dp)
-                            .clickable {
-                                photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            },
+                            .clickable(enabled = !isImporting) { launchPicker() },
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -174,16 +206,18 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             }
         }
 
-        if (uiState.photoUris.isEmpty()) {
+        // Development shortcut only. This was previously visible in release builds, offering
+        // real users stock photos of somebody else's plumbing as their task's evidence.
+        if (BuildConfig.DEBUG && uiState.photoUris.isEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
                 onClick = {
-                    viewModel.addPhotoUri("https://images.unsplash.com/photo-1581094288338-2314dddb7eed?w=500&auto=format&fit=crop")
-                    viewModel.addPhotoUri("https://images.unsplash.com/photo-1595841696660-1e8c73d9370d?w=500&auto=format&fit=crop")
+                    viewModel.attachPhotoDirectly("https://images.unsplash.com/photo-1581094288338-2314dddb7eed?w=500&auto=format&fit=crop")
+                    viewModel.attachPhotoDirectly("https://images.unsplash.com/photo-1595841696660-1e8c73d9370d?w=500&auto=format&fit=crop")
                 },
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text("⚡ Add high-quality sample photos for testing", fontSize = 13.sp, color = BluePrimary)
+                Text("⚡ Debug: attach sample photos", fontSize = 13.sp, color = BluePrimary)
             }
         }
         
