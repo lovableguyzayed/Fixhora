@@ -1,54 +1,115 @@
 package com.example.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import com.example.data.session.ThemePreference
 
-private val DarkColorScheme =
-  darkColorScheme(
-    primary = BluePrimary,
-    secondary = OrangeSecondary,
-    background = DarkBackground,
-    surface = DarkSurface,
-    onBackground = DarkOnBackground,
-    onSurface = DarkOnSurface,
-    outline = DarkOutline
-  )
+/**
+ * The colour set for the active theme.
+ *
+ * Static rather than dynamic because the whole set changes at once, when the theme flips — there
+ * is nothing to gain from tracking reads of individual colours.
+ */
+val LocalFixColors = staticCompositionLocalOf { LightFixColors }
 
-private val LightColorScheme =
-  lightColorScheme(
-    primary = BluePrimary,
-    secondary = OrangeSecondary,
-    background = LightBackground,
-    surface = LightSurface,
-    onBackground = LightOnBackground,
-    onSurface = LightOnSurface,
-    outline = LightOutline
-  )
+/** Entry point for design tokens inside a composable: `FixTheme.colors.textPrimary`. */
+object FixTheme {
+  val colors: FixColors
+    @Composable @ReadOnlyComposable get() = LocalFixColors.current
 
+  val spacing: Spacing
+    @Composable @ReadOnlyComposable get() = Spacing
+
+  val radius: Radius
+    @Composable @ReadOnlyComposable get() = Radius
+}
+
+private fun FixColors.toMaterialScheme(isDark: Boolean) =
+  if (isDark) {
+    darkColorScheme(
+      primary = primary,
+      onPrimary = onPrimary,
+      primaryContainer = primarySurface,
+      onPrimaryContainer = textPrimary,
+      secondary = accentGraphic,
+      onSecondary = onAccent,
+      secondaryContainer = accentSurface,
+      onSecondaryContainer = accentText,
+      background = background,
+      onBackground = textPrimary,
+      surface = surface,
+      onSurface = textPrimary,
+      surfaceVariant = surfaceAlt,
+      onSurfaceVariant = textSecondary,
+      outline = border,
+      outlineVariant = border,
+      error = danger,
+      onError = onPrimary,
+      errorContainer = dangerSurface,
+      onErrorContainer = danger,
+    )
+  } else {
+    lightColorScheme(
+      primary = primary,
+      onPrimary = onPrimary,
+      primaryContainer = primarySurface,
+      onPrimaryContainer = textPrimary,
+      secondary = accentGraphic,
+      onSecondary = onAccent,
+      secondaryContainer = accentSurface,
+      onSecondaryContainer = accentText,
+      background = background,
+      onBackground = textPrimary,
+      surface = surface,
+      onSurface = textPrimary,
+      surfaceVariant = surfaceAlt,
+      onSurfaceVariant = textSecondary,
+      outline = border,
+      outlineVariant = border,
+      error = danger,
+      onError = onPrimary,
+      errorContainer = dangerSurface,
+      onErrorContainer = danger,
+    )
+  }
+
+/**
+ * Applies the Fixhora theme.
+ *
+ * [themePreference] lets the user override the system setting; [ThemePreference.SYSTEM] follows
+ * the device. Dynamic colour is deliberately not offered: the blue/orange pairing is the product's
+ * identity, and letting the wallpaper recolour it would also throw away the contrast guarantees
+ * that `ContrastTest` enforces.
+ *
+ * `onSurface` is mapped to `textPrimary`, not to a grey. It previously pointed at
+ * `SecondaryGrey`, which quietly turned every unstyled body string in the app into low-contrast
+ * grey text.
+ */
 @Composable
 fun MyApplicationTheme(
-  darkTheme: Boolean = false, // Force light theme
-  // Dynamic color is available on Android 12+
-  dynamicColor: Boolean = false, // Force custom theme colors
+  themePreference: ThemePreference = ThemePreference.SYSTEM,
   content: @Composable () -> Unit,
 ) {
-  val colorScheme =
-    when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-        val context = LocalContext.current
-        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-      }
-
-      darkTheme -> DarkColorScheme
-      else -> LightColorScheme
+  val isDark =
+    when (themePreference) {
+      ThemePreference.SYSTEM -> isSystemInDarkTheme()
+      ThemePreference.LIGHT -> false
+      ThemePreference.DARK -> true
     }
+  val fixColors = if (isDark) DarkFixColors else LightFixColors
 
-  MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+  CompositionLocalProvider(LocalFixColors provides fixColors) {
+    MaterialTheme(
+      colorScheme = fixColors.toMaterialScheme(isDark),
+      typography = Typography,
+      shapes = FixShapes,
+      content = content,
+    )
+  }
 }

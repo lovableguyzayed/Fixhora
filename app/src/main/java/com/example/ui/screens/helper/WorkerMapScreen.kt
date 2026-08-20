@@ -49,7 +49,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                 title = { Text("Interactive Map View", fontWeight = FontWeight.SemiBold) },
                 actions = {
                     IconButton(onClick = { /* Open Filters */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filters", tint = DarkNavy)
+                        Icon(Icons.Default.FilterList, contentDescription = "Filters", tint = FixTheme.colors.textPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -63,8 +63,8 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
             ) {
                 FloatingActionButton(
                     onClick = { /* Refresh */ },
-                    containerColor = Color.White,
-                    contentColor = DarkNavy,
+                    containerColor = FixTheme.colors.surface,
+                    contentColor = FixTheme.colors.textPrimary,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(4.dp)
                 ) {
@@ -72,8 +72,8 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                 }
                 FloatingActionButton(
                     onClick = { /* Current Location */ },
-                    containerColor = BluePrimary,
-                    contentColor = Color.White,
+                    containerColor = FixTheme.colors.primary,
+                    contentColor = FixTheme.colors.onPrimary,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(4.dp)
                 ) {
@@ -87,7 +87,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFFE0E0E0)) // Light grey map placeholder
+                    .background(FixTheme.colors.surfaceAlt) // Light grey map placeholder
             ) {
                 // Placeholder map grid lines or text
                 Column(
@@ -95,14 +95,14 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(100.dp), tint = SecondaryGrey.copy(alpha = 0.3f))
-                    Text("Interactive Map View", color = SecondaryGrey, fontWeight = FontWeight.Bold)
+                    Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(100.dp), tint = FixTheme.colors.textSecondary.copy(alpha = 0.3f))
+                    Text("Interactive Map View", color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Bold)
                 }
 
                 // Mock Markers
                 if (isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = BluePrimary)
+                        CircularProgressIndicator(color = FixTheme.colors.primary)
                     }
                 } else if (tasks.isNotEmpty()) {
                     // Dummy positions for markers
@@ -145,11 +145,11 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                         modifier = Modifier
                             .weight(1f)
                             .shadow(2.dp, RoundedCornerShape(24.dp))
-                            .background(Color.White, RoundedCornerShape(24.dp)),
+                            .background(FixTheme.colors.surface, RoundedCornerShape(24.dp)),
                         shape = RoundedCornerShape(24.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
+                            focusedContainerColor = FixTheme.colors.surface,
+                            unfocusedContainerColor = FixTheme.colors.surface,
                             focusedBorderColor = Color.Transparent,
                             unfocusedBorderColor = Color.Transparent
                         ),
@@ -166,13 +166,13 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                             onClick = { selectedCategory = category },
                             label = { Text(category, fontWeight = FontWeight.Medium) },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = BluePrimary,
-                                selectedLabelColor = Color.White
+                                selectedContainerColor = FixTheme.colors.primary,
+                                selectedLabelColor = FixTheme.colors.onPrimary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
                                 selected = selectedCategory == category,
-                                borderColor = if (selectedCategory == category) BluePrimary else BorderGrey
+                                borderColor = if (selectedCategory == category) FixTheme.colors.primary else FixTheme.colors.border
                             )
                         )
                     }
@@ -221,7 +221,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
 @Composable
 fun MapMarker(task: TaskEntity, onClick: () -> Unit) {
     val isUrgent = true // Mock logic
-    val markerColor = if (isUrgent) OrangeSecondary else BluePrimary
+    val markerColor = if (isUrgent) FixTheme.colors.accentGraphic else FixTheme.colors.primary
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -234,7 +234,7 @@ fun MapMarker(task: TaskEntity, onClick: () -> Unit) {
         ) {
             Text(
                 text = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Bid",
-                color = Color.White,
+                color = FixTheme.colors.surface,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
             )
@@ -270,30 +270,30 @@ fun JobDetailsContent(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(48.dp).clip(CircleShape).background(BorderGrey),
+                    modifier = Modifier.size(48.dp).clip(CircleShape).background(FixTheme.colors.border),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey)
+                    Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Customer Name", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.Verified, contentDescription = "Verified", tint = BluePrimary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Verified, contentDescription = "Verified", tint = FixTheme.colors.primary, modifier = Modifier.size(16.dp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("4.8", fontSize = 14.sp, color = SecondaryGrey)
+                        Text("4.8", fontSize = 14.sp, color = FixTheme.colors.textSecondary)
                     }
                 }
             }
             Surface(
-                color = OrangeSecondary.copy(alpha = 0.1f),
+                color = FixTheme.colors.accentGraphic.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Urgent", color = OrangeSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                Text("Urgent", color = FixTheme.colors.accentGraphic, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
             }
         }
 
@@ -303,12 +303,12 @@ fun JobDetailsContent(
             text = task.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
-            color = DarkNavy
+            color = FixTheme.colors.textPrimary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task as soon as possible." },
-            color = SecondaryGrey,
+            color = FixTheme.colors.textSecondary,
             fontSize = 16.sp,
             lineHeight = 24.sp
         )
@@ -322,7 +322,7 @@ fun JobDetailsContent(
                 icon = Icons.Default.AccountBalanceWallet,
                 title = "Budget",
                 value = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Negotiable",
-                valueColor = DarkNavy,
+                valueColor = FixTheme.colors.textPrimary,
                 valueWeight = FontWeight.Bold
             )
         }
@@ -334,7 +334,7 @@ fun JobDetailsContent(
                 onClick = onAcceptClick,
                 modifier = Modifier.weight(1f).height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
             ) {
                 Text("Accept Job", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
@@ -342,7 +342,7 @@ fun JobDetailsContent(
                 onClick = onPlaceBidClick,
                 modifier = Modifier.weight(1f).height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkNavy)
+                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.textPrimary)
             ) {
                 Text("Place Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
@@ -365,19 +365,19 @@ fun JobDetailItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     title: String,
     value: String,
-    valueColor: Color = SecondaryGrey,
+    valueColor: Color = FixTheme.colors.textSecondary,
     valueWeight: FontWeight = FontWeight.Medium
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
-            modifier = Modifier.size(36.dp).background(Color(0xFFF5F5F5), CircleShape),
+            modifier = Modifier.size(36.dp).background(FixTheme.colors.surfaceAlt, CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(18.dp))
+            Icon(icon, contentDescription = null, tint = FixTheme.colors.primary, modifier = Modifier.size(18.dp))
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(title, fontSize = 12.sp, color = SecondaryGrey)
+            Text(title, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
             Text(value, fontSize = 14.sp, color = valueColor, fontWeight = valueWeight)
         }
     }
@@ -395,9 +395,9 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
             .padding(24.dp)
             .padding(bottom = 24.dp)
     ) {
-        Text("Place Bid", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text("Place Bid", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Submit a competitive bid for this task.", fontSize = 16.sp, color = SecondaryGrey)
+        Text("Submit a competitive bid for this task.", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
         
         Spacer(modifier = Modifier.height(32.dp))
         
@@ -447,7 +447,7 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
                 onClick = onSubmit,
                 modifier = Modifier.weight(1f).height(56.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
             ) {
                 Text("Submit Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }

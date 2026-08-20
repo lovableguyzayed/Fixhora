@@ -22,7 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BluePrimary
+import com.example.ui.components.FixCard
+import com.example.ui.theme.FixTheme
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
@@ -98,8 +99,8 @@ fun TaskReviewScreen(
             subtitle = uiState.descriptionDetails.ifEmpty { "No details added" },
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             icon = {
-                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(BluePrimary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Description, contentDescription = null, tint = BluePrimary)
+                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(FixTheme.colors.primary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Description, contentDescription = null, tint = FixTheme.colors.primary)
                 }
             }
         )
@@ -124,20 +125,20 @@ fun TaskReviewScreen(
             onEditClick = { onNavigateToStep(TaskScreen.Location.route) },
             extraContent = {
                 Surface(
-                    color = BluePrimary.copy(alpha = 0.1f),
+                    color = FixTheme.colors.primary.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.padding(top = 8.dp)
                 ) {
                     Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.MyLocation, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.MyLocation, contentDescription = null, tint = FixTheme.colors.primary, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Within ${uiState.selectedDistance} km", color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text("Within ${uiState.selectedDistance} km", color = FixTheme.colors.primary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             },
             icon = {
-                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFFE8F0FE)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = BluePrimary)
+                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(FixTheme.colors.primarySurface), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = FixTheme.colors.primary)
                 }
             }
         )
@@ -161,15 +162,15 @@ fun TaskReviewScreen(
                                 modifier = Modifier
                                     .size(60.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color.LightGray)
+                                    .background(FixTheme.colors.border)
                             )
                         }
                     }
                 }
             },
             icon = {
-                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFFE8F0FE)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Image, contentDescription = null, tint = BluePrimary)
+                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(FixTheme.colors.primarySurface), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Image, contentDescription = null, tint = FixTheme.colors.primary)
                 }
             }
         )
@@ -193,8 +194,8 @@ fun TaskReviewScreen(
             subtitle = "Helpers will submit their offers within this range",
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             icon = {
-                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFFE8F0FE)), contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.CurrencyRupee, contentDescription = null, tint = BluePrimary)
+                Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(FixTheme.colors.primarySurface), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.CurrencyRupee, contentDescription = null, tint = FixTheme.colors.primary)
                 }
             }
         )
@@ -205,13 +206,13 @@ fun TaskReviewScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = BluePrimary.copy(alpha = 0.05f))
+            colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary.copy(alpha = 0.05f))
         ) {
             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Shield,
                     contentDescription = null,
-                    tint = BluePrimary,
+                    tint = FixTheme.colors.primary,
                     modifier = Modifier.padding(end = 16.dp).size(28.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -258,12 +259,12 @@ fun TaskReviewScreen(
                 .padding(vertical = 24.dp)
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             if (isSubmitting) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = Color.White,
+                    color = FixTheme.colors.onPrimary,
                     strokeWidth = 2.dp
                 )
                 Spacer(modifier = Modifier.width(12.dp))
@@ -300,12 +301,7 @@ fun ReviewCard(
     icon: @Composable () -> Unit,
     extraContent: @Composable (() -> Unit)? = null
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-    ) {
+    FixCard {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
@@ -324,7 +320,7 @@ fun ReviewCard(
                 }
             }
             TextButton(onClick = onEditClick, contentPadding = PaddingValues(0.dp)) {
-                Text("Edit", color = BluePrimary, fontWeight = FontWeight.Medium)
+                Text("Edit", color = FixTheme.colors.primary, fontWeight = FontWeight.Medium)
             }
         }
     }

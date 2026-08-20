@@ -29,6 +29,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.components.FixButton
+import com.example.ui.components.FixButtonStyle
 import com.example.ui.theme.*
 
 @Composable
@@ -52,9 +54,9 @@ fun SignInScreen(
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(40.dp))
-    Text("Welcome Back", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+    Text("Welcome Back", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(8.dp))
-    Text("Sign in to continue", fontSize = 16.sp, color = SecondaryGrey)
+    Text("Sign in to continue", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
     Spacer(modifier = Modifier.height(32.dp))
 
     state.formError?.let {
@@ -105,7 +107,7 @@ fun SignInScreen(
     Spacer(modifier = Modifier.height(8.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
       TextButton(onClick = onForgotPasswordClick, enabled = !state.isSubmitting) {
-        Text("Forgot Password?", color = BluePrimary, fontWeight = FontWeight.SemiBold)
+        Text("Forgot Password?", color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
       }
     }
 
@@ -127,10 +129,10 @@ fun SignInScreen(
 
     Spacer(modifier = Modifier.height(32.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-      Text("Don't have an account? ", color = SecondaryGrey)
+      Text("Don't have an account? ", color = FixTheme.colors.textSecondary)
       Text(
         "Create New Account",
-        color = BluePrimary,
+        color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.clickable(enabled = !state.isSubmitting) { onCreateAccountClick() },
       )
@@ -161,7 +163,7 @@ fun CreateAccountScreen(
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(24.dp))
-    Text("Create Your Account", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+    Text("Create Your Account", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(24.dp))
 
     state.formError?.let {
@@ -256,9 +258,9 @@ fun CreateAccountScreen(
         checked = state.agreedToTerms,
         onCheckedChange = viewModel::onSignUpTermsChange,
         enabled = !state.isSubmitting,
-        colors = CheckboxDefaults.colors(checkedColor = BluePrimary),
+        colors = CheckboxDefaults.colors(checkedColor = FixTheme.colors.primary),
       )
-      Text("I agree to the Terms & Privacy Policy", fontSize = 14.sp, color = DarkNavy)
+      Text("I agree to the Terms & Privacy Policy", fontSize = 14.sp, color = FixTheme.colors.textPrimary)
     }
     if (state.termsNotAccepted) {
       Text(
@@ -287,10 +289,10 @@ fun CreateAccountScreen(
 
     Spacer(modifier = Modifier.height(32.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-      Text("Already have an account? ", color = SecondaryGrey)
+      Text("Already have an account? ", color = FixTheme.colors.textSecondary)
       Text(
         "Sign In",
-        color = BluePrimary,
+        color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.clickable(enabled = !state.isSubmitting) { onBack() },
       )
@@ -341,15 +343,15 @@ fun AuthTextField(
       shape = RoundedCornerShape(12.dp),
       colors =
         OutlinedTextFieldDefaults.colors(
-          focusedBorderColor = BluePrimary,
-          unfocusedBorderColor = BorderGrey,
+          focusedBorderColor = FixTheme.colors.primary,
+          unfocusedBorderColor = FixTheme.colors.border,
         ),
     )
     val helper = error ?: supportingText
     if (helper != null) {
       Text(
         text = helper,
-        color = if (error != null) MaterialTheme.colorScheme.error else SecondaryGrey,
+        color = if (error != null) MaterialTheme.colorScheme.error else FixTheme.colors.textSecondary,
         fontSize = 12.sp,
         modifier = Modifier.padding(start = 16.dp, top = 4.dp),
       )
@@ -360,25 +362,7 @@ fun AuthTextField(
 /** A button that cannot be pressed twice while its work is still in flight. */
 @Composable
 fun SubmitButton(text: String, isSubmitting: Boolean, onClick: () -> Unit, enabled: Boolean = true) {
-  Button(
-    onClick = onClick,
-    enabled = enabled && !isSubmitting,
-    modifier = Modifier.fillMaxWidth().height(56.dp),
-    shape = RoundedCornerShape(12.dp),
-    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
-  ) {
-    if (isSubmitting) {
-      CircularProgressIndicator(
-        modifier = Modifier.size(20.dp),
-        color = Color.White,
-        strokeWidth = 2.dp,
-      )
-      Spacer(modifier = Modifier.width(12.dp))
-      Text("Please wait…", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-    } else {
-      Text(text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-    }
-  }
+  FixButton(text = text, onClick = onClick, enabled = enabled, isLoading = isSubmitting)
 }
 
 @Composable
@@ -408,22 +392,13 @@ fun FormErrorBanner(message: String) {
 @Composable
 fun OrDivider() {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-    Text(" OR ", color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
-    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
+    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
+    Text(" OR ", color = FixTheme.colors.textSecondary, modifier = Modifier.padding(horizontal = 8.dp))
+    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
   }
 }
 
 @Composable
 fun AlternativeLoginButton(text: String, onClick: () -> Unit, enabled: Boolean = true) {
-  OutlinedButton(
-    onClick = onClick,
-    enabled = enabled,
-    modifier = Modifier.fillMaxWidth().height(56.dp),
-    shape = RoundedCornerShape(12.dp),
-    border = BorderStroke(1.dp, BorderGrey),
-    colors = ButtonDefaults.outlinedButtonColors(contentColor = DarkNavy),
-  ) {
-    Text(text, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-  }
+  FixButton(text = text, onClick = onClick, enabled = enabled, style = FixButtonStyle.SECONDARY)
 }

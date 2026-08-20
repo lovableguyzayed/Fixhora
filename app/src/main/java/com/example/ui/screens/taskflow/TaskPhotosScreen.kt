@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BluePrimary
+import com.example.ui.theme.FixTheme
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -89,7 +89,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 .clickable(enabled = remainingSlots > 0 && !isImporting) { launchPicker() },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, BluePrimary.copy(alpha = 0.3f))
+            border = BorderStroke(1.dp, FixTheme.colors.primary.copy(alpha = 0.3f))
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -97,7 +97,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 verticalArrangement = Arrangement.Center
             ) {
                 if (isImporting) {
-                    CircularProgressIndicator(color = BluePrimary, modifier = Modifier.size(32.dp))
+                    CircularProgressIndicator(color = FixTheme.colors.primary, modifier = Modifier.size(32.dp))
                     Spacer(modifier = Modifier.height(12.dp))
                     Text("Saving photos…", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     Text(
@@ -111,10 +111,10 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         modifier = Modifier
                             .size(48.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(BluePrimary.copy(alpha = 0.1f)),
+                            .background(FixTheme.colors.primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = BluePrimary)
+                        Icon(Icons.Default.Add, contentDescription = null, tint = FixTheme.colors.primary)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -178,11 +178,11 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             .padding(4.dp)
                             .size(20.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.8f))
+                            .background(FixTheme.colors.surface.copy(alpha = 0.9f))
                             .clickable { viewModel.removePhotoUri(uriString) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Black)
+                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp), tint = FixTheme.colors.textPrimary)
                     }
                 }
             }
@@ -199,7 +199,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = BluePrimary)
+                            Icon(Icons.Default.Add, contentDescription = null, tint = FixTheme.colors.primary)
                         }
                     }
                 }
@@ -217,7 +217,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 },
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text("⚡ Debug: attach sample photos", fontSize = 13.sp, color = BluePrimary)
+                Text("⚡ Debug: attach sample photos", fontSize = 13.sp, color = FixTheme.colors.primary)
             }
         }
         
@@ -309,7 +309,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 Icon(
                     imageVector = Icons.Default.Lightbulb,
                     contentDescription = null,
-                    tint = BluePrimary,
+                    tint = FixTheme.colors.primary,
                     modifier = Modifier.padding(end = 12.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -337,7 +337,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 .padding(vertical = 24.dp)
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
                 text = "Continue",

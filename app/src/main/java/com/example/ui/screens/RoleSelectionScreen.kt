@@ -55,12 +55,12 @@ fun RoleSelectionScreen(
     var selectedLanguage by remember { mutableStateOf("English") }
 
     Scaffold(
-        containerColor = Color.White
+        containerColor = FixTheme.colors.background
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(FixTheme.colors.background)
         ) {
             // Decorative Elements: Clouds and Skyline
             DecorativeBackground()
@@ -83,10 +83,10 @@ fun RoleSelectionScreen(
                 )
 
                 val appName = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                    withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
                         append("Fixora")
                     }
-                    withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 56.sp)) {
+                    withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 56.sp)) {
                         append("X")
                     }
                 }
@@ -94,7 +94,7 @@ fun RoleSelectionScreen(
                     text = appName,
                     fontSize = 48.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    color = DarkNavy,
+                    color = FixTheme.colors.textPrimary,
                     modifier = Modifier.offset(y = (-28).dp)
                 )
 
@@ -104,7 +104,7 @@ fun RoleSelectionScreen(
                     text = if (isHindi) "आप कैसे शुरुआत\nकरना चाहेंगे?" else "How would you\nlike to get started?",
                     fontSize = if (isHindi) 28.sp else 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkNavy,
+                    color = FixTheme.colors.textPrimary,
                     textAlign = TextAlign.Center,
                     lineHeight = if (isHindi) 36.sp else 38.sp
                 )
@@ -115,7 +115,7 @@ fun RoleSelectionScreen(
                     text = if (isHindi) "जारी रखने के लिए एक भूमिका चुनें" else "Choose a role to continue",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = SecondaryGrey,
+                    color = FixTheme.colors.textSecondary,
                     textAlign = TextAlign.Center
                 )
 
@@ -132,7 +132,7 @@ fun RoleSelectionScreen(
                         title = if (isHindi) "मुझे मदद चाहिए" else "I need help",
                         description = if (isHindi) "एक कार्य पोस्ट करें और पास में विश्वसनीय सहायक खोजें।" else "Post a task and find trusted helpers nearby.",
                         borderColor = LightBlueBorder,
-                        buttonColor = BluePrimary,
+                        buttonColor = FixTheme.colors.primary,
                         illustrationId = R.drawable.img_customer,
                         onClick = { onRoleSelected(UserRole.CUSTOMER) }
                     )
@@ -141,7 +141,7 @@ fun RoleSelectionScreen(
                         title = if (isHindi) "मैं मदद करना चाहता हूँ" else "I want to help",
                         description = if (isHindi) "पास के कार्य खोजें और दूसरों की मदद करके कमाएं।" else "Find tasks nearby and earn by helping others.",
                         borderColor = LightOrangeBorder,
-                        buttonColor = OrangeSecondary,
+                        buttonColor = FixTheme.colors.accentGraphic,
                         illustrationId = R.drawable.img_worker,
                         onClick = { onRoleSelected(UserRole.HELPER) }
                     )
@@ -160,13 +160,13 @@ fun RoleSelectionScreen(
                         Text(
                             text = if (isHindi) "साइन इन: $signedInName" else "Signed in as $signedInName",
                             fontSize = 14.sp,
-                            color = SecondaryGrey
+                            color = FixTheme.colors.textSecondary
                         )
                         TextButton(onClick = onSignOut) {
                             Text(
                                 text = if (isHindi) "साइन आउट" else "Sign out",
                                 fontSize = 14.sp,
-                                color = BluePrimary,
+                                color = FixTheme.colors.primary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -179,15 +179,15 @@ fun RoleSelectionScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
                 ) {
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
                     Text(
                         text = if (isHindi) "भाषा चुनें" else "Choose Language",
                         modifier = Modifier.padding(horizontal = 16.dp),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = DarkNavy
+                        color = FixTheme.colors.textPrimary
                     )
-                    HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -217,7 +217,7 @@ fun RoleSelectionScreen(
                 Text(
                     text = if (isHindi) "आप बाद में सेटिंग्स में भाषा बदल सकते हैं" else "You can change the language later in settings",
                     fontSize = 14.sp,
-                    color = Color(0xFF9CA3AF),
+                    color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 40.dp)
                 )
@@ -228,13 +228,15 @@ fun RoleSelectionScreen(
 
 @Composable
 fun DecorativeBackground() {
+    // Read outside the Canvas: a DrawScope lambda is not composable and cannot reach the theme.
+    val skylineColor = FixTheme.colors.primary.copy(alpha = 0.06f)
+    val cloudColor = FixTheme.colors.primary.copy(alpha = 0.10f)
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         val width = size.width
         val height = size.height
         
         // City Skyline placeholder
-        val skylineOpacity = 0.06f
-        val skylineColor = BluePrimary.copy(alpha = skylineOpacity)
         val buildings = listOf(
             0.1f to 0.3f, 0.2f to 0.5f, 0.3f to 0.4f, 0.4f to 0.6f,
             0.5f to 0.3f, 0.6f to 0.7f, 0.7f to 0.4f, 0.8f to 0.5f, 0.9f to 0.2f
@@ -249,7 +251,6 @@ fun DecorativeBackground() {
         }
 
         // Floating clouds placeholder
-        val cloudColor = BluePrimary.copy(alpha = 0.10f)
         fun drawCloud(x: Float, y: Float, scale: Float) {
             drawCircle(cloudColor, 30f * scale, Offset(x, y))
             drawCircle(cloudColor, 40f * scale, Offset(x + 40f * scale, y - 10f * scale))
@@ -264,6 +265,9 @@ fun DecorativeBackground() {
 
 @Composable
 fun CustomLocationLogo(modifier: Modifier = Modifier) {
+    val arcColor = FixTheme.colors.accentGraphic
+    val pinColor = FixTheme.colors.primary
+
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
@@ -272,7 +276,7 @@ fun CustomLocationLogo(modifier: Modifier = Modifier) {
         // Custom location pin
         // Orange Upper arc
         drawArc(
-            color = OrangeSecondary,
+            color = arcColor,
             startAngle = 160f,
             sweepAngle = 220f,
             useCenter = false,
@@ -289,7 +293,7 @@ fun CustomLocationLogo(modifier: Modifier = Modifier) {
         }
         drawPath(
             path = path,
-            color = BluePrimary,
+            color = pinColor,
             style = Stroke(width = strokeW, join = StrokeJoin.Round, cap = StrokeCap.Round)
         )
     }
@@ -316,7 +320,7 @@ fun WideRoleSelectionCard(
                 ambientColor = Color.Black.copy(alpha = 0.04f)
             ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
         border = BorderStroke(1.5.dp, borderColor),
         onClick = onClick
     ) {
@@ -336,13 +340,13 @@ fun WideRoleSelectionCard(
                     text = title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = DarkNavy
+                    color = FixTheme.colors.textPrimary
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = description,
                     fontSize = 13.sp,
-                    color = SecondaryGrey,
+                    color = FixTheme.colors.textSecondary,
                     lineHeight = 18.sp
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -390,10 +394,10 @@ fun LanguagePill(
             .height(56.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
-        color = Color.White,
+        color = FixTheme.colors.surface,
         border = BorderStroke(
             width = if (isSelected) 2.dp else 1.dp,
-            color = if (isSelected) BluePrimary else BorderGrey
+            color = if (isSelected) FixTheme.colors.primary else FixTheme.colors.border
         )
     ) {
         Row(
@@ -404,7 +408,7 @@ fun LanguagePill(
             Text(
                 text = text,
                 fontSize = 16.sp,
-                color = if (isSelected) BluePrimary else DarkNavy,
+                color = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textPrimary,
                 fontWeight = FontWeight.Medium
             )
             
@@ -414,13 +418,13 @@ fun LanguagePill(
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(BluePrimary),
+                        .background(FixTheme.colors.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Selected",
-                        tint = Color.White,
+                        tint = FixTheme.colors.onPrimary,
                         modifier = Modifier.size(12.dp)
                     )
                 }

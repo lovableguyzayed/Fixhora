@@ -23,7 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ui.screens.taskflow.*
-import com.example.ui.theme.BluePrimary
+import com.example.ui.theme.FixTheme
 
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -99,7 +99,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
             },
             dismissButton = {
                 TextButton(onClick = { showDiscardDialog = false }) {
-                    Text("Keep editing", color = BluePrimary)
+                    Text("Keep editing", color = FixTheme.colors.primary)
                 }
             }
         )
@@ -142,7 +142,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                             }) {
                                 Text(
                                     text = "Edit",
-                                    color = BluePrimary,
+                                    color = FixTheme.colors.primary,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
                                 )
@@ -196,10 +196,10 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                             verticalArrangement = Arrangement.Center
                         ) {
                             Box(
-                                modifier = Modifier.size(80.dp).clip(CircleShape).background(Color(0xFFE8F5E9)),
+                                modifier = Modifier.size(80.dp).clip(CircleShape).background(FixTheme.colors.successSurface),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(40.dp))
+                                Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.success, modifier = Modifier.size(40.dp))
                             }
                             Spacer(modifier = Modifier.height(24.dp))
                             Text("Task Posted successfully!", fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -210,7 +210,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                                 onClick = onBackToRoles,
                                 modifier = Modifier.fillMaxWidth().height(56.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
                             ) {
                                 Text("Return to Home", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
@@ -237,15 +237,15 @@ fun StepProgressBar(currentStep: Int) {
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(if (i <= currentStep) BluePrimary else MaterialTheme.colorScheme.surfaceVariant),
+                        .background(if (i <= currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
                     if (i < currentStep) {
-                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.onPrimary, modifier = Modifier.size(18.dp))
                     } else {
                         Text(
                             text = i.toString(),
-                            color = if (i == currentStep) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (i == currentStep) FixTheme.colors.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
                         )
@@ -258,7 +258,7 @@ fun StepProgressBar(currentStep: Int) {
                         modifier = Modifier
                             .weight(1f)
                             .height(2.dp)
-                            .background(if (i < currentStep) BluePrimary else MaterialTheme.colorScheme.surfaceVariant)
+                            .background(if (i < currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             }
@@ -274,7 +274,7 @@ fun StepProgressBar(currentStep: Int) {
                 Text(
                     text = screen.title,
                     fontSize = 12.sp,
-                    color = if (index + 1 <= currentStep) BluePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (index + 1 <= currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     modifier = Modifier.weight(1f)
                 )

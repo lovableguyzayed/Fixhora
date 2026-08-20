@@ -42,7 +42,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(FixTheme.colors.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -57,16 +57,16 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             )
             Text(
                 text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                    withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
                         append("Fixora")
                     }
-                    withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 48.sp)) {
+                    withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 48.sp)) {
                         append("X")
                     }
                 },
                 fontSize = 40.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = BluePrimary,
+                color = FixTheme.colors.primary,
                 modifier = Modifier
                     .alpha(alpha.value)
                     .offset(y = (-28).dp)
@@ -75,7 +75,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             Text(
                 text = "Connecting Skilled Workers with People Who Need Help.",
                 fontSize = 14.sp,
-                color = SecondaryGrey,
+                color = FixTheme.colors.textSecondary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(horizontal = 48.dp)
@@ -94,7 +94,7 @@ fun WelcomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(FixTheme.colors.background)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -110,25 +110,25 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = DarkNavy)) {
+                withStyle(style = SpanStyle(color = FixTheme.colors.textPrimary)) {
                     append("Welcome to ")
                 }
-                withStyle(style = SpanStyle(color = BluePrimary, fontStyle = FontStyle.Italic)) {
+                withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
                     append("Fixora")
                 }
-                withStyle(style = SpanStyle(color = OrangeSecondary, fontStyle = FontStyle.Italic, fontSize = 42.sp)) {
+                withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 42.sp)) {
                     append("X")
                 }
             },
             fontSize = 32.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = DarkNavy
+            color = FixTheme.colors.textPrimary
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "Find trusted local workers or offer your skills to people nearby.",
             fontSize = 16.sp,
-            color = SecondaryGrey,
+            color = FixTheme.colors.textSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(48.dp))
@@ -139,7 +139,7 @@ fun WelcomeScreen(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
@@ -150,20 +150,20 @@ fun WelcomeScreen(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary)
+            border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.primary),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.primary)
         ) {
             Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(onClick = onGuestClick) {
-            Text("Continue as Guest", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+            Text("Continue as Guest", color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "By continuing, you agree to our Terms of Service and Privacy Policy.",
             fontSize = 12.sp,
-            color = SecondaryGrey,
+            color = FixTheme.colors.textSecondary,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 24.dp)
         )

@@ -19,7 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.ui.theme.BluePrimary
+import com.example.ui.theme.FixTheme
 
 sealed class HelperScreen(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
     object Home : HelperScreen("helper_home", "Home", Icons.Default.Home)
@@ -80,7 +80,7 @@ fun HelperFlowContainer(
                                         restoreState = true
                                     }
                                 }
-                                .background(if (isSelected) BluePrimary.copy(alpha = 0.15f) else androidx.compose.ui.graphics.Color.Transparent),
+                                .background(if (isSelected) FixTheme.colors.primary.copy(alpha = 0.15f) else androidx.compose.ui.graphics.Color.Transparent),
                             contentAlignment = Alignment.Center
                         ) {
                             Row(
@@ -92,7 +92,7 @@ fun HelperFlowContainer(
                                         Icon(
                                             screen.icon,
                                             contentDescription = screen.title,
-                                            tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
+                                            tint = if (isSelected) FixTheme.colors.primary else com.example.ui.theme.FixTheme.colors.textSecondary,
                                             modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
                                         )
                                     }
@@ -100,7 +100,7 @@ fun HelperFlowContainer(
                                     Icon(
                                         screen.icon,
                                         contentDescription = screen.title,
-                                        tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
+                                        tint = if (isSelected) FixTheme.colors.primary else com.example.ui.theme.FixTheme.colors.textSecondary,
                                         modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
                                     )
                                 }
@@ -108,7 +108,7 @@ fun HelperFlowContainer(
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = screen.title,
-                                        color = BluePrimary,
+                                        color = FixTheme.colors.primary,
                                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                         style = MaterialTheme.typography.labelMedium
                                     )

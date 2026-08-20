@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BluePrimary
+import com.example.ui.theme.FixTheme
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -99,7 +99,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     Icon(
                         Icons.Default.MyLocation,
                         contentDescription = "Use my current location",
-                        tint = BluePrimary
+                        tint = FixTheme.colors.primary
                     )
                 }
             },
@@ -179,7 +179,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFFE8F0FE)),
+                    modifier = Modifier.fillMaxWidth().weight(1f).background(FixTheme.colors.primarySurface),
                     contentAlignment = Alignment.Center
                 ) {
                     // Map Pin
@@ -187,21 +187,21 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         modifier = Modifier
                             .size(64.dp)
                             .clip(CircleShape)
-                            .background(BluePrimary.copy(alpha = 0.2f)),
+                            .background(FixTheme.colors.primary.copy(alpha = 0.2f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(16.dp)
                                 .clip(CircleShape)
-                                .background(BluePrimary),
+                                .background(FixTheme.colors.primary),
                             contentAlignment = Alignment.Center
                         ) {
                             Box(
                                 modifier = Modifier
                                     .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(Color.White)
+                                    .background(FixTheme.colors.surface)
                             )
                         }
                     }
@@ -233,7 +233,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         if (fetchState == LocationFetchState.RESOLVING) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp).padding(end = 4.dp),
-                                color = BluePrimary,
+                                color = FixTheme.colors.primary,
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -241,7 +241,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             Icon(
                                 imageVector = Icons.Default.LocationOn,
                                 contentDescription = null,
-                                tint = BluePrimary,
+                                tint = FixTheme.colors.primary,
                                 modifier = Modifier.padding(end = 12.dp)
                             )
                         }
@@ -267,7 +267,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                                 if (enabled) requestCurrentLocation()
                                 else viewModel.stopUsingCurrentLocation()
                             },
-                            colors = SwitchDefaults.colors(checkedTrackColor = BluePrimary)
+                            colors = SwitchDefaults.colors(checkedTrackColor = FixTheme.colors.primary)
                         )
                     }
                 }
@@ -301,7 +301,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 Icon(
                     imageVector = Icons.Default.MyLocation,
                     contentDescription = null,
-                    tint = BluePrimary,
+                    tint = FixTheme.colors.primary,
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -353,7 +353,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                                         viewModel.updateSelectedDistance(km)
                                         showDistancePicker = false
                                     },
-                                    colors = RadioButtonDefaults.colors(selectedColor = BluePrimary)
+                                    colors = RadioButtonDefaults.colors(selectedColor = FixTheme.colors.primary)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("Within $km km", fontSize = 16.sp)
@@ -363,7 +363,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 },
                 confirmButton = {
                     TextButton(onClick = { showDistancePicker = false }) {
-                        Text("Done", color = BluePrimary)
+                        Text("Done", color = FixTheme.colors.primary)
                     }
                 }
             )
@@ -374,8 +374,8 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = BluePrimary.copy(alpha = 0.05f)),
-            border = BorderStroke(1.dp, BluePrimary.copy(alpha = 0.1f))
+            colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary.copy(alpha = 0.05f)),
+            border = BorderStroke(1.dp, FixTheme.colors.primary.copy(alpha = 0.1f))
         ) {
             Row(
                 modifier = Modifier.padding(16.dp),
@@ -384,7 +384,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 Icon(
                     imageVector = Icons.Default.Shield,
                     contentDescription = null,
-                    tint = BluePrimary,
+                    tint = FixTheme.colors.primary,
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
@@ -422,7 +422,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 .padding(vertical = 24.dp)
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
                 text = "Continue",
@@ -464,7 +464,7 @@ private fun LocationNotice(
         color = if (isError) {
             MaterialTheme.colorScheme.errorContainer
         } else {
-            BluePrimary.copy(alpha = 0.08f)
+            FixTheme.colors.primary.copy(alpha = 0.08f)
         },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
@@ -485,7 +485,7 @@ private fun LocationNotice(
             )
             if (actionLabel != null) {
                 TextButton(onClick = onAction) {
-                    Text(actionLabel, color = BluePrimary, fontWeight = FontWeight.SemiBold)
+                    Text(actionLabel, color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

@@ -57,13 +57,13 @@ fun MobileLoginScreen(onSendOtp: (mobile: String) -> Unit, onBack: () -> Unit) {
       "Login with Mobile Number",
       fontSize = 28.sp,
       fontWeight = FontWeight.Bold,
-      color = DarkNavy,
+      color = FixTheme.colors.textPrimary,
     )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
       "Enter your mobile number to receive a verification code.",
       fontSize = 16.sp,
-      color = SecondaryGrey,
+      color = FixTheme.colors.textSecondary,
     )
     Spacer(modifier = Modifier.height(32.dp))
 
@@ -160,12 +160,12 @@ fun OtpVerificationScreen(
   Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
     BackButton(onBack)
     Spacer(modifier = Modifier.height(24.dp))
-    Text("Verify Your Mobile Number", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+    Text("Verify Your Mobile Number", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(8.dp))
     Text(
       "Enter the ${Validators.OTP_LENGTH}-digit code for ${formatIndianMobile(mobile)}.",
       fontSize = 16.sp,
-      color = SecondaryGrey,
+      color = FixTheme.colors.textSecondary,
     )
 
     Spacer(modifier = Modifier.height(24.dp))
@@ -219,8 +219,8 @@ fun OtpVerificationScreen(
           shape = RoundedCornerShape(8.dp),
           colors =
             OutlinedTextFieldDefaults.colors(
-              focusedBorderColor = BluePrimary,
-              unfocusedBorderColor = BorderGrey,
+              focusedBorderColor = FixTheme.colors.primary,
+              unfocusedBorderColor = FixTheme.colors.border,
             ),
         )
       }
@@ -235,7 +235,7 @@ fun OtpVerificationScreen(
     Text(
       text =
         if (secondsRemaining > 0) "Resend code in ${secondsRemaining}s" else "Resend code",
-      color = if (secondsRemaining > 0) SecondaryGrey else BluePrimary,
+      color = if (secondsRemaining > 0) FixTheme.colors.textSecondary else FixTheme.colors.primary,
       fontWeight = FontWeight.SemiBold,
       modifier =
         Modifier.clickable(enabled = secondsRemaining == 0 && !isSubmitting) {
@@ -251,7 +251,7 @@ fun OtpVerificationScreen(
     Spacer(modifier = Modifier.height(16.dp))
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
       TextButton(onClick = onBack, enabled = !isSubmitting) {
-        Text("Edit mobile number", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+        Text("Edit mobile number", color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
       }
     }
   }
@@ -341,12 +341,12 @@ fun ForgotPasswordScreen(
 
     when (step) {
       1 -> {
-        Text("Forgot Password", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text("Forgot Password", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
           "Enter your registered mobile number and we'll send a verification code.",
           fontSize = 16.sp,
-          color = SecondaryGrey,
+          color = FixTheme.colors.textSecondary,
         )
         Spacer(modifier = Modifier.height(32.dp))
         AuthTextField(
@@ -367,9 +367,9 @@ fun ForgotPasswordScreen(
         SubmitButton(text = "Send OTP", isSubmitting = isSubmitting, onClick = { submitMobile() })
       }
       2 -> {
-        Text("Verify OTP", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text("Verify OTP", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Code sent to ${formatIndianMobile(normalizeMobile(mobile))}.", fontSize = 16.sp, color = SecondaryGrey)
+        Text("Code sent to ${formatIndianMobile(normalizeMobile(mobile))}.", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
         Spacer(modifier = Modifier.height(24.dp))
         DemoModeNotice("No SMS is sent in this build. Your code is $expectedCode.")
         Spacer(modifier = Modifier.height(24.dp))
@@ -390,9 +390,9 @@ fun ForgotPasswordScreen(
         SubmitButton(text = "Verify", isSubmitting = false, onClick = { submitOtp() })
       }
       else -> {
-        Text("Reset Password", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text("Reset Password", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Choose a new password for your account.", fontSize = 16.sp, color = SecondaryGrey)
+        Text("Choose a new password for your account.", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
         Spacer(modifier = Modifier.height(32.dp))
         AuthTextField(
           value = newPassword,
@@ -456,7 +456,7 @@ private fun BackButton(onBack: () -> Unit) {
 @Composable
 private fun DemoModeNotice(message: String) {
   Surface(
-    color = BluePrimary.copy(alpha = 0.08f),
+    color = FixTheme.colors.primary.copy(alpha = 0.08f),
     shape = RoundedCornerShape(12.dp),
     modifier = Modifier.fillMaxWidth(),
   ) {
@@ -464,13 +464,13 @@ private fun DemoModeNotice(message: String) {
       Icon(
         Icons.Outlined.Info,
         contentDescription = null,
-        tint = BluePrimary,
+        tint = FixTheme.colors.primary,
         modifier = Modifier.size(20.dp),
       )
       Spacer(modifier = Modifier.width(12.dp))
       Column {
-        Text("Demo mode", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = DarkNavy)
-        Text(message, fontSize = 13.sp, color = SecondaryGrey)
+        Text("Demo mode", fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = FixTheme.colors.textPrimary)
+        Text(message, fontSize = 13.sp, color = FixTheme.colors.textSecondary)
       }
     }
   }

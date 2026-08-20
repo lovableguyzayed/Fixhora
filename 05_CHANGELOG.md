@@ -1,5 +1,27 @@
 # Changelog
 
+## Batch 5 — Design system & dark mode
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `Palette.kt` holding every colour as plain `Long` ARGB, with no Android import | Keeping the palette Android-free is what makes `ContrastTest` an ordinary JVM test. `Color.kt` is now the only file that wraps these for Compose. | Low. |
+| New `Contrast.kt` + `ContrastTest` asserting WCAG AA across both themes | An unreadable colour can no longer be added without a test going red. | Low. |
+| **Four contrast failures found and fixed by running the check** | Hand-computed values in the plan were right on white but wrong on tinted surfaces. `#EF6C00` warning text scored 4.45:1 on its own surface and `#D32F2F` danger scored 4.36:1 — both just under AA, and both used precisely on those surfaces. Darkened to `#A84B00` (5.25:1) and `#C62828` (4.92:1). | Low. |
+| Brand orange split into three roles | `#FF6B00` measures 2.86:1 on white — it fails even the 3:1 required of a meaningful icon. `accent` keeps the brand colour for decoration, `accentGraphic` (`#E85D00`, 3.48:1) is for icons that carry meaning, `accentText` (`#C25100`, 4.70:1) is for anything readable. | Low. |
+| Dark theme is a designed palette, not an inversion | `#0B57FF` scores 2.97:1 on the dark surface. Dark mode uses `#7EA6FF` with dark text on top (6.83:1). | Low. |
+| `MyApplicationTheme` follows the system and the user's stored preference | `darkTheme = false` was hardcoded, so `DarkColorScheme` was unreachable dead code. | Medium. |
+| `onSurface` mapped to `textPrimary` instead of a grey | It pointed at `SecondaryGrey`, quietly rendering every unstyled body string in the app as low-contrast grey. | Low. |
+| Full type scale, 4dp spacing scale, shared radii | Only `bodyLarge` was defined; everything else was commented out and each screen hardcoded its own sizes. | Low. |
+| New `ui/components/`: `FixButton`, `FixCard`, `StatusBadge`, `EmptyState`, `SkeletonBox`, `SectionHeader` — all adopted | Every screen hand-rolled `Button(height = 56.dp, shape = RoundedCornerShape(12.dp))` and none handled loading. All six are in use; none was left as speculative API. | Medium. |
+| ~200 hardcoded colours swept to tokens across 15 screens | A `Color.White` written into a screen stays white however the theme changes — this is what made dark mode unreachable in practice, not just in `Theme.kt`. | **High. The largest mechanical change in the project.** |
+| `values-night/colors.xml` + window background | Opening the app in dark mode flashed a white launch window before Compose drew. | Low. |
+
+**Two bugs the sweep itself introduced, caught by re-reading the diff:**
+- `PerformanceOverviewCard` had a `DarkNavy` container, which the sweep rewrote to `textPrimary` — white in dark mode, with white text on it. Now uses `primary` with `onPrimary` content.
+- Its progress ring was `primary` on that same card, so it would have been invisible once the card became primary-coloured. Now `onPrimary`.
+
+**Known limitation:** the star-rating gold and one purple summary tile are still hardcoded. They sit inside the fabricated worker statistics that Batch 6 removes outright, so tokenising them would have been work spent on code about to be deleted.
+
 ## Batch 4 — Real location
 
 | Changed | Reason | Risk |

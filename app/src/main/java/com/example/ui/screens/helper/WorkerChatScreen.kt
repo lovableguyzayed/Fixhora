@@ -27,6 +27,7 @@ import com.example.ui.theme.*
 import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.ui.components.EmptyState
 import com.example.ui.screens.taskflow.dummyCategories
 
 @Composable
@@ -57,15 +58,15 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
     val categories = listOf("All", "Unread", "Active Jobs", "Pending Bids", "Accepted", "Completed")
     var selectedCategory by remember { mutableStateOf("All") }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surface)) {
         TopAppBar(
-            title = { Text("Chats", fontWeight = FontWeight.Bold, color = DarkNavy) },
+            title = { Text("Chats", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
             actions = {
                 IconButton(onClick = { /* Filter */ }) {
-                    Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = DarkNavy)
+                    Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = FixTheme.colors.textPrimary)
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
         )
 
         // Search Bar
@@ -79,10 +80,10 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             shape = RoundedCornerShape(24.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = BorderGrey,
-                focusedBorderColor = BluePrimary,
-                unfocusedContainerColor = Color(0xFFF5F5F5),
-                focusedContainerColor = Color.White
+                unfocusedBorderColor = FixTheme.colors.border,
+                focusedBorderColor = FixTheme.colors.primary,
+                unfocusedContainerColor = FixTheme.colors.surfaceAlt,
+                focusedContainerColor = FixTheme.colors.surface
             ),
             singleLine = true
         )
@@ -98,28 +99,25 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
                     onClick = { selectedCategory = category },
                     label = { Text(category, fontWeight = FontWeight.Medium) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = BluePrimary,
-                        selectedLabelColor = Color.White
+                        selectedContainerColor = FixTheme.colors.primary,
+                        selectedLabelColor = FixTheme.colors.onPrimary
                     ),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
                         selected = selectedCategory == category,
-                        borderColor = if (selectedCategory == category) BluePrimary else BorderGrey
+                        borderColor = if (selectedCategory == category) FixTheme.colors.primary else FixTheme.colors.border
                     )
                 )
             }
         }
 
         if (tasks.isEmpty()) {
-            // Empty State
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.ChatBubbleOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = SecondaryGrey)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("You don't have any conversations yet.", color = SecondaryGrey, textAlign = TextAlign.Center)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { /* Navigate to Jobs */ }) { Text("Explore Nearby Jobs") }
-                }
+                EmptyState(
+                    icon = Icons.Default.ChatBubbleOutline,
+                    title = "No conversations yet",
+                    description = "Once you accept a job, your chat with that customer appears here."
+                )
             }
         } else {
             LazyColumn(
@@ -148,16 +146,16 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(CircleShape)
-                    .background(BorderGrey),
+                    .background(FixTheme.colors.border),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary, modifier = Modifier.size(32.dp))
             }
             Box(
                 modifier = Modifier
                     .size(14.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF4CAF50))
+                    .background(FixTheme.colors.success)
                     .align(Alignment.BottomEnd)
             )
         }
@@ -165,18 +163,18 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                    Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FixTheme.colors.textPrimary)
                 }
-                Text("Just now", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Normal)
+                Text("Just now", fontSize = 12.sp, color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Normal)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    color = Color(0xFFE3F2FD),
+                    color = FixTheme.colors.infoSurface,
                     shape = RoundedCornerShape(4.dp),
                     modifier = Modifier.padding(end = 6.dp)
                 ) {
-                    Text(category, color = BluePrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                    Text(category, color = FixTheme.colors.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -184,7 +182,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
                 Text(
                     text = "Tap to view conversation",
                     fontSize = 14.sp,
-                    color = SecondaryGrey,
+                    color = FixTheme.colors.textSecondary,
                     fontWeight = FontWeight.Normal,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -205,22 +203,22 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
 
     val messages by viewModel.getChatMessages(task.id).collectAsState(initial = emptyList())
 
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA))) {
+    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt)) {
         TopAppBar(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(36.dp).clip(CircleShape).background(BorderGrey),
+                        modifier = Modifier.size(36.dp).clip(CircleShape).background(FixTheme.colors.border),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary, modifier = Modifier.size(20.dp))
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FixTheme.colors.textPrimary)
                         }
-                        Text("Online", fontSize = 12.sp, color = Color(0xFF4CAF50))
+                        Text("Online", fontSize = 12.sp, color = FixTheme.colors.success)
                     }
                 }
             },
@@ -231,19 +229,19 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             },
             actions = {
                 IconButton(onClick = { /* Call */ }) {
-                    Icon(Icons.Default.Call, contentDescription = "Call", tint = BluePrimary)
+                    Icon(Icons.Default.Call, contentDescription = "Call", tint = FixTheme.colors.primary)
                 }
                 IconButton(onClick = { /* More */ }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = DarkNavy)
+                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = FixTheme.colors.textPrimary)
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
         )
 
         // Pinned Job Info Card
         Card(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
@@ -253,8 +251,8 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Job: ${task.descriptionTitle.ifEmpty { category }}", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkNavy)
-                    Text("Budget: ₹${task.minBudget} - ₹${task.maxBudget}", fontSize = 12.sp, color = SecondaryGrey)
+                    Text("Job: ${task.descriptionTitle.ifEmpty { category }}", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = FixTheme.colors.textPrimary)
+                    Text("Budget: ₹${task.minBudget} - ₹${task.maxBudget}", fontSize = 12.sp, color = FixTheme.colors.textSecondary)
                 }
                 TextButton(onClick = { /* View Details */ }) {
                     Text("View Details", fontSize = 12.sp)
@@ -283,7 +281,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
         }
 
         // Quick Actions & Replies
-        Column(modifier = Modifier.fillMaxWidth().background(Color.White)) {
+        Column(modifier = Modifier.fillMaxWidth().background(FixTheme.colors.surface)) {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -292,7 +290,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     AssistChip(
                         onClick = { /* Action */ },
                         label = { Text(action, fontSize = 12.sp, fontWeight = FontWeight.Medium) },
-                        colors = AssistChipDefaults.assistChipColors(leadingIconContentColor = BluePrimary),
+                        colors = AssistChipDefaults.assistChipColors(leadingIconContentColor = FixTheme.colors.primary),
                         leadingIcon = {
                             Icon(
                                 imageVector = if (action.contains("Quote") || action.contains("Invoice")) Icons.Default.Receipt 
@@ -312,15 +310,15 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 items(quickReplies) { reply ->
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFFF5F5F5),
+                        color = FixTheme.colors.surfaceAlt,
                         modifier = Modifier.clickable { messageText = reply }
                     ) {
-                        Text(reply, fontSize = 13.sp, color = DarkNavy, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                        Text(reply, fontSize = 13.sp, color = FixTheme.colors.textPrimary, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
                     }
                 }
             }
             
-            HorizontalDivider(color = BorderGrey)
+            HorizontalDivider(color = FixTheme.colors.border)
 
             // Input Area
             Row(
@@ -328,7 +326,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { /* Attach */ }) {
-                    Icon(Icons.Default.AttachFile, contentDescription = "Attach", tint = SecondaryGrey)
+                    Icon(Icons.Default.AttachFile, contentDescription = "Attach", tint = FixTheme.colors.textSecondary)
                 }
                 
                 OutlinedTextField(
@@ -340,22 +338,22 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.Transparent,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                        focusedContainerColor = FixTheme.colors.surfaceAlt,
+                        unfocusedContainerColor = FixTheme.colors.surfaceAlt
                     ),
                     maxLines = 4
                 )
 
                 if (messageText.isBlank()) {
                     IconButton(onClick = { /* Voice */ }) {
-                        Icon(Icons.Default.Mic, contentDescription = "Voice Message", tint = BluePrimary)
+                        Icon(Icons.Default.Mic, contentDescription = "Voice Message", tint = FixTheme.colors.primary)
                     }
                 } else {
                     IconButton(onClick = {
                         viewModel.sendMessage(task.id, messageText)
                         messageText = ""
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = BluePrimary)
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = FixTheme.colors.primary)
                     }
                 }
             }
@@ -366,8 +364,8 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
 @Composable
 fun MessageBubble(text: String, isSender: Boolean, time: String, status: String? = null) {
     val alignment = if (isSender) Alignment.CenterEnd else Alignment.CenterStart
-    val bgColor = if (isSender) BluePrimary else Color.White
-    val textColor = if (isSender) Color.White else DarkNavy
+    val bgColor = if (isSender) FixTheme.colors.primary else FixTheme.colors.surface
+    val textColor = if (isSender) FixTheme.colors.onPrimary else FixTheme.colors.textPrimary
     val shape = if (isSender) {
         RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 4.dp)
     } else {
@@ -391,13 +389,13 @@ fun MessageBubble(text: String, isSender: Boolean, time: String, status: String?
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(time, fontSize = 11.sp, color = SecondaryGrey)
+                Text(time, fontSize = 11.sp, color = FixTheme.colors.textSecondary)
                 if (isSender && status != null) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         Icons.Default.DoneAll,
                         contentDescription = status,
-                        tint = if (status == "Read") BluePrimary else SecondaryGrey,
+                        tint = if (status == "Read") FixTheme.colors.primary else FixTheme.colors.textSecondary,
                         modifier = Modifier.size(14.dp)
                     )
                 }

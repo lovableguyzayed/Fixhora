@@ -26,7 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.BluePrimary
+import com.example.ui.theme.FixTheme
 
 @Composable
 fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
@@ -99,11 +99,11 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) BluePrimary.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surface
+                        containerColor = if (isSelected) FixTheme.colors.primary.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surface
                     ),
                     border = BorderStroke(
                         width = if (isSelected) 2.dp else 1.dp,
-                        color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+                        color = if (isSelected) FixTheme.colors.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                     )
                 ) {
                     Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
@@ -111,7 +111,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = null,
-                                tint = BluePrimary,
+                                tint = FixTheme.colors.primary,
                                 modifier = Modifier.align(Alignment.TopEnd).size(16.dp)
                             )
                         }
@@ -142,7 +142,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                                 text = category.title,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.onSurface,
+                                color = if (isSelected) FixTheme.colors.primary else MaterialTheme.colorScheme.onSurface,
                                 textAlign = TextAlign.Center
                             )
                             
@@ -183,7 +183,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 .padding(vertical = 24.dp)
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
                 text = "Continue",

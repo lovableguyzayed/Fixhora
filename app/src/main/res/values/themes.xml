@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.MyApplication" parent="android:Theme.DeviceDefault.NoActionBar" />
+    <style name="Theme.MyApplication" parent="android:Theme.DeviceDefault.NoActionBar">
+        <!-- Without this the launch window is white, so opening the app in dark mode flashes
+             white before Compose draws its first frame. values-night supplies the dark value. -->
+        <item name="android:windowBackground">@color/fixhora_window_background</item>
+    </style>
 </resources>

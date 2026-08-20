@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.ui.components.EmptyState
+import com.example.ui.components.StatusBadge
+import com.example.ui.components.StatusTone
 import com.example.ui.screens.taskflow.dummyCategories
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,41 +41,41 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
     var selectedTab by remember { mutableStateOf("All Tasks") }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA)),
+        modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt),
         topBar = {
             TopAppBar(
-                title = { Text("My Tasks", fontWeight = FontWeight.Bold, color = DarkNavy) },
+                title = { Text("My Tasks", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
                 actions = {
                     IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = DarkNavy)
+                        Icon(Icons.Default.Search, contentDescription = "Search", tint = FixTheme.colors.textPrimary)
                     }
                     IconButton(onClick = { /* Filter */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = DarkNavy)
+                        Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = FixTheme.colors.textPrimary)
                     }
                     IconButton(onClick = { /* Sort */ }) {
-                        Icon(Icons.Default.Sort, contentDescription = "Sort", tint = DarkNavy)
+                        Icon(Icons.Default.Sort, contentDescription = "Sort", tint = FixTheme.colors.textPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color(0xFFF8F9FA))) {
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).background(FixTheme.colors.surfaceAlt)) {
             // Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search tasks, customers, locations...", color = SecondaryGrey, fontSize = 14.sp) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = SecondaryGrey) },
+                placeholder = { Text("Search tasks, customers, locations...", color = FixTheme.colors.textSecondary, fontSize = 14.sp) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = BorderGrey,
-                    focusedBorderColor = BluePrimary,
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White
+                    unfocusedBorderColor = FixTheme.colors.border,
+                    focusedBorderColor = FixTheme.colors.primary,
+                    unfocusedContainerColor = FixTheme.colors.surface,
+                    focusedContainerColor = FixTheme.colors.surface
                 ),
                 singleLine = true
             )
@@ -94,15 +97,15 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = BluePrimary,
-                            selectedLabelColor = Color.White,
-                            containerColor = Color.White,
-                            labelColor = DarkNavy
+                            selectedContainerColor = FixTheme.colors.primary,
+                            selectedLabelColor = FixTheme.colors.onPrimary,
+                            containerColor = FixTheme.colors.surface,
+                            labelColor = FixTheme.colors.textPrimary
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
                             selected = isSelected,
-                            borderColor = if (isSelected) BluePrimary else BorderGrey
+                            borderColor = if (isSelected) FixTheme.colors.primary else FixTheme.colors.border
                         )
                     )
                 }
@@ -121,30 +124,20 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
             }
 
             if (filteredTasks.isEmpty()) {
-                // Empty State
-                Box(modifier = Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Assignment,
-                            contentDescription = null,
-                            modifier = Modifier.size(80.dp),
-                            tint = BorderGrey
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "No tasks found. New customer requests will appear here as soon as they are available.",
-                            color = SecondaryGrey,
-                            textAlign = TextAlign.Center,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { /* Explore */ },
-                            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                        ) {
-                            Text("Explore Nearby Jobs")
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    EmptyState(
+                        icon = Icons.AutoMirrored.Filled.Assignment,
+                        title = if (selectedTab == "All Tasks") {
+                            "No tasks yet"
+                        } else {
+                            "Nothing in \"$selectedTab\""
+                        },
+                        description = if (selectedTab == "All Tasks") {
+                            "New customer requests will appear here as soon as they are posted."
+                        } else {
+                            "Tasks move here as their status changes."
                         }
-                    }
+                    )
                 }
             } else {
                 LazyColumn(
@@ -182,7 +175,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable { /* View Details */ },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -195,61 +188,49 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(48.dp).clip(CircleShape).background(BorderGrey),
+                        modifier = Modifier.size(48.dp).clip(CircleShape).background(FixTheme.colors.border),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey)
+                        Icon(Icons.Default.Person, contentDescription = null, tint = FixTheme.colors.textSecondary)
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = FixTheme.colors.textPrimary)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = "Rating", tint = OrangeSecondary, modifier = Modifier.size(14.dp))
+                            Icon(Icons.Default.Star, contentDescription = "Rating", tint = FixTheme.colors.accentGraphic, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("New User", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
-                            Text(" • Just now", fontSize = 12.sp, color = SecondaryGrey)
+                            Text("New User", fontSize = 12.sp, color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
+                            Text(" • Just now", fontSize = 12.sp, color = FixTheme.colors.textSecondary)
                         }
                     }
                 }
                 
                 Column(horizontalAlignment = Alignment.End) {
-                    // Status Badge
-                    Surface(
-                        color = when(displayStatus) {
-                            "New" -> Color(0xFFE8F5E9)
-                            "Pending" -> Color(0xFFFFF3E0)
-                            "Accepted" -> Color(0xFFE3F2FD)
-                            else -> BorderGrey
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = displayStatus,
-                            color = when(displayStatus) {
-                                "New" -> Color(0xFF2E7D32)
-                                "Pending" -> Color(0xFFEF6C00)
-                                "Accepted" -> BluePrimary
-                                else -> DarkNavy
-                            },
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
+                    StatusBadge(
+                        text = displayStatus,
+                        tone = when (task.status) {
+                            TaskStatus.SUBMITTED -> StatusTone.SUCCESS
+                            TaskStatus.ACCEPTED -> StatusTone.INFO
+                            TaskStatus.IN_PROGRESS -> StatusTone.WARNING
+                            TaskStatus.COMPLETED -> StatusTone.SUCCESS
+                            TaskStatus.CANCELLED, TaskStatus.REJECTED -> StatusTone.DANGER
+                            TaskStatus.DRAFT -> StatusTone.NEUTRAL
+                        }
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Job Details
-            Text(task.descriptionTitle.ifEmpty { "Need Help with $category" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = DarkNavy)
+            Text(task.descriptionTitle.ifEmpty { "Need Help with $category" }, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = FixTheme.colors.textPrimary)
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task." },
                 fontSize = 14.sp,
-                color = SecondaryGrey,
+                color = FixTheme.colors.textSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -271,7 +252,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderGrey)
+            HorizontalDivider(color = FixTheme.colors.border)
             Spacer(modifier = Modifier.height(12.dp))
 
             // Actions based on status
@@ -281,12 +262,12 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (displayStatus == "New") {
-                    Text("0 bids", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
+                    Text("0 bids", fontSize = 12.sp, color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.weight(1f)) {
                         OutlinedButton(
                             onClick = onReject,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.danger),
                             modifier = Modifier.weight(1f).padding(end = 8.dp)
                         ) {
                             Text("Reject", fontWeight = FontWeight.Bold)
@@ -294,7 +275,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                         Button(
                             onClick = onAccept,
                             shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
+                            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Accept", fontWeight = FontWeight.Bold)
@@ -309,7 +290,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                     Button(
                         onClick = { /* Navigate / Start */ },
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
                     ) {
                         Icon(Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
@@ -322,7 +303,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                     Button(
                         onClick = { /* Place Bid */ },
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
+                        colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
                     ) {
                         Text("Place Bid", fontWeight = FontWeight.Bold)
                     }
@@ -335,8 +316,8 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
 @Composable
 fun TaskMetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
+        Icon(icon, contentDescription = null, tint = FixTheme.colors.textSecondary, modifier = Modifier.size(16.dp))
         Spacer(modifier = Modifier.width(6.dp))
-        Text(text, fontSize = 12.sp, color = DarkNavy, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text, fontSize = 12.sp, color = FixTheme.colors.textPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

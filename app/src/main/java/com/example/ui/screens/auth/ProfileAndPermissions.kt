@@ -53,12 +53,12 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(24.dp))
-    Text("Profile Setup", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+    Text("Profile Setup", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(8.dp))
     Text(
       "This helps helpers nearby know who they are working with.",
       fontSize = 16.sp,
-      color = SecondaryGrey,
+      color = FixTheme.colors.textSecondary,
     )
     Spacer(modifier = Modifier.height(32.dp))
 
@@ -190,7 +190,7 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
 
     PermissionRow(
       icon = Icons.Default.LocationOn,
-      iconTint = BluePrimary,
+      iconTint = FixTheme.colors.primary,
       background = LightBlueBorder,
       title = "Location",
       description = "Used to show tasks and helpers near you, and to fill in your task address.",
@@ -201,7 +201,7 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
 
     PermissionRow(
       icon = Icons.Default.NotificationsActive,
-      iconTint = OrangeSecondary,
+      iconTint = FixTheme.colors.accentGraphic,
       background = LightOrangeBorder,
       title = "Notifications",
       description = "Used to tell you when someone accepts your task or sends a message.",
@@ -237,7 +237,7 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
     TextButton(onClick = onPermissionsHandled) {
       Text(
         if (allHandled) "Skip" else "Continue without these",
-        color = SecondaryGrey,
+        color = FixTheme.colors.textSecondary,
         fontWeight = FontWeight.Medium,
       )
     }
@@ -245,7 +245,7 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
     Text(
       "You can change this later in your device settings.",
       fontSize = 12.sp,
-      color = SecondaryGrey,
+      color = FixTheme.colors.textSecondary,
       textAlign = TextAlign.Center,
     )
     Spacer(modifier = Modifier.height(16.dp))
@@ -270,19 +270,19 @@ private fun PermissionRow(
     }
     Spacer(modifier = Modifier.height(16.dp))
     Row(verticalAlignment = Alignment.CenterVertically) {
-      Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+      Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
       if (granted) {
         Spacer(modifier = Modifier.width(8.dp))
         Icon(
           Icons.Default.CheckCircle,
           contentDescription = "Granted",
-          tint = SuccessGreen,
+          tint = FixTheme.colors.success,
           modifier = Modifier.size(18.dp),
         )
       }
     }
     Spacer(modifier = Modifier.height(6.dp))
-    Text(description, fontSize = 14.sp, color = SecondaryGrey, textAlign = TextAlign.Center)
+    Text(description, fontSize = 14.sp, color = FixTheme.colors.textSecondary, textAlign = TextAlign.Center)
   }
 }
 
