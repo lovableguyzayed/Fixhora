@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">FixoraX</string>
+    <!--
+      app_name is deliberately NOT declared here. It is supplied per build type by resValue in
+      app/build.gradle.kts, so the debug channel can label itself "FixoraX (Debug)" and sit on the
+      device alongside the release build. Declaring it here as well would be a duplicate resource.
+    -->
 </resources>

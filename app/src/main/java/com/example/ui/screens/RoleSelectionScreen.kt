@@ -38,6 +38,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontStyle
+import com.example.BuildConfig
 import com.example.data.session.UserRole
 import com.example.ui.theme.*
 
@@ -218,8 +219,19 @@ fun RoleSelectionScreen(
                     text = if (isHindi) "आप बाद में सेटिंग्स में भाषा बदल सकते हैं" else "You can change the language later in settings",
                     fontSize = 14.sp,
                     color = FixTheme.colors.textMuted,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Which build is actually on the device. Without this there is no way to tell
+                // whether an update landed, short of reading the system app info screen.
+                Text(
+                    text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    fontSize = 12.sp,
+                    color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 40.dp)
+                    modifier = Modifier.padding(bottom = 32.dp)
                 )
             }
         }

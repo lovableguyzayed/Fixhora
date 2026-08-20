@@ -1,5 +1,24 @@
 # Changelog
 
+## Batch R — Release signing, versioning & APK delivery
+
+Requested out of sequence: an installable APK, where **a newer APK always installs over an older
+one**. Three separate things made that impossible.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Release signing reads a keystore from `RELEASE_KEYSTORE_*` environment variables | Android refuses an update signed with a different key than the installed app. Distributed APKs now all share one key, held in GitHub Secrets. Batch 0's debug default was the machine-local `~/.android/debug.keystore`, so an APK built anywhere else could never update one built here. | Medium. |
+| `assembleRelease` fails loudly without a keystore | Batch 0 made it fall back to unsigned so a fresh clone would not break. An unsigned APK installs nowhere, so producing one silently is worse than stopping. The guard only trips when a release task was actually requested, so `assembleDebug` and `test` still work with no secrets. | Low. |
+| `versionCode` derived from `git rev-list --count HEAD` | It was hardcoded to `1`, so Android could not tell one build from the next and had no upgrade semantics at all. Now it rises with every commit, with no manual step. Overridable with `-PversionCode=N`. | Medium. **CI must use `fetch-depth: 0`** — a shallow clone counts fewer commits, produces a *lower* version, and Android rejects that install outright. |
+| `applicationId`: `com.aistudio.fixhora.xyzkpa` → `com.fixhora.app` | An AI Studio leftover that would have become the app's permanent identity on the Play Store. Changing it is only cheap before real distribution. | **Requires one uninstall.** Android sees a new id as a different app, not an update. |
+| Debug builds get `.debug` suffix and a "FixoraX (Debug)" label | Debug is signed with a machine-local key and release with the CI key, so one can never update the other. Separate ids let both sit on the device instead of the install failing. | Low. Reverses a Batch 0 decision that no longer holds now that release has its own key. |
+| `app_name` moved from `strings.xml` into per-build-type `resValue` | Needed for the debug label. Declaring it in both places is a duplicate-resource error. | Low. |
+| Running version shown on the role-selection screen | Otherwise there is no way to tell whether an update actually landed. | Low. |
+| New `.github/workflows/release-apk.yml` | The APK has to come from somewhere: this container cannot build it (`dl.google.com` is blocked by network policy, so the Android SDK and AGP are both unreachable — verified in Batch 0). CI runs the tests, builds, verifies the APK is genuinely signed with `apksigner`, and publishes it to a GitHub Release. | Medium. First CI run is also the first real compile of Batches 0–5. |
+| New `scripts/make-release-keystore.sh` | The signing key is unrecoverable — lose it and the app can never be updated again under this id. The script generates it **on the user's own machine** so the private key never passes through a chat transcript. | Low. |
+| `.gitignore`: `*.jks`, `*.keystore` | A signing key in the repository can be used by anyone to sign an APK that Android accepts as this app. | Low. |
+| `README.md` rewritten | It was AI Studio boilerplate about a Gemini API key, describing a different project. Now covers install, update, the "App not installed" causes, signing, versioning and architecture. | Low. |
+
 ## Batch 5 — Design system & dark mode
 
 | Changed | Reason | Risk |

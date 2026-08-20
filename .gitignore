@@ -15,4 +15,9 @@
 .cxx
 local.properties
 .env
+
+# Signing keys never belong in the repository. The release key lives in GitHub Secrets; losing or
+# leaking it means the app can never be updated again under this application id.
+*.jks
+*.keystore
 debug.keystore
