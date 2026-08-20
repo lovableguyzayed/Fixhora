@@ -1,5 +1,22 @@
 # Changelog
 
+## Batch 4 — Real location
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `LocationProvider` over `FusedLocationProviderClient` + `Geocoder` | GPS was never requested anywhere in the app. Every one of the four ordinary outcomes — permission refused, location switched off, no fix indoors, no geocoder backend — returns a distinct result instead of an exception, because the user needs to be told which one happened. | Medium. First real use of Play Services location. |
+| "Use my current location" resolves a real position | The switch previously just flipped a boolean while the screen displayed a hardcoded `"Sector 62, Noida, Uttar Pradesh 201309"`. That string then travelled into the review screen and the helper feed as though it were the user's address. | Medium. |
+| Turning the switch on requests the location permission if needed | Nothing in the flow had ever asked for it, so location could not have worked even if it had been wired up. | Low. |
+| Each failure gets its own message, and "Location is off" offers a Settings shortcut | "Something went wrong" would leave the user with no idea whether to grant a permission, turn on GPS, or walk to a window. | Low. |
+| Address suggestions come from `Geocoder.getFromLocationName` | **Changed from the plan.** The plan said to label the mock list as "Demo suggestions"; a real lookup was available for free through the platform geocoder, so the five hardcoded Indian addresses are gone rather than relabelled. When the device has no geocoder backend the list is simply empty — nothing is fabricated. | Medium. Depends on a device geocoder; results vary by device and network. |
+| Address search is debounced (450 ms) | Otherwise every keystroke fires a geocoder lookup. | Low. |
+| Picking a suggestion stores its coordinates; typing clears them | Coordinates left over from a previous fix would otherwise stay attached to a different, newly typed address. | Low. |
+| Review screen shows the real address | It printed "Current Location (Noida)" whenever the switch was on, wherever the user actually was. | Low. |
+| Map graphic labelled "Map preview — not an interactive map yet" | It reads as a real map with a pin dropped at the user's address. It is neither. | Low. |
+| Continue accepts coordinates without an address | A fix that resolves but cannot be reverse-geocoded still locates the task; blocking it would strand the user. | Low. |
+
+**Known limitation:** the map is still a static graphic. Real map rendering needs the Maps SDK and a billing-enabled API key, which this project deliberately does not have.
+
 ## Batch 3 — Task flow correctness
 
 | Changed | Reason | Risk |

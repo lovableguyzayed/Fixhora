@@ -1,6 +1,12 @@
 package com.example.ui.screens.taskflow
 
+import android.Manifest
+import android.content.Intent
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,7 +38,30 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
     val uiState by viewModel.uiState.collectAsState()
+    val fetchState by viewModel.locationFetchState.collectAsState()
+    val suggestions by viewModel.addressSuggestions.collectAsState()
     val useCurrentLocation = uiState.useCurrentLocation
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { granted ->
+        // Retry only if something was actually granted; otherwise the state already explains why.
+        if (granted.values.any { it }) viewModel.useCurrentLocation()
+    }
+
+    fun requestCurrentLocation() {
+        if (viewModel.hasLocationPermission()) {
+            viewModel.useCurrentLocation()
+        } else {
+            permissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -61,13 +90,19 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         OutlinedTextField(
             value = uiState.locationQuery,
-            onValueChange = { 
-                viewModel.updateLocationQuery(it)
-                if (it.isNotEmpty()) viewModel.updateUseCurrentLocation(false)
-            },
+            onValueChange = { viewModel.updateLocationQuery(it) },
             placeholder = { Text("Search address or area") },
+            singleLine = true,
             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-            trailingIcon = { Icon(Icons.Default.MyLocation, contentDescription = null, tint = BluePrimary) },
+            trailingIcon = {
+                IconButton(onClick = { requestCurrentLocation() }) {
+                    Icon(
+                        Icons.Default.MyLocation,
+                        contentDescription = "Use my current location",
+                        tint = BluePrimary
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -75,21 +110,9 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             )
         )
 
-        // Interactive Address Autocomplete suggestions
-        val mockSuggestions = listOf(
-            "Sector 62, Noida, Uttar Pradesh 201309",
-            "Connaught Place, New Delhi, Delhi 110001",
-            "Indiranagar, Bengaluru, Karnataka 560038",
-            "Bandra West, Mumbai, Maharashtra 400050",
-            "Salt Lake, Kolkata, West Bengal 700091"
-        )
-        val filteredSuggestions = if (uiState.locationQuery.isNotBlank() && !useCurrentLocation) {
-            mockSuggestions.filter { it.contains(uiState.locationQuery, ignoreCase = true) && it != uiState.locationQuery }
-        } else {
-            emptyList()
-        }
-
-        if (filteredSuggestions.isNotEmpty()) {
+        // Real suggestions from the device geocoder. This used to be a hardcoded list of five
+        // Indian addresses filtered by substring, presented as though it were address lookup.
+        if (suggestions.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -98,14 +121,11 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
             ) {
                 Column {
-                    filteredSuggestions.forEach { suggestion ->
+                    suggestions.forEachIndexed { index, suggestion ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    viewModel.updateLocationQuery(suggestion)
-                                    viewModel.updateUseCurrentLocation(false)
-                                }
+                                .clickable { viewModel.selectSuggestion(suggestion) }
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -117,19 +137,35 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = suggestion,
+                                text = suggestion.label,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                         }
-                        if (suggestion != filteredSuggestions.last()) {
+                        if (index != suggestions.lastIndex) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                         }
                     }
                 }
             }
         }
-        
+
+        val locationMessage = fetchState.explain()
+        if (locationMessage != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+            LocationNotice(
+                message = locationMessage,
+                isError = fetchState != LocationFetchState.RESOLVING,
+                actionLabel = if (fetchState == LocationFetchState.SERVICES_DISABLED) "Open settings" else null,
+                onAction = {
+                    context.startActivity(
+                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                }
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
         
         // Mock Map Area
@@ -169,8 +205,23 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             )
                         }
                     }
+
+                    // This graphic is not a map and never was. Saying so stops it from reading as
+                    // a real pin dropped at the user's address.
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
+                    ) {
+                        Text(
+                            "Map preview — not an interactive map yet",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
                 }
-                
+
                 Surface(
                     color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
@@ -179,19 +230,43 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         modifier = Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = BluePrimary,
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
+                        if (fetchState == LocationFetchState.RESOLVING) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp).padding(end = 4.dp),
+                                color = BluePrimary,
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = BluePrimary,
+                                modifier = Modifier.padding(end = 12.dp)
+                            )
+                        }
                         Column(modifier = Modifier.weight(1f)) {
                             Text("Use my current location", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                            Text("Sector 62, Noida, Uttar Pradesh 201309", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                text = when {
+                                    fetchState == LocationFetchState.RESOLVING -> "Finding you…"
+                                    useCurrentLocation && uiState.locationQuery.isNotBlank() ->
+                                        uiState.locationQuery
+                                    useCurrentLocation && uiState.latitude != null ->
+                                        "Position found, but no street address"
+                                    else -> "Off — enter an address above, or turn this on"
+                                },
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         Switch(
                             checked = useCurrentLocation,
-                            onCheckedChange = { viewModel.updateUseCurrentLocation(it) },
+                            enabled = fetchState != LocationFetchState.RESOLVING,
+                            onCheckedChange = { enabled ->
+                                if (enabled) requestCurrentLocation()
+                                else viewModel.stopUsingCurrentLocation()
+                            },
                             colors = SwitchDefaults.colors(checkedTrackColor = BluePrimary)
                         )
                     }
@@ -320,9 +395,13 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             }
         }
         
+        // A resolved fix without a readable address still locates the task, so coordinates alone
+        // are enough to continue.
+        val hasLocation = uiState.locationQuery.isNotBlank() || uiState.latitude != null
+
         if (showError) {
             Text(
-                text = "Please enter an address or enable 'Use my current location'",
+                text = "Enter an address, or turn on 'Use my current location'",
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -330,8 +409,9 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         }
 
         Button(
-            onClick = { 
-                if (useCurrentLocation || uiState.locationQuery.isNotBlank()) {
+            onClick = {
+                if (hasLocation) {
+                    viewModel.dismissAddressSuggestions()
                     onNext()
                 } else {
                     showError = true
@@ -351,6 +431,63 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+        }
+    }
+}
+
+/**
+ * Says which of the four ordinary location failures happened, and what the user can do next.
+ * Returns null when there is nothing to report.
+ */
+private fun LocationFetchState.explain(): String? =
+    when (this) {
+        LocationFetchState.IDLE -> null
+        LocationFetchState.RESOLVING -> "Finding your location…"
+        LocationFetchState.PERMISSION_REQUIRED ->
+            "Location access is off for this app. Allow it, or type the address above."
+        LocationFetchState.SERVICES_DISABLED ->
+            "Location is switched off on this device. Turn it on, or type the address above."
+        LocationFetchState.UNAVAILABLE ->
+            "Couldn't get a location fix. Move somewhere with a clearer signal, or type the address above."
+        LocationFetchState.NO_ADDRESS_FOUND ->
+            "Found your position, but not a street address. Please type it above."
+    }
+
+@Composable
+private fun LocationNotice(
+    message: String,
+    isError: Boolean,
+    actionLabel: String?,
+    onAction: () -> Unit
+) {
+    Surface(
+        color = if (isError) {
+            MaterialTheme.colorScheme.errorContainer
+        } else {
+            BluePrimary.copy(alpha = 0.08f)
+        },
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = message,
+                fontSize = 13.sp,
+                color = if (isError) {
+                    MaterialTheme.colorScheme.onErrorContainer
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                modifier = Modifier.weight(1f)
+            )
+            if (actionLabel != null) {
+                TextButton(onClick = onAction) {
+                    Text(actionLabel, color = BluePrimary, fontWeight = FontWeight.SemiBold)
+                }
+            }
         }
     }
 }

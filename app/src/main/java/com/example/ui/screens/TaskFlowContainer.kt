@@ -52,7 +52,8 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
         factory = TaskViewModel.Factory(
             application.taskRepository,
             application.sessionManager,
-            application.taskPhotoStore
+            application.taskPhotoStore,
+            application.locationProvider
         )
     )
 

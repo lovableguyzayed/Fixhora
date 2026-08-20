@@ -107,10 +107,20 @@ fun TaskReviewScreen(
         Spacer(modifier = Modifier.height(12.dp))
         
         // Location Card
+        // "Current Location (Noida)" used to be printed here whenever the switch was on,
+        // regardless of where the user actually was.
         ReviewCard(
             label = "Location",
-            title = if (uiState.useCurrentLocation) "Current Location (Noida)" else uiState.locationQuery.ifEmpty { "Not specified" },
-            subtitle = null,
+            title = when {
+                uiState.locationQuery.isNotBlank() -> uiState.locationQuery
+                uiState.latitude != null -> "Current location (no street address found)"
+                else -> "Not specified"
+            },
+            subtitle = if (uiState.useCurrentLocation && uiState.locationQuery.isNotBlank()) {
+                "From your current location"
+            } else {
+                null
+            },
             onEditClick = { onNavigateToStep(TaskScreen.Location.route) },
             extraContent = {
                 Surface(

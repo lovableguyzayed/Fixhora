@@ -4,6 +4,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.data.location.AddressSuggestion
+import com.example.data.location.LocationOutcome
+import com.example.data.location.LocationProvider
 import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
@@ -18,6 +21,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/** What happened the last time the app tried to read the device's location. */
+enum class LocationFetchState {
+  IDLE,
+  RESOLVING,
+  PERMISSION_REQUIRED,
+  SERVICES_DISABLED,
+  UNAVAILABLE,
+  NO_ADDRESS_FOUND,
+}
 
 /** Where a "Post Task" press has got to. Navigation waits on [SUCCESS]. */
 enum class SubmitState {
@@ -46,6 +59,7 @@ class TaskViewModel(
   private val repository: TaskRepository,
   private val sessionManager: SessionManager,
   private val photoStore: TaskPhotoStore,
+  private val locationProvider: LocationProvider,
 ) : ViewModel() {
 
   private val _uiState = MutableStateFlow(TaskDraftState())
@@ -57,10 +71,17 @@ class TaskViewModel(
   private val _isImportingPhotos = MutableStateFlow(false)
   val isImportingPhotos: StateFlow<Boolean> = _isImportingPhotos.asStateFlow()
 
+  private val _locationFetchState = MutableStateFlow(LocationFetchState.IDLE)
+  val locationFetchState: StateFlow<LocationFetchState> = _locationFetchState.asStateFlow()
+
+  private val _addressSuggestions = MutableStateFlow<List<AddressSuggestion>>(emptyList())
+  val addressSuggestions: StateFlow<List<AddressSuggestion>> = _addressSuggestions.asStateFlow()
+
   /** Whose draft this is. Null until the session has been read for the first time. */
   private var ownerId: String? = null
 
   private var saveJob: Job? = null
+  private var searchJob: Job? = null
 
   init {
     viewModelScope.launch {
@@ -177,20 +198,113 @@ class TaskViewModel(
     _uiState.update { it.copy(searchCategoryQuery = query) }
   }
 
+  /**
+   * A typed address is a different place from whatever the last fix resolved to, so the stored
+   * coordinates are cleared until the user picks a suggestion that carries new ones.
+   */
   fun updateLocationQuery(query: String) {
-    _uiState.update { it.copy(locationQuery = query) }
+    _uiState.update {
+      it.copy(locationQuery = query, latitude = null, longitude = null, useCurrentLocation = false)
+    }
+    _locationFetchState.value = LocationFetchState.IDLE
+    saveDraft()
+    scheduleAddressSearch(query)
+  }
+
+  fun selectSuggestion(suggestion: AddressSuggestion) {
+    searchJob?.cancel()
+    _addressSuggestions.value = emptyList()
+    _uiState.update {
+      it.copy(
+        locationQuery = suggestion.label,
+        latitude = suggestion.latitude,
+        longitude = suggestion.longitude,
+        useCurrentLocation = false,
+      )
+    }
     saveDraft()
   }
 
-  fun updateUseCurrentLocation(use: Boolean) {
-    _uiState.update { it.copy(useCurrentLocation = use) }
+  fun dismissAddressSuggestions() {
+    searchJob?.cancel()
+    _addressSuggestions.value = emptyList()
+  }
+
+  /** Debounced so that typing an address does not fire a geocoder lookup per keystroke. */
+  private fun scheduleAddressSearch(query: String) {
+    searchJob?.cancel()
+    if (query.isBlank()) {
+      _addressSuggestions.value = emptyList()
+      return
+    }
+    searchJob =
+      viewModelScope.launch {
+        delay(ADDRESS_SEARCH_DEBOUNCE_MS)
+        _addressSuggestions.value =
+          try {
+            locationProvider.searchAddresses(query)
+          } catch (e: Exception) {
+            emptyList()
+          }
+      }
+  }
+
+  /**
+   * Reads the real device location and fills in the address.
+   *
+   * Turning the switch on no longer implies a location: until a fix actually resolves, the task
+   * has no address. Previously the screen displayed a hardcoded "Sector 62, Noida" that was then
+   * carried into the review screen and the helper feed as though it were the user's address.
+   */
+  fun useCurrentLocation() {
+    if (_locationFetchState.value == LocationFetchState.RESOLVING) return
+    searchJob?.cancel()
+    _addressSuggestions.value = emptyList()
+    _locationFetchState.value = LocationFetchState.RESOLVING
+    viewModelScope.launch {
+      when (val outcome = locationProvider.currentLocation()) {
+        is LocationOutcome.Resolved -> {
+          _uiState.update {
+            it.copy(
+              useCurrentLocation = true,
+              latitude = outcome.latitude,
+              longitude = outcome.longitude,
+              locationQuery = outcome.address ?: it.locationQuery,
+            )
+          }
+          _locationFetchState.value =
+            if (outcome.address == null) {
+              // Coordinates without a readable address still locate the task; the user just has
+              // to type the address themselves.
+              LocationFetchState.NO_ADDRESS_FOUND
+            } else {
+              LocationFetchState.IDLE
+            }
+          saveDraft()
+        }
+        LocationOutcome.PermissionMissing -> {
+          _uiState.update { it.copy(useCurrentLocation = false) }
+          _locationFetchState.value = LocationFetchState.PERMISSION_REQUIRED
+        }
+        LocationOutcome.LocationDisabled -> {
+          _uiState.update { it.copy(useCurrentLocation = false) }
+          _locationFetchState.value = LocationFetchState.SERVICES_DISABLED
+        }
+        LocationOutcome.Unavailable -> {
+          _uiState.update { it.copy(useCurrentLocation = false) }
+          _locationFetchState.value = LocationFetchState.UNAVAILABLE
+        }
+      }
+    }
+  }
+
+  fun stopUsingCurrentLocation() {
+    _uiState.update { it.copy(useCurrentLocation = false) }
+    _locationFetchState.value = LocationFetchState.IDLE
     saveDraft()
   }
 
-  fun updateResolvedCoordinates(latitude: Double?, longitude: Double?) {
-    _uiState.update { it.copy(latitude = latitude, longitude = longitude) }
-    saveDraft()
-  }
+  fun hasLocationPermission(): Boolean = locationProvider.hasPermission()
 
   fun updateSelectedDistance(distance: Int) {
     _uiState.update { it.copy(selectedDistance = distance) }
@@ -280,11 +394,12 @@ class TaskViewModel(
     private val repository: TaskRepository,
     private val sessionManager: SessionManager,
     private val photoStore: TaskPhotoStore,
+    private val locationProvider: LocationProvider,
   ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
       if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-        return TaskViewModel(repository, sessionManager, photoStore) as T
+        return TaskViewModel(repository, sessionManager, photoStore, locationProvider) as T
       }
       throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
@@ -293,6 +408,7 @@ class TaskViewModel(
   companion object {
     const val MAX_PHOTOS = 5
     private const val AUTOSAVE_DEBOUNCE_MS = 500L
+    private const val ADDRESS_SEARCH_DEBOUNCE_MS = 450L
 
     /** Distances offered by the service-area picker, in kilometres. */
     val DISTANCE_OPTIONS_KM = listOf(5, 10, 25, 50)

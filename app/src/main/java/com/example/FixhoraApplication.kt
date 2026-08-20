@@ -2,6 +2,7 @@ package com.example
 
 import android.app.Application
 import androidx.room.Room
+import com.example.data.location.LocationProvider
 import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.ChatRepository
 import com.example.data.repository.TaskRepository
@@ -38,6 +39,9 @@ class FixhoraApplication : Application() {
   lateinit var taskPhotoStore: TaskPhotoStore
     private set
 
+  lateinit var locationProvider: LocationProvider
+    private set
+
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   override fun onCreate() {
@@ -64,6 +68,7 @@ class FixhoraApplication : Application() {
     userRepository = UserRepository(database.userDao())
     sessionManager = SessionManager(this)
     taskPhotoStore = TaskPhotoStore(this)
+    locationProvider = LocationProvider(this)
 
     if (BuildConfig.DEBUG) {
       // Seeded once, from here only. Previously both TaskViewModel and HelperViewModel seeded on
