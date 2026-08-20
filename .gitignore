@@ -21,3 +21,9 @@ local.properties
 *.jks
 *.keystore
 debug.keystore
+
+# The one exception: the debug key is deliberately committed. A debug key is not a secret —
+# Android's own default debug key is public with the password "android" — and Play Store will not
+# accept anything signed with it. Committing it is what makes debug APKs update each other across
+# machines and CI runs instead of each build refusing to replace the last.
+!keystore/fixhora-debug.jks

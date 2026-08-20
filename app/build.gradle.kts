@@ -85,6 +85,18 @@ android {
   }
 
   signingConfigs {
+    // Checked into the repo on purpose. AGP's default is the *machine-local*
+    // ~/.android/debug.keystore, so a debug APK built here could never update one built on your
+    // laptop or in CI. A shared debug key makes the debug channel updatable everywhere. It is not
+    // a secret: Android's own default debug key is public, and Play Store rejects debug-signed
+    // builds regardless.
+    getByName("debug") {
+      storeFile = rootProject.file("keystore/fixhora-debug.jks")
+      storePassword = "android"
+      keyAlias = "androiddebugkey"
+      keyPassword = "android"
+    }
+
     if (hasReleaseKeystore) {
       create("release") {
         storeFile = file(keystorePath!!)

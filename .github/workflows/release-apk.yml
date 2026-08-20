@@ -1,7 +1,12 @@
-name: Build signed APK
+name: Build APK
 
-# Produces the APK that gets sideloaded. Every APK from this workflow is signed with the same key
-# held in repository secrets, which is what lets each new build install over the previous one.
+# Produces the APKs that get sideloaded.
+#
+# Two channels, both updatable:
+#   debug   - always built, no secrets needed. Signed with the committed debug key, so every
+#             build from any machine updates the last. Installs as "FixoraX (Debug)".
+#   release - built only once the RELEASE_KEYSTORE_BASE64 secret exists. Signed with the private
+#             key, and the channel intended for real distribution.
 
 on:
   push:
@@ -16,15 +21,16 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_KEY: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
 
     steps:
       - name: Check out
         uses: actions/checkout@v4
         with:
-          # versionCode is derived from the commit count, so a shallow clone would compute a
-          # smaller number than the previous build. Android refuses to install a lower
-          # versionCode, which would break exactly the update path this workflow exists to
-          # guarantee.
+          # versionCode is the commit count, so a shallow clone would compute a smaller number
+          # than the previous build. Android refuses to install a lower versionCode, which would
+          # break exactly the update path this workflow exists to guarantee.
           fetch-depth: 0
 
       - name: Set up JDK 21
@@ -36,24 +42,32 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Read version
+        id: version
+        run: |
+          VERSION_CODE=$(git rev-list --count HEAD)
+          echo "code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "name=1.0.$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "Building version 1.0.$VERSION_CODE (versionCode $VERSION_CODE)"
+
       - name: Run unit tests
         run: ./gradlew test --stacktrace
 
-      - name: Decode signing keystore
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Decode release keystore
         id: keystore
+        if: env.HAS_RELEASE_KEY == 'true'
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
-            echo "::error::RELEASE_KEYSTORE_BASE64 secret is not set."
-            echo "::error::Run ./scripts/make-release-keystore.sh and add the four secrets it prints."
-            exit 1
-          fi
           mkdir -p "$RUNNER_TEMP/signing"
           echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/signing/release.jks"
           echo "path=$RUNNER_TEMP/signing/release.jks" >> "$GITHUB_OUTPUT"
 
       - name: Build release APK
+        if: env.HAS_RELEASE_KEY == 'true'
         env:
           RELEASE_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
@@ -61,26 +75,26 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Read version
-        id: version
+      - name: Collect and verify APKs
         run: |
-          VERSION_CODE=$(git rev-list --count HEAD)
-          echo "code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
-          echo "name=1.0.$VERSION_CODE" >> "$GITHUB_OUTPUT"
-
-      - name: Verify the APK is actually signed
-        run: |
-          APK=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
-          echo "Built: $APK"
-          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          # An unsigned APK installs nowhere, so failing here is better than publishing one.
-          "$BUILD_TOOLS/apksigner" verify --print-certs "$APK"
-          echo "apk=$APK" >> "$GITHUB_ENV"
-
-      - name: Rename APK
-        run: |
+          set -euo pipefail
           mkdir -p dist
-          cp "$apk" "dist/fixhora-${{ steps.version.outputs.name }}.apk"
+          BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          VERSION="${{ steps.version.outputs.name }}"
+
+          DEBUG_APK=$(find app/build/outputs/apk/debug -name "*.apk" | head -1)
+          cp "$DEBUG_APK" "dist/fixhora-$VERSION-debug.apk"
+
+          if [ "$HAS_RELEASE_KEY" = "true" ]; then
+            RELEASE_APK=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+            cp "$RELEASE_APK" "dist/fixhora-$VERSION.apk"
+          fi
+
+          # An unsigned APK installs nowhere, so failing here beats publishing one.
+          for apk in dist/*.apk; do
+            echo "--- $apk"
+            "$BUILD_TOOLS/apksigner" verify --print-certs "$apk"
+          done
 
       - name: Upload as workflow artifact
         uses: actions/upload-artifact@v4
@@ -92,19 +106,35 @@ jobs:
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.name }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
         run: |
-          TAG="v${{ steps.version.outputs.name }}"
-          NOTES=$(printf '%s\n' \
-            "Version ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }})" \
-            "" \
-            "Download the .apk below on your phone and open it to install." \
-            "" \
-            "This build installs straight over any earlier release from this workflow — they all" \
-            "share one signing key. If Android says \"App not installed\", you still have the old" \
-            "pre-release build (a different application id); uninstall it once and this will work." \
-            "" \
-            "Commit: ${{ github.sha }}")
-          gh release create "$TAG" "dist/fixhora-${{ steps.version.outputs.name }}.apk" \
-            --title "Fixhora ${{ steps.version.outputs.name }}" \
-            --notes "$NOTES" \
-            || gh release upload "$TAG" "dist/fixhora-${{ steps.version.outputs.name }}.apk" --clobber
+          set -euo pipefail
+          TAG="v$VERSION"
+
+          if [ "$HAS_RELEASE_KEY" = "true" ]; then
+            SIGNING_NOTE="Signed with the project release key."
+          else
+            SIGNING_NOTE="Debug-signed build. The release key is not configured yet — see README."
+          fi
+
+          NOTES=$(cat <<EOF
+          Version $VERSION (versionCode $VERSION_CODE)
+
+          Download the .apk below on your phone and open it to install.
+
+          $SIGNING_NOTE
+
+          This installs straight over any earlier build of the same channel — they share one
+          signing key. If Android says "App not installed", you still have a build from before
+          the application id changed to \`com.fixhora.app\`; uninstall it once and this will work.
+
+          Commit: ${{ github.sha }}
+          EOF
+          )
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.apk --clobber
+          else
+            gh release create "$TAG" dist/*.apk --title "Fixhora $VERSION" --notes "$NOTES"
+          fi
