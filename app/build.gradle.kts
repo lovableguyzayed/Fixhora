@@ -133,6 +133,9 @@ android {
   buildFeatures {
     compose = true
     buildConfig = true
+    // AGP 9 turns resValue off by default. app_name is generated per build type so the debug
+    // channel can label itself, so this has to be on.
+    resValues = true
   }
   testOptions { unitTests { isIncludeAndroidResources = true } }
 }
