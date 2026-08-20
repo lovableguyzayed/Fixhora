@@ -109,7 +109,10 @@ android {
 
   buildTypes {
     release {
-      isCrunchPngs = false
+      // Crunching makes aapt decode and re-encode every PNG, so a malformed one fails the build.
+      // With it off, twenty corrupt launcher icons shipped in the APK unnoticed: aapt copied them
+      // through byte-for-byte and Android simply failed to decode them at install time.
+      isCrunchPngs = true
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.findByName("release")

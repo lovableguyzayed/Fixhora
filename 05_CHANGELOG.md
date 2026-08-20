@@ -1,5 +1,20 @@
 # Changelog
 
+## Launcher icon fix
+
+The app had no launcher icon, despite a full icon set being in the repository.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Replaced all 20 launcher PNGs in `app/src/main/res/mipmap-*/` | **Every one of them was corrupt.** Each began `ef bf bd 50 4e 47` instead of `89 50 4e 47` — the leading `0x89` byte rewritten as the UTF-8 replacement character, which is what happens when a binary file is read as text and written back. Android could not decode any of them, so the launcher fell back to a default icon. The valid originals were sitting in `android/res/`, which Gradle never compiles. | Low. |
+| Added `ic_launcher_round.png` for every density | The round icon existed only as `mipmap-anydpi-v26/ic_launcher_round.xml`, which covers API 26+. `minSdk` is 24, so on API 24–25 `@mipmap/ic_launcher_round` resolved to nothing at all. | Low. |
+| `isCrunchPngs = true` for release | This is why the corruption shipped silently. With crunching off, aapt copies PNGs through byte-for-byte without decoding them, so twenty unreadable files passed the build. With it on, a malformed PNG fails the build instead of becoming a blank icon on someone's home screen. | Low. Slightly slower release builds. |
+| Deleted `app/mipmap-hdpi/` | Stock template icons sitting outside any source set — never built, and easy to mistake for the real ones. | Low. |
+
+The in-app artwork (`img_logo`, `img_customer`, `img_worker`) was never affected, which is why the splash and role screens looked right while the launcher did not.
+
+`android/`, `ios/` and `web/` remain as the multi-platform icon export; only `app/src/main/res/` is compiled into the APK.
+
 ## Batch R — Release signing, versioning & APK delivery
 
 Requested out of sequence: an installable APK, where **a newer APK always installs over an older
