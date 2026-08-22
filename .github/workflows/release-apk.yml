@@ -50,6 +50,29 @@ jobs:
           echo "name=1.0.$VERSION_CODE" >> "$GITHUB_OUTPUT"
           echo "Building version 1.0.$VERSION_CODE (versionCode $VERSION_CODE)"
 
+      - name: Refuse a version that would move backwards
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_CODE: ${{ steps.version.outputs.code }}
+        run: |
+          set -euo pipefail
+          # versionCode is the commit count. A build from a branch with fewer commits, or from a
+          # shallow clone, would compute a lower number than an already-published release — and
+          # Android refuses to install a lower versionCode over a higher one, permanently breaking
+          # the update path for anyone who installed the higher build. Equal is allowed: re-running
+          # the same commit republishes the same tag.
+          HIGHEST=$(gh release list --limit 100 --json tagName --jq '.[].tagName' \
+            | sed -n 's/^v[0-9]\+\.[0-9]\+\.\([0-9]\+\)$/\1/p' \
+            | sort -n | tail -1)
+          HIGHEST=${HIGHEST:-0}
+          echo "Building versionCode $VERSION_CODE; highest published is $HIGHEST"
+          if [ "$VERSION_CODE" -lt "$HIGHEST" ]; then
+            echo "::error::versionCode $VERSION_CODE is lower than the published $HIGHEST." \
+                 "Android would refuse this as an update. Check that the checkout is not shallow" \
+                 "and that this branch is not behind the one the last release was built from."
+            exit 1
+          fi
+
       - name: Run unit tests
         run: ./gradlew test --stacktrace
 
@@ -129,6 +152,9 @@ jobs:
           signing key. If Android says "App not installed", you still have a build from before
           the application id changed to \`com.fixhora.app\`; uninstall it once and this will work.
 
+          From 1.0.15 onwards you only need to do this by hand once: the app checks this page
+          itself and offers the update in-app.
+
           Commit: ${{ github.sha }}
           EOF
           )
@@ -136,5 +162,11 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/*.apk --clobber
           else
-            gh release create "$TAG" dist/*.apk --title "Fixhora $VERSION" --notes "$NOTES"
+            # --target pins the tag to the built commit. Without it the tag is created on the
+            # default branch, so every tag shares one commit date — and the releases API orders
+            # "latest" by that date, which the in-app updater would then have to guess around.
+            gh release create "$TAG" dist/*.apk \
+              --target "$GITHUB_SHA" \
+              --title "Fixhora $VERSION" \
+              --notes "$NOTES"
           fi

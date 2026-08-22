@@ -18,12 +18,33 @@ any app that does not come from the Play Store.
 
 ### Updating
 
+**The app updates itself.** From 1.0.15 onwards it checks the releases page on launch — at most
+once every six hours — and offers any newer build in a dialog: *Update now* downloads the APK and
+opens the installer. You never have to visit the releases page again.
+
+To check on demand, tap the version line at the bottom of the role-selection screen.
+
+The first time you update this way, Android asks you to allow **"Install unknown apps"** for
+FixoraX. The app detects that it does not yet have that permission and takes you straight to the
+switch; turn it on, come back, and the download starts on its own. Without that grant a sideloaded
+update simply does nothing — no error, no installer — which is the most common reason a manual
+update appears to fail.
+
 Later releases install **straight over** the one you have. Do not uninstall first — uninstalling
 wipes your account and posted tasks, since everything lives on the device.
 
 This works because every APK from the release workflow is signed with the same key. Android
 refuses an update signed with a different key, which is the single most common reason a sideloaded
-update fails.
+install is rejected outright.
+
+The updater only ever offers the APK for the channel it is running in: a debug build is offered
+`fixhora-<version>-debug.apk`, a release build `fixhora-<version>.apk`. The two have different
+application ids and different signing keys, so crossing them would produce a failed install rather
+than an update.
+
+If the check itself fails — no connection, GitHub rate-limiting the request — the dialog says
+which, and offers the releases page as a fallback. An automatic check that fails stays silent; only
+a check you asked for reports back.
 
 ### "App not installed" — what it means
 
@@ -46,9 +67,13 @@ update fails.
 Requires JDK 17+ and the Android SDK (Android Studio installs both). Nothing else — no API keys,
 no `.env` values, no backend.
 
-Debug builds are signed with your machine's own debug keystore and install as a separate app
-(`com.fixhora.app.debug`, labelled "FixoraX (Debug)"), so they never collide with a release build
-you have installed.
+Debug builds are signed with `keystore/fixhora-debug.jks`, which is committed on purpose: AGP's
+default is your machine's own `~/.android/debug.keystore`, so a debug APK built on one machine
+could never update one built on another. A debug key is not a secret — Android's own default is
+public, and the Play Store rejects debug-signed builds regardless.
+
+They install as a separate app (`com.fixhora.app.debug`, labelled "FixoraX (Debug)"), so they never
+collide with a release build you have installed.
 
 ### Versioning
 

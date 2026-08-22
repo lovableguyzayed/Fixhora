@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +32,9 @@ import com.example.ui.screens.auth.SplashScreen
 import com.example.ui.screens.auth.WelcomeScreen
 import com.example.ui.screens.helper.HelperFlowContainer
 import com.example.ui.screens.helper.HelperViewModel
+import com.example.ui.screens.update.UpdateDialog
+import com.example.ui.screens.update.UpdateViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
@@ -75,6 +79,37 @@ fun FixhoraApp() {
   val application = LocalContext.current.applicationContext as FixhoraApplication
   val scope = rememberCoroutineScope()
 
+  // Hosted above the NavHost so the update dialog can appear over any screen, and survives
+  // navigation: a download started on one screen keeps running after the user moves on.
+  val updateViewModel: UpdateViewModel =
+    viewModel(
+      factory =
+        UpdateViewModel.Factory(
+          application.updateRepository,
+          application.apkInstaller,
+          application.sessionManager,
+        )
+    )
+  LaunchedEffect(Unit) { updateViewModel.checkOnLaunch() }
+
+  Box(modifier = Modifier.fillMaxSize()) {
+    AppNavHost(
+      navController = navController,
+      application = application,
+      scope = scope,
+      onCheckForUpdates = updateViewModel::checkNow,
+    )
+    UpdateDialog(viewModel = updateViewModel)
+  }
+}
+
+@Composable
+private fun AppNavHost(
+  navController: NavHostController,
+  application: FixhoraApplication,
+  scope: CoroutineScope,
+  onCheckForUpdates: () -> Unit,
+) {
   NavHost(
     navController = navController,
     startDestination = Screen.Splash.route,
@@ -196,6 +231,7 @@ fun FixhoraApp() {
 
       RoleSelectionScreen(
         signedInName = signedInName,
+        onCheckForUpdates = onCheckForUpdates,
         onRoleSelected = { role ->
           scope.launch { application.sessionManager.setActiveRole(role) }
           when (role) {

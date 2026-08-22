@@ -10,6 +10,8 @@ import com.example.data.repository.UserRepository
 import com.example.data.room.AppDatabase
 import com.example.data.seed.DemoDataSeeder
 import com.example.data.session.SessionManager
+import com.example.data.update.ApkInstaller
+import com.example.data.update.UpdateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -42,6 +44,12 @@ class FixhoraApplication : Application() {
   lateinit var locationProvider: LocationProvider
     private set
 
+  lateinit var updateRepository: UpdateRepository
+    private set
+
+  lateinit var apkInstaller: ApkInstaller
+    private set
+
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   override fun onCreate() {
@@ -69,6 +77,8 @@ class FixhoraApplication : Application() {
     sessionManager = SessionManager(this)
     taskPhotoStore = TaskPhotoStore(this)
     locationProvider = LocationProvider(this)
+    updateRepository = UpdateRepository()
+    apkInstaller = ApkInstaller(this)
 
     if (BuildConfig.DEBUG) {
       // Seeded once, from here only. Previously both TaskViewModel and HelperViewModel seeded on

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Paths the app is allowed to share through FileProvider.
+
+    Only the downloaded update APK is exposed, so the system installer can read it: an APK handed
+    over as a file:// URI throws FileUriExposedException from Android 7 onwards. "Download" is the
+    literal value of Environment.DIRECTORY_DOWNLOADS, which ApkInstaller writes to.
+-->
+<paths>
+    <external-files-path
+        name="update_downloads"
+        path="Download/" />
+</paths>

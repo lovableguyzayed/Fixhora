@@ -51,7 +51,8 @@ import com.example.R
 fun RoleSelectionScreen(
     signedInName: String?,
     onRoleSelected: (UserRole) -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    onCheckForUpdates: () -> Unit = {}
 ) {
     var selectedLanguage by remember { mutableStateOf("English") }
 
@@ -226,12 +227,18 @@ fun RoleSelectionScreen(
 
                 // Which build is actually on the device. Without this there is no way to tell
                 // whether an update landed, short of reading the system app info screen.
+                // Tapping it forces an update check: the automatic one only runs every six hours,
+                // so this is how you ask right after a new build is published.
                 Text(
-                    text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · tap to check for updates",
                     fontSize = 12.sp,
                     color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(Radius.sm))
+                        .clickable(onClick = onCheckForUpdates)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(bottom = 20.dp)
                 )
             }
         }

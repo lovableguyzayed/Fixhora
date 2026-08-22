@@ -1,5 +1,49 @@
 # Changelog
 
+## Batch U — In-app update checker (real over-the-air updates)
+
+Reported as "app kyu nahi update ho rahi hai over the air". Two separate findings, both verified
+rather than guessed:
+
+1. **There was no update mechanism at all.** Nothing in `app/src/main/java` ever looked at the
+   releases page. The delivery chosen in Batch R was a manual one — open Releases, download, tap —
+   so the app could not learn that a newer build existed.
+2. **No published APK had ever reached the device.** The GitHub API reports `download_count: 0` on
+   the assets of v1.0.12, v1.0.13 and v1.0.14. Whatever is installed is an older build carrying the
+   pre-Batch-R application id `com.aistudio.fixhora.xyzkpa`, which is a *different package* — a new
+   APK installs beside it instead of replacing it, so the old icon keeps opening the old app.
+
+Signing and versioning were ruled out, not assumed: all three releases were built after `fdce853`
+committed `keystore/fixhora-debug.jks`, the debug `signingConfig` points at that file, versionCodes
+run 12 → 13 → 14, and the application id is `com.fixhora.app.debug` in all three. Installing 14
+over 13 would have worked. The gap was delivery.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `data/update/UpdateChannel.kt` — tag parsing, channel-aware asset naming, `pickUpdate` | Kept free of Android imports so every decision is unit-testable, following `TaskFilters.kt` / `WorkerFormatting.kt`. A misread version either hides a real update or offers one Android will refuse. | Low. Covered by `UpdateChannelTest` (verified by running it). |
+| New `data/update/UpdateRepository.kt` — GitHub releases call and parsing | `HttpURLConnection` + the framework's `org.json`; Batch 0 removed Retrofit/OkHttp/Moshi and one small API call is no reason to bring three dependencies back. The HTTP call is injectable so parsing is testable without a network. | Low. Covered by `UpdateRepositoryTest`. |
+| Reads `/releases?per_page=10` and takes the **highest** version, not `/releases/latest` | `latest` is ordered by each release's `created_at`, which is the *tagged commit's* date — and every tag so far points at `main`, so all three share one timestamp and the winner is a tie-break. Taking the maximum is correct whatever order the API returns, and lets a release missing this channel's APK be skipped instead of dead-ending the check. | Low. |
+| New `data/update/ApkInstaller.kt` — `DownloadManager` download, `FileProvider` install intent | Survives backgrounding, resumes across connectivity changes, and reports progress. Writes to the app-specific external dir, so no storage permission on any supported API level. | Medium. Untestable here; device-verified only. |
+| Explicit `canRequestPackageInstalls()` check before downloading | From Android 8 every installing app needs its own "Install unknown apps" grant. Without it the installer opens and closes again — no error, nothing. This is the single most common reason a sideloaded update silently does nothing. Checking first turns a 25 MB wasted download into one extra tap. | Low. |
+| New `ui/screens/update/UpdateViewModel.kt` + `UpdateDialog.kt` | A dialog, not an inline banner, so it works over every screen without any of them changing layout to make room. Nothing is drawn in the idle case. | Medium. New surface above the NavHost. |
+| Automatic check throttled to once per six hours; silent when up to date or when it fails | Unauthenticated GitHub allows 60 calls an hour, and an automatic check that announces "you are up to date" on every launch is noise. A check the user asked for always answers. | Low. |
+| `AndroidManifest.xml`: `REQUEST_INSTALL_PACKAGES` + `FileProvider` with `${applicationId}.fileprovider` | Without the permission the system refuses to open the installer. The authority is templated so debug and release do not both claim one authority — two apps that do cannot coexist on a device. | Low. |
+| `SessionManager`: `lastUpdateCheckAt` / `recordUpdateCheck` | Deliberately kept out of `Session`: it is updater bookkeeping, not something screens should recompose on. | Low. |
+| Version footer on `RoleSelectionScreen` is now tappable and forces a check | The automatic check is throttled; this is how you ask right after a build is published. Padding raised to a real touch target. | Low. |
+| CI: `gh release create --target "$GITHUB_SHA"` | Every tag so far was created on `main` rather than on the commit that was built, so the tag misreported its own commit and all releases shared a `created_at`. | Low. |
+| CI: build fails if the computed `versionCode` is **lower** than the highest published one | A shallow clone or a branch with fewer commits computes a smaller commit count, and Android refuses to install a lower versionCode — permanently breaking the update path for anyone on the higher build. Equal is allowed so re-running a commit can republish. | Low. |
+| `testImplementation(libs.org.json)` | `android.jar` stubs `org.json` for unit tests: every call throws `Stub!`. The real implementation has to be on the test classpath or the parsing tests exercise nothing. | Low. Test-only dependency. |
+| Corrected two stale comments (`app/build.gradle.kts`, `README.md`) claiming debug builds use the machine-local keystore | Untrue since `fdce853` committed a shared debug keystore. | None. |
+
+**Destructive operations: none.** No schema change, no migration, no file the user owns is touched
+— the only deletion is this app's own previously downloaded APK in its own external files
+directory, before a new download replaces it. Rollback is reverting this one commit; nothing on an
+already-installed device is affected.
+
+**Known limitation:** this ships in 1.0.15, so the *current* install still has to be updated by
+hand once — and if the pre-Batch-R `com.aistudio.fixhora.xyzkpa` build is still on the device it
+must be uninstalled that one time, because a different application id is a different app.
+
 ## Batch 6 — Worker screens: honest & functional
 
 Every number on the worker dashboard was invented, and most of its controls did nothing.

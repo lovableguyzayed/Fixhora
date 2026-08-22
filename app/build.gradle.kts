@@ -121,9 +121,11 @@ android {
       resValue("string", "app_name", "FixoraX")
     }
     debug {
-      // Debug builds are signed with the machine-local debug keystore, so they can never update a
-      // CI-signed release APK. Giving them their own id lets both live on one device instead of
-      // the install failing with INSTALL_FAILED_UPDATE_INCOMPATIBLE.
+      // Debug and release are signed with different keys — the committed keystore/fixhora-debug.jks
+      // and the private release key — so neither can ever update the other. Giving debug its own id
+      // lets both live on one device instead of the install failing with
+      // INSTALL_FAILED_UPDATE_INCOMPATIBLE. The in-app updater matches this: it only ever offers
+      // the APK built for the channel it is running in.
       applicationIdSuffix = ".debug"
       versionNameSuffix = "-debug"
       resValue("string", "app_name", "FixoraX (Debug)")
@@ -182,6 +184,9 @@ dependencies {
   testImplementation(libs.androidx.junit)
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)
+  // android.jar stubs org.json for unit tests: every call throws "Stub!". The real implementation
+  // has to be on the test classpath for the release-parsing tests to exercise anything.
+  testImplementation(libs.org.json)
   testImplementation(libs.robolectric)
   testImplementation(libs.roborazzi)
   testImplementation(libs.roborazzi.compose)

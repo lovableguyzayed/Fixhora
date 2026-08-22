@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import java.io.IOException
@@ -32,6 +33,7 @@ class SessionManager(context: Context) {
     val ACTIVE_ROLE = stringPreferencesKey("active_role")
     val LANGUAGE = stringPreferencesKey("language")
     val THEME = stringPreferencesKey("theme")
+    val LAST_UPDATE_CHECK = longPreferencesKey("last_update_check_at")
   }
 
   val session: Flow<Session> =
@@ -70,5 +72,20 @@ class SessionManager(context: Context) {
 
   suspend fun setTheme(theme: ThemePreference) {
     dataStore.edit { it[Keys.THEME] = theme.storageValue }
+  }
+
+  /**
+   * When the app last asked the releases API for a newer build, or 0 if it never has.
+   *
+   * Kept out of [Session] on purpose: it is bookkeeping for the updater, not something a screen
+   * should be recomposing on.
+   */
+  suspend fun lastUpdateCheckAt(): Long =
+    dataStore.data
+      .catch { cause -> if (cause is IOException) emit(emptyPreferences()) else throw cause }
+      .first()[Keys.LAST_UPDATE_CHECK] ?: 0L
+
+  suspend fun recordUpdateCheck(at: Long) {
+    dataStore.edit { it[Keys.LAST_UPDATE_CHECK] = at }
   }
 }
