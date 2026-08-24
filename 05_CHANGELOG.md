@@ -1,5 +1,41 @@
 # Changelog
 
+## Batch 8 — The customer's side of the loop
+
+A customer could post a task and then never see it again. The wizard ended on a success screen
+whose only exit was "Return to Home", and nothing anywhere showed them what they had asked for,
+whether anyone had taken it, or how to reach the person who did. Chat had the matching hole: the
+worker could open a thread, the customer had no way in, so every conversation was one-sided.
+
+The database already supported all of it — `ChatRepository.SENDER_CUSTOMER` had existed since
+Batch 1. Only the surface was missing.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New **My tasks** tab with everything the customer posted | The core hole. Status, age, location and budget per task, newest first, with an empty state that offers the post flow. | Medium. New screen. |
+| New task detail with **the customer's half of the chat** | Messaging lives inside a task rather than in its own tab: a customer's message is always *about* one job. The worker needs a thread list because they deal with many customers; the customer only ever talks about the job in front of them. | Medium. |
+| **Cancel a task**, behind a confirmation | There was no way to withdraw a request. Guarded on the row read live from the database, not on what the list showed — a worker may have accepted it in the meantime, and cancelling then would leave somebody working on a task the customer believes is dead. | Medium. Writes a status. |
+| `CustomerFlowContainer` with two tabs: Post / My tasks | "I need help" dropped straight into the four-step wizard with nowhere else to go. The wizard itself is unchanged and is still the first tab. | Medium. New navigation layer. |
+| System back closes an open task instead of leaving the flow | Without it, back skipped the detail entirely and dropped the customer out of the customer flow, losing the conversation they were reading. | Low. |
+| Success screen: **"You will be notified once someone accepts your task"** removed | There are no notifications in this app and never were, so it was a promise the app could not keep. It now says helpers can see it and to check My tasks — which is what actually works — and the button goes there instead of dead-ending at home. | Low. |
+| New `customerStatusLabel` / `customerStatusDetail` / `isCancellableByCustomer` / `hasAssignedHelper` | `TaskStatus` names describe the row, not the situation: "SUBMITTED" tells a customer nothing about whether anyone picked their job up. Kept Android-free and covered by `CustomerStatusTest`, including that no status ever offers cancel and chat at once. | Low. Verified by running it. |
+| `TaskDao.getTasksForOwner` + `observeTask`; matching repository methods | Drafts are excluded — an unfinished draft belongs to the wizard, not to a list of things the customer actually asked for. The detail reads the row live so a worker accepting or completing it updates the screen the customer is looking at. | Low. |
+| `MyTasksViewModel` follows the session rather than reading it once | Signing in or out with the screen open must swap the list, not keep showing the previous account's tasks. | Low. |
+
+### Consolidation (Rule 5)
+
+| Moved | Why |
+| :--- | :--- |
+| `ui/screens/helper/WorkerFormatting.kt` → `ui/format/TaskFormatting.kt` | It lived in the worker package only because the worker screens were the first to render a task. The customer's list needs the same labels, and one shared copy beats two that drift. Tests moved with it. |
+| `MessageBubble` → `ui/components/MessageBubble.kt` | Both halves of one conversation must look like one conversation; a second copy would drift. `isSender` now documents that it means "written by whoever is reading this screen", not "written by the worker". |
+
+**Destructive operations: none.** No schema change — the two new DAO methods are queries. Cancelling
+writes `CANCELLED` to an existing row rather than deleting it, so nothing is destroyed and the task
+stays in the customer's history. Rollback is reverting this commit.
+
+**Not verified here:** every screen in this batch is Compose, which cannot be compiled or run in
+this container. The status logic was executed; the UI is confirmed by `06_MANUAL_TESTS.md`.
+
 ## Batch 7 — Accessibility, docs & handover
 
 Last batch: the things that make the app usable by someone who is not holding a mouse, and the
@@ -30,7 +66,7 @@ that is correct, and relabelling all 46 of them would make screen-reader output 
 | :--- | :--- | :--- |
 | **`02_AUDIT.md` rewritten** | It described the app as delivered and had become actively misleading: it called for Retrofit setup (removed as unused), reported Room as absent (it is the whole data layer), and cited line numbers in files since rewritten. Now every original finding is tracked to its current state with the commit that changed it, plus the findings that were never in the original audit — the corrupt launcher icons, the seeding race, the clone-breaking signing config. | None. |
 | **`03_GAPS.md` rewritten** | It recommended a backend the project deliberately does not have, and listed as "missing" things that now exist (ViewModels, auth, the worker dashboard, Room, CI). Restructured around the one decision that drives everything: local-only. Separates what is buildable today, what is genuinely blocked on a server, and what is deliberately not being done — and why. | None. |
-| **New `06_MANUAL_TESTS.md`** | 58 numbered checks across six areas, both roles, happy and failure paths, with a Pass/Fail column. Opens with the install-and-update sequence, because that is what has broken most often. Ends with the known limitations that should **not** be filed as bugs. | None. |
+| **New `06_MANUAL_TESTS.md`** | 58 numbered checks (73 after Batch 8) across six areas, both roles, happy and failure paths, with a Pass/Fail column. Opens with the install-and-update sequence, because that is what has broken most often. Ends with the known limitations that should **not** be filed as bugs. | None. |
 | `README.md`: testing section, fuller limitations | The honest split was undocumented — 77 unit tests cover Android-free logic and run in CI; nothing automated touches a Compose screen, a Room migration, or a device. | None. |
 
 ### What is still not verified

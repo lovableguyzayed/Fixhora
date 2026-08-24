@@ -32,6 +32,8 @@ import com.example.ui.screens.auth.SplashScreen
 import com.example.ui.screens.auth.WelcomeScreen
 import com.example.ui.screens.helper.HelperFlowContainer
 import com.example.ui.screens.helper.HelperViewModel
+import com.example.ui.screens.mytasks.CustomerFlowContainer
+import com.example.ui.screens.mytasks.MyTasksViewModel
 import com.example.ui.screens.update.UpdateDialog
 import com.example.ui.screens.update.UpdateViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -249,7 +251,19 @@ private fun AppNavHost(
     }
 
     composable(Screen.TaskFlow.route) {
-      TaskFlowContainer(onBackToRoles = { navController.popBackStack() })
+      val myTasksViewModel: MyTasksViewModel =
+        viewModel(
+          factory =
+            MyTasksViewModel.Factory(
+              application.taskRepository,
+              application.chatRepository,
+              application.sessionManager,
+            )
+        )
+      CustomerFlowContainer(
+        viewModel = myTasksViewModel,
+        onBackToRoles = { navController.popBackStack() },
+      )
     }
 
     composable(Screen.HelperFlow.route) {

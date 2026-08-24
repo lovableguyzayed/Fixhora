@@ -15,12 +15,12 @@ that one choice, so the honest ordering is "what a local app still owes its user
 | Gap | Why it matters | Priority |
 | :--- | :--- | :--- |
 | **Full i18n** | The Hindi/English pill sets a stored preference and changes nothing else. Strings are hardcoded in Compose files, so nothing is translatable yet. Extracting to `strings.xml` is step one and only pays off with step two. | Must-have |
-| **Customer-side chat** | The worker can open a conversation; the customer has no chat surface at all, so a thread is one-sided. Message persistence already exists (`ChatRepository`). | Must-have |
-| **Task history for the customer** | A customer can post a task and then has no screen listing what they posted or what state it is in. The data is already in Room. | Must-have |
 | **Instrumented tests** | The unit suite (12 files, 77 tests) covers logic that has no Android dependency. Nothing exercises a Compose screen, a Room migration, or a real DAO. `Migration 2→3` in particular has never been run against a populated database. | Should-have |
 | **Real map** | `WorkerMapScreen` is a category browser and says so. A real map needs `maps-compose` and a Maps SDK key. | Should-have |
 | **Notifications** | Nothing tells a worker a job was posted while the app was closed. Local notifications could cover the on-device cases; anything cross-device cannot work without a server. | Should-have |
 | **Tablet / landscape layout** | Single-column layouts stretch rather than reflow. Window size classes would fix it. | Nice-to-have |
+
+**Built since:** customer task history and the customer half of chat both landed in Batch 8.
 
 ## 2. Missing, and blocked on a backend that does not exist
 

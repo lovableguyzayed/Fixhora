@@ -1,9 +1,9 @@
-package com.example.ui.screens.helper
+package com.example.ui.format
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class WorkerFormattingTest {
+class TaskFormattingTest {
 
   private val now = 1_700_000_000_000L
   private val minute = 60_000L

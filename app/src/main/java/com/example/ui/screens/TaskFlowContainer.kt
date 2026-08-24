@@ -41,7 +41,7 @@ val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Ph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskFlowContainer(onBackToRoles: () -> Unit) {
+fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -202,17 +202,28 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                                 Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.success, modifier = Modifier.size(40.dp))
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Text("Task Posted successfully!", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text("Task posted", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("We are finding helpers nearby. You will be notified once someone accepts your task.", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            // The old copy promised "you will be notified once someone accepts your
+                            // task". There are no notifications in this app, so that was a promise
+                            // it could not keep. Checking back is what actually works.
+                            Text(
+                                "Helpers can see it now. Check My tasks to see whether someone has taken it on.",
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                             Spacer(modifier = Modifier.height(48.dp))
                             Button(
-                                onClick = onBackToRoles,
+                                onClick = onTaskPosted,
                                 modifier = Modifier.fillMaxWidth().height(56.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
                             ) {
-                                Text("Return to Home", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("View my tasks", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            TextButton(onClick = onBackToRoles, modifier = Modifier.fillMaxWidth()) {
+                                Text("Back to home", color = FixTheme.colors.textSecondary)
                             }
                         }
                     }

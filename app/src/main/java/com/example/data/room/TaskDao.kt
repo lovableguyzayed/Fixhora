@@ -20,6 +20,17 @@ interface TaskDao {
   /** Number of posted tasks; used to decide whether demo data still needs seeding. */
   @Query("SELECT COUNT(*) FROM tasks WHERE status != 'draft'") suspend fun countPostedTasks(): Int
 
+  /**
+   * What one customer has posted, newest first.
+   *
+   * Drafts are excluded: an unfinished draft belongs to the post wizard, not to a list of things
+   * the customer has actually asked for.
+   */
+  @Query("SELECT * FROM tasks WHERE ownerId = :ownerId AND status != 'draft' ORDER BY createdAt DESC, id DESC")
+  fun getTasksForOwner(ownerId: String): Flow<List<TaskEntity>>
+
+  @Query("SELECT * FROM tasks WHERE id = :id") fun observeTask(id: Int): Flow<TaskEntity?>
+
   /** A customer has at most one draft in flight at a time. */
   @Query("SELECT * FROM tasks WHERE status = 'draft' AND ownerId = :ownerId LIMIT 1")
   suspend fun getDraftTask(ownerId: String): TaskEntity?

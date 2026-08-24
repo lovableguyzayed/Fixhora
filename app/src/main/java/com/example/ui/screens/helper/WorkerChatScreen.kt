@@ -20,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.components.MessageBubble
+import com.example.ui.format.budgetLabel
+import com.example.ui.format.relativeTimeLabel
 import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
 import com.example.ui.components.EmptyState
@@ -262,35 +265,6 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun MessageBubble(text: String, isSender: Boolean, time: String) {
-    val alignment = if (isSender) Alignment.CenterEnd else Alignment.CenterStart
-    val bgColor = if (isSender) FixTheme.colors.primary else FixTheme.colors.surface
-    val textColor = if (isSender) FixTheme.colors.onPrimary else FixTheme.colors.textPrimary
-    val shape =
-        if (isSender) {
-            RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 4.dp)
-        } else {
-            RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart = 4.dp, bottomEnd = 16.dp)
-        }
-
-    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), contentAlignment = alignment) {
-        Column(horizontalAlignment = if (isSender) Alignment.End else Alignment.Start) {
-            Surface(shape = shape, color = bgColor, modifier = Modifier.widthIn(max = 280.dp)) {
-                Text(
-                    text = text,
-                    color = textColor,
-                    fontSize = 15.sp,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            // No delivery ticks: nothing tracks whether a message was delivered or read.
-            Text(time, fontSize = 11.sp, color = FixTheme.colors.textSecondary)
         }
     }
 }

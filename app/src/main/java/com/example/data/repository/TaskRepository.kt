@@ -16,6 +16,12 @@ class TaskRepository(private val database: AppDatabase) {
   /** Every posted task, in any state. Drafts stay private to their author. */
   val allPostedTasks: Flow<List<TaskEntity>> = taskDao.getAllPostedTasks()
 
+  /** What one customer has posted, newest first. Their own drafts are not included. */
+  fun tasksForOwner(ownerId: String): Flow<List<TaskEntity>> = taskDao.getTasksForOwner(ownerId)
+
+  /** One task, watched. Emits null once the row is gone, so a detail screen can close itself. */
+  fun observeTask(id: Int): Flow<TaskEntity?> = taskDao.observeTask(id)
+
   suspend fun getDraftTask(ownerId: String): TaskEntity? = taskDao.getDraftTask(ownerId)
 
   /**

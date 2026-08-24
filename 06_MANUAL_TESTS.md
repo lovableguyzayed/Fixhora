@@ -4,7 +4,7 @@ Everything in this file is a check that **cannot** be automated here. The unit s
 run by CI on every push) covers logic with no Android dependency; nothing in the repository
 exercises a Compose screen, a Room migration, or a real device. That is what this script is for.
 
-Run it on one physical device. Record Pass/Fail per row — a row left blank is not a pass.
+Run it on one physical device. 73 checks. Record Pass/Fail per row — a row left blank is not a pass.
 
 **Build under test:** `v1.0.___`  **Device / Android version:** ____________  **Date:** ________
 
@@ -64,6 +64,28 @@ older one without being refused.
 | C13 | Press Back mid-flow | A discard confirmation, not a silent loss | |
 | C14 | Post the task | Navigates **after** the write succeeds | |
 | C15 | Type a title, then immediately post, then reopen the category step | No leftover draft from the debounced autosave | |
+
+## C2. My tasks (customer)
+
+The section this app went longest without: seeing what you posted.
+
+| # | Step | Expected | P/F |
+| :-- | :--- | :--- | :-- |
+| C2.1 | After posting, tap **View my tasks** on the success screen | Lands on My tasks with the task you just posted at the top | |
+| C2.2 | Read the card | Real title, "Waiting for a helper", the time you posted, your address and budget | |
+| C2.3 | Switch to a fresh account with no tasks | Empty state offering "Post a task" — not a blank screen | |
+| C2.4 | Open the task | Detail with the status, a plain-language explanation, and your description | |
+| C2.5 | Before any worker accepts it | "Messaging opens once a helper takes this task on." **No** message box | |
+| C2.6 | Tap **Cancel this task** | A confirmation dialog first. Cancelling is not one tap | |
+| C2.7 | Confirm | Status becomes "Cancelled". The task stays in the list — it is history, not deleted | |
+| C2.8 | Post another, switch to the worker role, **accept** it, come back to My tasks | Status now "Helper assigned", and the cancel button is **gone** | |
+| C2.9 | Open it | Message box is available | |
+| C2.10 | Send a message | Appears on the right, with a timestamp | |
+| C2.11 | Switch to the worker role and open that chat | The same message appears on the **left** — one conversation, two sides | |
+| C2.12 | Reply as the worker, return to the customer detail | The reply is there, on the left | |
+| C2.13 | With the detail open, press **system back** | Returns to My tasks. It must **not** exit the whole customer flow | |
+| C2.14 | Have the worker mark it Done while the customer detail is open | Status updates on screen without leaving and re-entering | |
+| C2.15 | Force-stop and reopen | Tasks, statuses and messages all still there | |
 
 ## D. Worker side
 

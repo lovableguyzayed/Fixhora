@@ -21,6 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ui.format.budgetLabel
+import com.example.ui.format.locationLabel
+import com.example.ui.format.posterLabel
+import com.example.ui.format.relativeTimeLabel
 import com.example.data.room.TaskEntity
 import com.example.ui.components.EmptyState
 import com.example.ui.components.SectionHeader
