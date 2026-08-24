@@ -1,5 +1,46 @@
 # Changelog
 
+## Batch 7 — Accessibility, docs & handover
+
+Last batch: the things that make the app usable by someone who is not holding a mouse, and the
+documents that let someone else pick this up.
+
+### Accessibility
+
+Found by reading the code, not by running a scanner. Each row is something a real user hits.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Photo remove button: touch target **20dp → 48dp**, visible circle unchanged | 20dp is under half the minimum target size. The visible affordance was fine; the tappable area was not, so the fix grows only the hit box. `TaskPhotosScreen.kt` | Low. The 48dp target sits in the corner of an 80dp thumbnail, which is not itself clickable, so nothing is swallowed. |
+| That button's icon gained a label | `contentDescription = null` on the **only** content of a clickable means a screen reader announces the control as nothing at all. Now "Remove photo N". | Low. |
+| Thumbnails read "Photo N of M" instead of "Uploaded photo" | Every photo carried the identical description, so no two could be told apart — and there was no way to know which one Remove would drop. | Low. |
+| "Add another photo" card labelled | Same null-on-only-content problem. | Low. |
+| Category cards: `clickable` → `selectable(role = RadioButton)` | Selection was conveyed by border width and tint only. A screen reader cannot see either, so the chosen category was indistinguishable from the rest. | Low. Same visuals, same callback. |
+| Worker bottom nav: `clickable` → `selectable(role = Tab)` | Identical problem: the active tab was tint-and-label only. | Low. |
+| Three text links reach 48dp and announce as buttons | "Create New Account", "Sign In" and "Resend code" were bare `Text` with `.clickable` — roughly 20dp tall, and announced as text rather than as controls. Padding moved *inside* the clickable so it grows the target rather than the gap around it. | Low. Rows gained `CenterVertically` so the adjacent label stays aligned. |
+| **Deleted `ExampleInstrumentedTest.kt`** | It asserted `appContext.packageName == "com.example"`. `applicationId` has been `com.fixhora.app` since Batch R, so this template test would **fail** for anyone running `connectedAndroidTest` — a broken test nobody was running. | Low. |
+| **Deleted `ExampleUnitTest.kt`** | Asserted `2 + 2 == 4`. | None. |
+
+Icons that are decorative next to their own label were left with `contentDescription = null` —
+that is correct, and relabelling all 46 of them would make screen-reader output worse, not better.
+
+### Documentation
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| **`02_AUDIT.md` rewritten** | It described the app as delivered and had become actively misleading: it called for Retrofit setup (removed as unused), reported Room as absent (it is the whole data layer), and cited line numbers in files since rewritten. Now every original finding is tracked to its current state with the commit that changed it, plus the findings that were never in the original audit — the corrupt launcher icons, the seeding race, the clone-breaking signing config. | None. |
+| **`03_GAPS.md` rewritten** | It recommended a backend the project deliberately does not have, and listed as "missing" things that now exist (ViewModels, auth, the worker dashboard, Room, CI). Restructured around the one decision that drives everything: local-only. Separates what is buildable today, what is genuinely blocked on a server, and what is deliberately not being done — and why. | None. |
+| **New `06_MANUAL_TESTS.md`** | 58 numbered checks across six areas, both roles, happy and failure paths, with a Pass/Fail column. Opens with the install-and-update sequence, because that is what has broken most often. Ends with the known limitations that should **not** be filed as bugs. | None. |
+| `README.md`: testing section, fuller limitations | The honest split was undocumented — 77 unit tests cover Android-free logic and run in CI; nothing automated touches a Compose screen, a Room migration, or a device. | None. |
+
+### What is still not verified
+
+`Migration 2→3` has never run against a populated database, and no automated test exercises a
+Compose screen. Both are named in `03_GAPS.md` rather than left implied.
+
+**Destructive operations: none.** Two dead test files deleted; no schema change, no user data
+touched. Rollback is reverting this commit.
+
 ## Batch U — In-app update checker (real over-the-air updates)
 
 Reported as "app kyu nahi update ho rahi hai over the air". Two separate findings, both verified

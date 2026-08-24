@@ -1,52 +1,54 @@
-# Gap Analysis
+# Gap Analysis — what is genuinely missing today
 
-## 1. Missing Features
+Rewritten against the current codebase. The original version listed gaps that have since been
+built (ViewModels, auth, the worker dashboard, Room, CI) and recommended a backend the project
+deliberately does not have. Those rows are gone rather than left to mislead; `02_AUDIT.md` records
+what happened to each.
 
-| Category | Gap | Recommended Solution | Priority |
-| :--- | :--- | :--- | :--- |
-| Core Flow | State Preservation between Steps | Implement a shared `TaskViewModel` mapped to a nested navigation graph to retain draft inputs across screens. | Must-have |
-| Core Flow | User Authentication | Add Sign Up, Log In, and Guest browsing modes. | Must-have |
-| Provider Flow | "I Want to Help" Dashboard | Implement the provider side to see a feed of tasks, filter by distance/category, and accept tasks. | Must-have |
-| User Flow | Task History & Status | Add a screen showing past tasks, active tasks, and their resolution statuses. | Must-have |
-| Chat / Comm | In-App Messaging | Allow users who need help to chat with the accepted helpers. | Should-have |
-| Reviews | Rating and Reviews | Implement a 5-star rating system and text reviews for completed tasks. | Should-have |
+**The governing decision:** this app is **local-only**. Room on the device is the single source of
+truth, there is no server, and nothing syncs between devices. Most of the gaps below follow from
+that one choice, so the honest ordering is "what a local app still owes its user" first, and
+"what would need a backend" second.
 
-## 2. Missing Design Elements
+## 1. Missing, and buildable without a backend
 
-| Category | Gap | Recommended Solution | Priority |
-| :--- | :--- | :--- | :--- |
-| States | Loading Skeletons | Implement `Accompanist` placeholder or manual pulse animations for loading maps, categories, and task feed. | Must-have |
-| States | Empty States | Add "No Tasks Found" and "No Offers Yet" empty screens with appropriate illustrations for dashboards. | Must-have |
-| Error Handling | Validation Visuals | Show red error borders and helper text under TextFields if submission is attempted without required fields. | Must-have |
-| Modals | Confirmation Dialogs | Add an alert dialog confirming cancellation of a drafted task when hitting back on the Task Flow. | Should-have |
-| UI Polish | Responsive Design | Add Window Size Classes support to render gracefully on landscape and tablet widths instead of stretching single columns. | Nice-to-have |
+| Gap | Why it matters | Priority |
+| :--- | :--- | :--- |
+| **Full i18n** | The Hindi/English pill sets a stored preference and changes nothing else. Strings are hardcoded in Compose files, so nothing is translatable yet. Extracting to `strings.xml` is step one and only pays off with step two. | Must-have |
+| **Customer-side chat** | The worker can open a conversation; the customer has no chat surface at all, so a thread is one-sided. Message persistence already exists (`ChatRepository`). | Must-have |
+| **Task history for the customer** | A customer can post a task and then has no screen listing what they posted or what state it is in. The data is already in Room. | Must-have |
+| **Instrumented tests** | The unit suite (12 files, 77 tests) covers logic that has no Android dependency. Nothing exercises a Compose screen, a Room migration, or a real DAO. `Migration 2→3` in particular has never been run against a populated database. | Should-have |
+| **Real map** | `WorkerMapScreen` is a category browser and says so. A real map needs `maps-compose` and a Maps SDK key. | Should-have |
+| **Notifications** | Nothing tells a worker a job was posted while the app was closed. Local notifications could cover the on-device cases; anything cross-device cannot work without a server. | Should-have |
+| **Tablet / landscape layout** | Single-column layouts stretch rather than reflow. Window size classes would fix it. | Nice-to-have |
 
-## 3. Missing APIs / Backend Endpoints
+## 2. Missing, and blocked on a backend that does not exist
 
-| Category | Gap | Recommended Solution | Priority |
-| :--- | :--- | :--- | :--- |
-| Tasks | CRUD Endpoints | `POST /tasks`, `GET /tasks`, `GET /tasks/{id}`, `PATCH /tasks/{id}/status` | Must-have |
-| Auth | Identity Endpoints | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh` | Must-have |
-| Taxonomy | Categories API | `GET /categories` - Replace hardcoded categories with dynamic definitions from the backend. | Should-have |
-| Media | Image Upload API | `POST /upload` - Expect multipart/form-data for task images. | Must-have |
-| Matching | Search & Filter | `GET /tasks/search?category=x&lat=y&lng=z` | Must-have |
+Listed so the boundary is explicit — not as a plan.
 
-## 4. Missing Integrations
+| Gap | What it would take |
+| :--- | :--- |
+| **Multi-device sync** | Every account and task lives only on the device that created it. Reinstalling loses everything. This is the single biggest consequence of local-only. |
+| **Real OTP** | There is no SMS gateway. The OTP screen says "Demo mode — no SMS is sent" and shows the code in debug builds rather than pretending one was sent. |
+| **Bidding / offers** | "Place Bid" was removed rather than faked. A marketplace needs a server to arbitrate. |
+| **Ratings and reviews** | Removed from the worker dashboard for the same reason — a 4.9★ with nothing behind it is worse than no rating. |
+| **Payments** | Not started. The budget fields are a number the customer types, nothing more. |
+| **Server-side identity** | Passwords are hashed correctly (PBKDF2, 100k iterations, per-user salt) but only locally. There is no account recovery beyond the on-device reset. |
 
-| Category | Gap | Recommended Solution | Priority |
-| :--- | :--- | :--- | :--- |
-| Maps | Google Maps SDK | Embed `com.google.maps.android:maps-compose` for accurate visual picking instead of a static UI box. | Must-have |
-| Identity | Firebase / OAuth | Integrate Google Sign-in to lower onboarding friction. | Should-have |
-| Storage | S3 or Cloudinary | Set up an external bucket for handling uploaded task images. | Must-have |
-| Payments | Stripe / local gateway | Escrow or payment processing integration for paid tasks. | Nice-to-have |
-| Notifications | FCM (Firebase) | Push notifications for "Offer Received" or "Task Accepted". | Must-have |
+## 3. Deliberately not doing
 
-## 5. Missing Infrastructure
+| Item | Reason |
+| :--- | :--- |
+| **Dependency injection framework (Hilt)** | `FixhoraApplication` is the composition root and hands repositories to a handful of ViewModel factories. At this size Hilt would add build time and indirection without removing any real problem. |
+| **Retrofit / OkHttp / Moshi** | Removed in `0d1ecd0` because nothing imported them. The app makes exactly one network call — the update check — and `HttpURLConnection` with the framework's `org.json` covers it. |
+| **Dynamic colour** | The blue/orange pairing is the product's identity, and letting the wallpaper recolour it would also discard the contrast guarantees `ContrastTest` enforces. |
+| **`namespace` rename from `com.example`** | Renaming every Kotlin package is churn with no user-visible effect. `applicationId` — the part that actually identifies the app — is already `com.fixhora.app`. |
 
-| Category | Gap | Recommended Solution | Priority |
-| :--- | :--- | :--- | :--- |
-| Architecture | Dependency Injection (DI) | Implement Hilt for easier scaling and passing of Repositories to ViewModels. | Must-have |
-| Local DB | Room Database implementation | Define Entities (`TaskEntity`), DAOs, and a Database builder for local caching. | Should-have |
-| Network | Retrofit Setup | Define base `ApiClient`, authentication interceptors, and Moshi JSON parsing. | Must-have |
-| Env | Secrets Management | Configure `.env` structure through BuildConfig or a Secrets Gradle plugin to hide map/api keys. | Must-have |
-| CI/CD | GitHub Actions / Build Scripts | Implement testing pipelines, Lint checks, and debug APK generation on Pull Requests. | Nice-to-have |
+## 4. Release readiness
+
+| Item | State |
+| :--- | :--- |
+| Debug channel | **Working.** Every push publishes a debug-signed APK; the app updates itself from it. |
+| Release channel | **Not enabled.** Needs `./scripts/make-release-keystore.sh` run by the owner and four repository secrets: `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`. Until then CI builds and publishes the debug APK only. |
+| Play Store | **Not viable yet**, and not only for signing: i18n, a privacy policy, and a data-safety declaration for the location permission are all prerequisites. |
+| ProGuard / R8 | `isMinifyEnabled = false`. Turning it on needs Room and Compose keep rules verified on a device first. |

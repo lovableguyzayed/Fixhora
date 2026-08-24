@@ -22,7 +22,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.FixTheme
+import com.example.ui.theme.MinTouchTarget
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -31,7 +33,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import com.example.BuildConfig
@@ -86,7 +88,9 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
-                .clickable(enabled = remainingSlots > 0 && !isImporting) { launchPicker() },
+                .clickable(enabled = remainingSlots > 0 && !isImporting, role = Role.Button) {
+                    launchPicker()
+                },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = BorderStroke(1.dp, FixTheme.colors.primary.copy(alpha = 0.3f))
@@ -158,7 +162,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(uiState.photoUris) { uriString ->
+            itemsIndexed(uiState.photoUris) { index, uriString ->
                 Box(
                     modifier = Modifier
                         .size(80.dp)
@@ -167,22 +171,39 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 ) {
                     AsyncImage(
                         model = uriString,
-                        contentDescription = "Uploaded photo",
+                        // Every photo used to read "Uploaded photo", so a screen reader could not
+                        // tell one thumbnail from the next — or say which one Remove would drop.
+                        contentDescription = "Photo ${index + 1} of ${uiState.photoUris.size}",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                    // Close button overlay
+                    // Remove button. The visible circle stays 20dp, but the tappable area is a
+                    // full 48dp: at 20dp this was less than half the minimum touch target, which
+                    // is the size a finger can actually hit. The icon also carried no
+                    // contentDescription, and it is the only content of the button, so a screen
+                    // reader announced the control as nothing at all.
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                            .size(20.dp)
-                            .clip(CircleShape)
-                            .background(FixTheme.colors.surface.copy(alpha = 0.9f))
-                            .clickable { viewModel.removePhotoUri(uriString) },
-                        contentAlignment = Alignment.Center
+                            .size(MinTouchTarget)
+                            .clickable(role = Role.Button) { viewModel.removePhotoUri(uriString) },
+                        contentAlignment = Alignment.TopEnd
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp), tint = FixTheme.colors.textPrimary)
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(FixTheme.colors.surface.copy(alpha = 0.9f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Remove photo ${index + 1}",
+                                modifier = Modifier.size(14.dp),
+                                tint = FixTheme.colors.textPrimary
+                            )
+                        }
                     }
                 }
             }
@@ -193,13 +214,18 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     OutlinedCard(
                         modifier = Modifier
                             .size(80.dp)
-                            .clickable(enabled = !isImporting) { launchPicker() },
+                            .clickable(enabled = !isImporting, role = Role.Button) { launchPicker() },
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
                         colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = FixTheme.colors.primary)
+                            // Only content of a button, so null would announce nothing.
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Add another photo",
+                                tint = FixTheme.colors.primary
+                            )
                         }
                     }
                 }

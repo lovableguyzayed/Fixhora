@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.*
 import com.example.util.FieldError
 import com.example.util.Validators
@@ -237,12 +239,16 @@ fun OtpVerificationScreen(
         if (secondsRemaining > 0) "Resend code in ${secondsRemaining}s" else "Resend code",
       color = if (secondsRemaining > 0) FixTheme.colors.textSecondary else FixTheme.colors.primary,
       fontWeight = FontWeight.SemiBold,
+      // Padding inside the clickable, so the tappable area reaches 48dp instead of the ~20dp
+      // the bare text occupied.
       modifier =
-        Modifier.clickable(enabled = secondsRemaining == 0 && !isSubmitting) {
-          digits = List(Validators.OTP_LENGTH) { "" }
-          error = null
-          generation++
-        },
+        Modifier.clip(RoundedCornerShape(Radius.sm))
+          .clickable(enabled = secondsRemaining == 0 && !isSubmitting, role = Role.Button) {
+            digits = List(Validators.OTP_LENGTH) { "" }
+            error = null
+            generation++
+          }
+          .padding(horizontal = Spacing.sm, vertical = 14.dp),
     )
 
     Spacer(modifier = Modifier.height(32.dp))

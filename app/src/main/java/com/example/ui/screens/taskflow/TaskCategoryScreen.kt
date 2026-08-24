@@ -2,7 +2,7 @@ package com.example.ui.screens.taskflow
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.FixTheme
 
 @Composable
@@ -93,8 +94,10 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(0.8f)
-                        .clickable { 
-                            viewModel.updateCategory(category.id) 
+                        // selectable, not clickable: the border and tint show the choice
+                        // visually, but only this reports "selected" to a screen reader.
+                        .selectable(selected = isSelected, role = Role.RadioButton) {
+                            viewModel.updateCategory(category.id)
                             showError = false
                         },
                     shape = RoundedCornerShape(16.dp),

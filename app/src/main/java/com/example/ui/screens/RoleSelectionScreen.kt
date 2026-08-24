@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontStyle
 import com.example.BuildConfig
+import androidx.compose.ui.semantics.Role
 import com.example.data.session.UserRole
 import com.example.ui.theme.*
 
@@ -234,11 +235,13 @@ fun RoleSelectionScreen(
                     fontSize = 12.sp,
                     color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
+                    // The bottom spacing sits *before* the clickable so it stays spacing; the
+                    // symmetric padding after it is what grows the 12sp line into a 48dp target.
                     modifier = Modifier
-                        .clip(RoundedCornerShape(Radius.sm))
-                        .clickable(onClick = onCheckForUpdates)
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
                         .padding(bottom = 20.dp)
+                        .clip(RoundedCornerShape(Radius.sm))
+                        .clickable(role = Role.Button, onClick = onCheckForUpdates)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 )
             }
         }

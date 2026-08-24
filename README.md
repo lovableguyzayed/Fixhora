@@ -156,12 +156,38 @@ Stated plainly, because the UI does not pretend otherwise:
   screen, behind a visible "Demo mode" notice.
 - **The map is a static graphic**, labelled as a preview. Location itself is real — GPS and
   reverse geocoding both work.
-- **No payments, ratings or bidding.**
+- **No payments, ratings or bidding.** These were removed from the UI rather than faked — a 4.9★
+  rating with nothing behind it is worse than no rating.
+- **Hindi is a stored preference only.** No string is translated yet; the strings are still
+  hardcoded in the Compose files.
+- **No distance on job cards.** That needs the worker's own position tracked, which it is not, so
+  the address is shown instead.
 - Photos are copied at full resolution; five large photos can be tens of megabytes.
+
+`03_GAPS.md` goes further: what is missing and buildable today, what is genuinely blocked on a
+backend, and what is deliberately not being done.
+
+---
+
+## Testing
+
+```bash
+./gradlew test   # 77 unit tests across 12 files; CI runs these on every push
+```
+
+Those cover the logic that has no Android dependency — password hashing, validators, task status
+mapping, tab and search filtering, worker formatting, WCAG contrast, and the update checker. They
+run on the JVM in seconds, with no emulator.
+
+Nothing automated exercises a Compose screen, a Room migration, or a real device. That gap is
+covered by **`06_MANUAL_TESTS.md`** — a numbered script for both roles, happy and failure paths,
+including the install-and-update sequence that this project has broken and fixed more than once.
+Run it against a release before handing the APK to anyone.
 
 ---
 
 ## Project history
 
 `05_CHANGELOG.md` records each batch of work as `Changed | Reason | Risk`, including the bugs
-found and what was deliberately left undone.
+found and what was deliberately left undone. `02_AUDIT.md` tracks every original audit finding to
+its current state.

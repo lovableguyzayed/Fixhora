@@ -18,6 +18,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.*
 
 @Composable
@@ -128,13 +130,22 @@ fun SignInScreen(
     AlternativeLoginButton("Continue with Mobile OTP", onMobileLoginClick, !state.isSubmitting)
 
     Spacer(modifier = Modifier.height(32.dp))
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
       Text("Don't have an account? ", color = FixTheme.colors.textSecondary)
       Text(
         "Create New Account",
         color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.clickable(enabled = !state.isSubmitting) { onCreateAccountClick() },
+        // Padding sits inside the clickable, so it grows the touch target rather than just the
+        // gap around it. The bare text was about 20dp tall — under half the 48dp minimum.
+        modifier =
+          Modifier.clip(RoundedCornerShape(Radius.sm))
+            .clickable(enabled = !state.isSubmitting, role = Role.Button) { onCreateAccountClick() }
+            .padding(horizontal = Spacing.sm, vertical = 14.dp),
       )
     }
     Spacer(modifier = Modifier.height(24.dp))
@@ -288,13 +299,20 @@ fun CreateAccountScreen(
     AlternativeLoginButton("Sign Up with Mobile OTP", onMobileOtpClick, !state.isSubmitting)
 
     Spacer(modifier = Modifier.height(32.dp))
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
       Text("Already have an account? ", color = FixTheme.colors.textSecondary)
       Text(
         "Sign In",
         color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.clickable(enabled = !state.isSubmitting) { onBack() },
+        modifier =
+          Modifier.clip(RoundedCornerShape(Radius.sm))
+            .clickable(enabled = !state.isSubmitting, role = Role.Button) { onBack() }
+            .padding(horizontal = Spacing.sm, vertical = 14.dp),
       )
     }
     Spacer(modifier = Modifier.height(24.dp))

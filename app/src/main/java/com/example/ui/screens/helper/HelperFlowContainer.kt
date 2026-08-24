@@ -2,7 +2,7 @@ package com.example.ui.screens.helper
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.FixTheme
 
 sealed class HelperScreen(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
@@ -68,9 +69,14 @@ fun HelperFlowContainer(
                                 .weight(1f)
                                 .height(48.dp)
                                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp))
-                                .clickable(
+                                // selectable rather than clickable so the active tab is announced
+                                // as selected. Visually only the tint and label changed, which a
+                                // screen reader cannot see.
+                                .selectable(
+                                    selected = isSelected,
                                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                    indication = null
+                                    indication = null,
+                                    role = Role.Tab
                                 ) {
                                     navController.navigate(screen.route) {
                                         popUpTo(navController.graph.startDestinationId) {
