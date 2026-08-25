@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.Role
+import com.example.R
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 
@@ -67,7 +69,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "Add photos (optional)",
+            text = stringResource(R.string.photos_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -76,7 +78,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Add photos to help helpers understand the task better.",
+            text = stringResource(R.string.photos_subtitle),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
@@ -103,9 +105,9 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 if (isImporting) {
                     CircularProgressIndicator(color = FixTheme.colors.primary, modifier = Modifier.size(32.dp))
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text("Saving photos…", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text(stringResource(R.string.photos_saving), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     Text(
-                        "Copying them into the app so they stay with your task.",
+                        stringResource(R.string.photos_saving_body),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -122,15 +124,15 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        if (remainingSlots > 0) "Upload photos" else "All ${TaskViewModel.MAX_PHOTOS} photos added",
+                        if (remainingSlots > 0) stringResource(R.string.photos_upload) else stringResource(R.string.photos_all_added, TaskViewModel.MAX_PHOTOS),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
                     Text(
                         if (remainingSlots > 0) {
-                            "Tap to select up to $remainingSlots more from your gallery"
+                            stringResource(R.string.photos_tap_to_select, remainingSlots)
                         } else {
-                            "Remove one to add a different photo"
+                            stringResource(R.string.photos_remove_one)
                         },
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -148,9 +150,9 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Added photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Text(stringResource(R.string.photos_added), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Text(
-                "${uiState.photoUris.size}/${TaskViewModel.MAX_PHOTOS}",
+                stringResource(R.string.photos_count, uiState.photoUris.size, TaskViewModel.MAX_PHOTOS),
                 fontSize = 14.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -173,7 +175,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         model = uriString,
                         // Every photo used to read "Uploaded photo", so a screen reader could not
                         // tell one thumbnail from the next — or say which one Remove would drop.
-                        contentDescription = "Photo ${index + 1} of ${uiState.photoUris.size}",
+                        contentDescription = stringResource(R.string.cd_photo_n_of_m, index + 1, uiState.photoUris.size),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -199,7 +201,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         ) {
                             Icon(
                                 Icons.Default.Close,
-                                contentDescription = "Remove photo ${index + 1}",
+                                contentDescription = stringResource(R.string.cd_remove_photo_n, index + 1),
                                 modifier = Modifier.size(14.dp),
                                 tint = FixTheme.colors.textPrimary
                             )
@@ -223,7 +225,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             // Only content of a button, so null would announce nothing.
                             Icon(
                                 Icons.Default.Add,
-                                contentDescription = "Add another photo",
+                                contentDescription = stringResource(R.string.cd_add_another_photo),
                                 tint = FixTheme.colors.primary
                             )
                         }
@@ -243,14 +245,14 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 },
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text("⚡ Debug: attach sample photos", fontSize = 13.sp, color = FixTheme.colors.primary)
+                Text(stringResource(R.string.photos_debug_sample), fontSize = 13.sp, color = FixTheme.colors.primary)
             }
         }
         
         Spacer(modifier = Modifier.height(32.dp))
         
         // --- Task Details & Budget inputs ---
-        Text("Task Details", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(stringResource(R.string.details_title), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(12.dp))
 
         var titleError by remember { mutableStateOf(false) }
@@ -261,8 +263,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 viewModel.updateDescription(it, uiState.descriptionDetails)
                 if (it.isNotBlank()) titleError = false
             },
-            label = { Text("Task Title *") },
-            placeholder = { Text("e.g. Clean my kitchen sink / fix wood drawer") },
+            label = { Text(stringResource(R.string.details_field_title)) },
+            placeholder = { Text(stringResource(R.string.details_title_hint)) },
             isError = titleError,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -271,7 +273,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             )
         )
         if (titleError) {
-            Text("Title is required to post the task", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
+            Text(stringResource(R.string.details_title_required), color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -279,8 +281,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         OutlinedTextField(
             value = uiState.descriptionDetails,
             onValueChange = { viewModel.updateDescription(uiState.descriptionTitle, it) },
-            label = { Text("Detailed Description") },
-            placeholder = { Text("Provide details like what tools are needed, special requests, size of work etc.") },
+            label = { Text(stringResource(R.string.details_field_description)) },
+            placeholder = { Text(stringResource(R.string.details_description_hint)) },
             modifier = Modifier.fillMaxWidth().height(120.dp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -291,7 +293,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        Text("Set Budget Range (Optional)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(stringResource(R.string.budget_section_title), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(12.dp))
 
         Row(
@@ -301,8 +303,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             OutlinedTextField(
                 value = uiState.minBudget,
                 onValueChange = { viewModel.updateBudget(it, uiState.maxBudget) },
-                label = { Text("Min Budget (₹)") },
-                placeholder = { Text("e.g. 500") },
+                label = { Text(stringResource(R.string.budget_field_min)) },
+                placeholder = { Text(stringResource(R.string.budget_hint_min)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -313,8 +315,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             OutlinedTextField(
                 value = uiState.maxBudget,
                 onValueChange = { viewModel.updateBudget(uiState.minBudget, it) },
-                label = { Text("Max Budget (₹)") },
-                placeholder = { Text("e.g. 1500") },
+                label = { Text(stringResource(R.string.budget_field_max)) },
+                placeholder = { Text(stringResource(R.string.budget_hint_max)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -339,13 +341,13 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 12.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Tips for better responses", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(stringResource(R.string.tips_title), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("• Add clear, well-lit photos", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.tips_photos), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("• Provide an accurate budget range so helpers can bid effectively", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.tips_budget), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("• Detail any special equipment/tools required", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.tips_tools), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -366,7 +368,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.action_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )

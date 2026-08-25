@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.R
 import com.example.ui.screens.taskflow.*
 import com.example.ui.theme.FixTheme
 
@@ -30,11 +33,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.screens.taskflow.TaskViewModel
 import com.example.FixhoraApplication
 
-sealed class TaskScreen(val route: String, val index: Int, val title: String) {
-    object Category : TaskScreen("category", 1, "Task Details")
-    object Location : TaskScreen("location", 2, "Location")
-    object Photos : TaskScreen("photos", 3, "Photos")
-    object Review : TaskScreen("review", 4, "Review")
+sealed class TaskScreen(val route: String, val index: Int, @StringRes val titleRes: Int) {
+    object Category : TaskScreen("category", 1, R.string.step_details)
+    object Location : TaskScreen("location", 2, R.string.step_location)
+    object Photos : TaskScreen("photos", 3, R.string.step_photos)
+    object Review : TaskScreen("review", 4, R.string.step_review)
 }
 
 val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Photos, TaskScreen.Review)
@@ -84,9 +87,9 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
     if (showDiscardDialog) {
         AlertDialog(
             onDismissRequest = { showDiscardDialog = false },
-            title = { Text("Discard this task?") },
+            title = { Text(stringResource(R.string.discard_title)) },
             text = {
-                Text("Your category, details and photos for this task will be removed. This cannot be undone.")
+                Text(stringResource(R.string.discard_body))
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -94,12 +97,12 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                     viewModel.discardDraft()
                     onBackToRoles()
                 }) {
-                    Text("Discard", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_discard), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDiscardDialog = false }) {
-                    Text("Keep editing", color = FixTheme.colors.primary)
+                    Text(stringResource(R.string.action_keep_editing), color = FixTheme.colors.primary)
                 }
             }
         )
@@ -111,7 +114,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                 TopAppBar(
                     title = { 
                         Text(
-                            "I need help", 
+                            stringResource(R.string.flow_i_need_help), 
                             modifier = Modifier.fillMaxWidth(), 
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             fontWeight = FontWeight.SemiBold
@@ -121,7 +124,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                         IconButton(onClick = { goBack() }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.cd_back),
                                 modifier = Modifier
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -130,7 +133,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                         }
                     },
                     actions = {
-                        // The "Skip" action that used to sit on the Photos step is gone: that
+                        // The stringResource(R.string.action_skip) action that used to sit on the Photos step is gone: that
                         // screen also holds the task title, which is required, so skipping it
                         // walked straight past the validation and posted an untitled task.
                         if (currentScreen == TaskScreen.Review) {
@@ -141,7 +144,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                                 navController.popBackStack(TaskScreen.Category.route, inclusive = false)
                             }) {
                                 Text(
-                                    text = "Edit",
+                                    text = stringResource(R.string.action_edit),
                                     color = FixTheme.colors.primary,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
@@ -202,13 +205,13 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                                 Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.success, modifier = Modifier.size(40.dp))
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Text("Task posted", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.success_title), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(12.dp))
                             // The old copy promised "you will be notified once someone accepts your
                             // task". There are no notifications in this app, so that was a promise
                             // it could not keep. Checking back is what actually works.
                             Text(
-                                "Helpers can see it now. Check My tasks to see whether someone has taken it on.",
+                                stringResource(R.string.success_body),
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -219,11 +222,11 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
                             ) {
-                                Text("View my tasks", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.success_view_tasks), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.height(12.dp))
                             TextButton(onClick = onBackToRoles, modifier = Modifier.fillMaxWidth()) {
-                                Text("Back to home", color = FixTheme.colors.textSecondary)
+                                Text(stringResource(R.string.success_back_home), color = FixTheme.colors.textSecondary)
                             }
                         }
                     }
@@ -283,7 +286,7 @@ fun StepProgressBar(currentStep: Int) {
         ) {
             taskScreens.forEachIndexed { index, screen ->
                 Text(
-                    text = screen.title,
+                    text = stringResource(screen.titleRes),
                     fontSize = 12.sp,
                     color = if (index + 1 <= currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,

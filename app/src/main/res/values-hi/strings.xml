@@ -235,4 +235,105 @@
         <item quantity="one">%d दिन पहले</item>
         <item quantity="other">%d दिन पहले</item>
     </plurals>
+
+    <!-- Task flow: location step -->
+    <string name="loc_title">आपको कहाँ मदद चाहिए?</string>
+    <string name="loc_subtitle">अपने कार्य के लिए जगह चुनें</string>
+    <string name="loc_search">पता या इलाका खोजें</string>
+    <string name="loc_use_current">मेरी मौजूदा जगह इस्तेमाल करें</string>
+    <string name="loc_map_preview">नक्शे की झलक — अभी असली नक्शा नहीं है</string>
+    <string name="loc_finding_you">आपको ढूंढ रहे हैं…</string>
+    <string name="loc_position_no_address">जगह मिल गई, पर गली का पता नहीं</string>
+    <string name="loc_switch_off">बंद है — ऊपर पता डालें, या इसे चालू करें</string>
+    <string name="loc_service_area_title">अपना सेवा क्षेत्र चुनें</string>
+    <string name="loc_within_km">%1$d किमी के अंदर</string>
+    <string name="loc_tap_to_change">सहायक कितनी दूर तक हों, बदलने के लिए टैप करें</string>
+    <string name="cd_change_service_area">सेवा क्षेत्र बदलें</string>
+    <string name="loc_service_area">सेवा क्षेत्र</string>
+    <string name="loc_service_area_body">इस दूरी के अंदर के सहायकों को आपका कार्य दिखेगा।</string>
+    <string name="action_done">हो गया</string>
+    <string name="loc_safe_title">आपकी जगह हमारे पास सुरक्षित है</string>
+    <string name="loc_safe_body">हम आपका सटीक पता कभी किसी के साथ साझा नहीं करते।</string>
+    <string name="loc_required">पता डालें, या ‘मेरी मौजूदा जगह इस्तेमाल करें’ चालू करें</string>
+    <string name="loc_finding">आपकी जगह ढूंढी जा रही है…</string>
+    <string name="loc_error_permission">इस ऐप के लिए जगह की अनुमति बंद है। इसे दें, या ऊपर पता लिखें।</string>
+    <string name="loc_error_disabled">इस डिवाइस पर लोकेशन बंद है। इसे चालू करें, या ऊपर पता लिखें।</string>
+    <string name="loc_error_no_fix">जगह पकड़ में नहीं आई। बेहतर सिग्नल वाली जगह जाएँ, या ऊपर पता लिखें।</string>
+    <string name="loc_error_no_address">आपकी जगह मिल गई, पर गली का पता नहीं। कृपया ऊपर लिखें।</string>
+
+    <!-- Task flow: photos and details step -->
+    <string name="photos_title">फ़ोटो जोड़ें (वैकल्पिक)</string>
+    <string name="photos_subtitle">फ़ोटो से सहायकों को काम बेहतर समझ आता है।</string>
+    <string name="photos_saving">फ़ोटो सहेजी जा रही हैं…</string>
+    <string name="photos_saving_body">इन्हें ऐप में कॉपी किया जा रहा है ताकि ये आपके कार्य के साथ रहें।</string>
+    <string name="photos_upload">फ़ोटो अपलोड करें</string>
+    <string name="photos_all_added">सभी %1$d फ़ोटो जुड़ गईं</string>
+    <string name="photos_tap_to_select">गैलरी से %1$d और चुनने के लिए टैप करें</string>
+    <string name="photos_remove_one">दूसरी फ़ोटो जोड़ने के लिए एक हटाएँ</string>
+    <string name="photos_added">जोड़ी गई फ़ोटो</string>
+    <string name="photos_count">%1$d/%2$d</string>
+    <string name="cd_photo_n_of_m">फ़ोटो %1$d में से %2$d</string>
+    <string name="cd_remove_photo_n">फ़ोटो %1$d हटाएँ</string>
+    <string name="cd_add_another_photo">एक और फ़ोटो जोड़ें</string>
+    <string name="details_title">कार्य का विवरण</string>
+    <string name="details_field_title">कार्य का शीर्षक *</string>
+    <string name="details_title_hint">जैसे: किचन सिंक साफ़ करना / लकड़ी की दराज ठीक करना</string>
+    <string name="details_title_required">कार्य पोस्ट करने के लिए शीर्षक ज़रूरी है</string>
+    <string name="details_field_description">विस्तृत विवरण</string>
+    <string name="details_description_hint">बताएँ कि कौन से औज़ार चाहिए, कोई खास बात, काम कितना बड़ा है वगैरह।</string>
+    <string name="budget_section_title">बजट तय करें (वैकल्पिक)</string>
+    <string name="budget_field_min">कम से कम बजट (₹)</string>
+    <string name="budget_hint_min">जैसे 500</string>
+    <string name="budget_field_max">ज़्यादा से ज़्यादा बजट (₹)</string>
+    <string name="budget_hint_max">जैसे 1500</string>
+    <string name="tips_title">बेहतर जवाब पाने के तरीके</string>
+    <string name="tips_photos">• साफ़, अच्छी रोशनी वाली फ़ोटो लगाएँ</string>
+    <string name="tips_budget">• सही बजट बताएँ ताकि सहायक ठीक से अंदाज़ा लगा सकें</string>
+    <string name="tips_tools">• कोई खास औज़ार चाहिए तो लिखें</string>
+
+    <!-- Task flow: review step -->
+    <string name="review_title">अपना कार्य जाँचें</string>
+    <string name="review_subtitle">पोस्ट करने से पहले सारी जानकारी देख लें</string>
+    <string name="review_category">श्रेणी</string>
+    <string name="review_description">कार्य का विवरण</string>
+    <string name="review_no_title">अभी कोई शीर्षक नहीं</string>
+    <string name="review_no_details">कोई विवरण नहीं जोड़ा</string>
+    <string name="review_location">जगह</string>
+    <string name="review_location_no_address">मौजूदा जगह (गली का पता नहीं मिला)</string>
+    <string name="review_not_specified">नहीं बताया</string>
+    <string name="review_from_current">आपकी मौजूदा जगह से</string>
+    <string name="review_photos">फ़ोटो</string>
+    <string name="review_no_photos">कोई फ़ोटो नहीं जोड़ी</string>
+    <string name="review_photos_added">%1$d फ़ोटो जोड़ी गईं</string>
+    <string name="cd_review_image">जाँच की फ़ोटो</string>
+    <string name="review_budget_range">₹%1$s - ₹%2$s</string>
+    <string name="review_budget_min">कम से कम ₹%1$s</string>
+    <string name="review_budget_max">ज़्यादा से ज़्यादा ₹%1$s</string>
+    <string name="review_no_budget">बजट नहीं बताया</string>
+    <string name="review_your_budget">आपका बजट</string>
+    <string name="review_budget_note">सहायक इसी दायरे में अपने प्रस्ताव भेजेंगे</string>
+    <string name="review_control_title">नियंत्रण आपके पास है</string>
+    <string name="review_control_body">आस-पास के सहायकों से प्रस्ताव आएँगे, और आप अपने कार्य के लिए सबसे अच्छा चुनेंगे।</string>
+    <string name="review_submit_failed">आपका कार्य इस डिवाइस पर सहेजा नहीं जा सका। कुछ खोया नहीं — दोबारा कोशिश के लिए Post Task दबाएँ।</string>
+    <string name="review_posting">पोस्ट हो रहा है…</string>
+    <string name="review_try_again">दोबारा कोशिश करें</string>
+    <string name="review_post_task">कार्य पोस्ट करें</string>
+    <string name="review_secure">आपकी जानकारी सुरक्षित है</string>
+    <string name="action_edit">बदलें</string>
+
+    <!-- Task flow: steps and container -->
+    <string name="step_details">कार्य विवरण</string>
+    <string name="step_location">जगह</string>
+    <string name="step_photos">फ़ोटो</string>
+    <string name="step_review">जाँच</string>
+    <string name="discard_title">ये कार्य छोड़ दें?</string>
+    <string name="discard_body">इस कार्य की श्रेणी, विवरण और फ़ोटो हट जाएँगी। ये वापस नहीं आएगा।</string>
+    <string name="action_discard">छोड़ दें</string>
+    <string name="action_keep_editing">बदलाव जारी रखें</string>
+    <string name="flow_i_need_help">मुझे मदद चाहिए</string>
+    <string name="cd_back">वापस</string>
+    <string name="success_title">कार्य पोस्ट हो गया</string>
+    <string name="success_body">सहायकों को अब ये दिख रहा है। किसी ने लिया या नहीं, ये My tasks में देखें।</string>
+    <string name="success_view_tasks">मेरे कार्य देखें</string>
+    <string name="success_back_home">होम पर वापस</string>
 </resources>

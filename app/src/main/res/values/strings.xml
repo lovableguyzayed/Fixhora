@@ -248,4 +248,106 @@
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
     </plurals>
+
+    <!-- Task flow: location step -->
+    <string name="loc_title">Where do you need help?</string>
+    <string name="loc_subtitle">Set the location for your task</string>
+    <string name="loc_search">Search address or area</string>
+    <string name="loc_use_current">Use my current location</string>
+    <string name="loc_map_preview">Map preview — not an interactive map yet</string>
+    <string name="loc_finding_you">Finding you…</string>
+    <string name="loc_position_no_address">Position found, but no street address</string>
+    <string name="loc_switch_off">Off — enter an address above, or turn this on</string>
+    <string name="loc_service_area_title">Set your service area</string>
+    <string name="loc_within_km">Within %1$d km</string>
+    <string name="loc_tap_to_change">Tap to change how far helpers can be</string>
+    <string name="cd_change_service_area">Change service area</string>
+    <string name="loc_service_area">Service area</string>
+    <string name="loc_service_area_body">Helpers within this distance will see your task.</string>
+    <string name="action_done">Done</string>
+    <string name="loc_safe_title">Your location is safe with us</string>
+    <string name="loc_safe_body">We never share your exact address with anyone.</string>
+    <string name="loc_required">Enter an address, or turn on ‘Use my current location’</string>
+    <string name="loc_finding">Finding your location…</string>
+    <string name="loc_error_permission">Location access is off for this app. Allow it, or type the address above.</string>
+    <string name="loc_error_disabled">Location is switched off on this device. Turn it on, or type the address above.</string>
+    <string name="loc_error_no_fix">Couldn’t get a location fix. Move somewhere with a clearer signal, or type the address above.</string>
+    <string name="loc_error_no_address">Found your position, but not a street address. Please type it above.</string>
+
+    <!-- Task flow: photos and details step -->
+    <string name="photos_title">Add photos (optional)</string>
+    <string name="photos_subtitle">Add photos to help helpers understand the task better.</string>
+    <string name="photos_saving">Saving photos…</string>
+    <string name="photos_saving_body">Copying them into the app so they stay with your task.</string>
+    <string name="photos_upload">Upload photos</string>
+    <string name="photos_all_added">All %1$d photos added</string>
+    <string name="photos_tap_to_select">Tap to select up to %1$d more from your gallery</string>
+    <string name="photos_remove_one">Remove one to add a different photo</string>
+    <string name="photos_added">Added photos</string>
+    <string name="photos_count">%1$d/%2$d</string>
+    <string name="cd_photo_n_of_m">Photo %1$d of %2$d</string>
+    <string name="cd_remove_photo_n">Remove photo %1$d</string>
+    <string name="cd_add_another_photo">Add another photo</string>
+    <string name="photos_debug_sample">⚡ Debug: attach sample photos</string>
+    <string name="details_title">Task Details</string>
+    <string name="details_field_title">Task Title *</string>
+    <string name="details_title_hint">e.g. Clean my kitchen sink / fix wood drawer</string>
+    <string name="details_title_required">Title is required to post the task</string>
+    <string name="details_field_description">Detailed Description</string>
+    <string name="details_description_hint">Provide details like what tools are needed, special requests, size of work etc.</string>
+    <string name="budget_section_title">Set Budget Range (Optional)</string>
+    <string name="budget_field_min">Min Budget (₹)</string>
+    <string name="budget_hint_min">e.g. 500</string>
+    <string name="budget_field_max">Max Budget (₹)</string>
+    <string name="budget_hint_max">e.g. 1500</string>
+    <string name="tips_title">Tips for better responses</string>
+    <string name="tips_photos">• Add clear, well-lit photos</string>
+    <string name="tips_budget">• Provide an accurate budget range so helpers can bid effectively</string>
+    <string name="tips_tools">• Detail any special equipment/tools required</string>
+
+    <!-- Task flow: review step -->
+    <string name="review_title">Review your task</string>
+    <string name="review_subtitle">Please review all details before posting</string>
+    <string name="review_category">Category</string>
+    <string name="review_description">Task Description</string>
+    <string name="review_no_title">No title yet</string>
+    <string name="review_no_details">No details added</string>
+    <string name="review_location">Location</string>
+    <string name="review_location_no_address">Current location (no street address found)</string>
+    <string name="review_not_specified">Not specified</string>
+    <string name="review_from_current">From your current location</string>
+    <string name="review_photos">Photos</string>
+    <string name="review_no_photos">No photos added</string>
+    <string name="review_photos_added">%1$d photos added</string>
+    <string name="cd_review_image">Review image</string>
+    <string name="review_budget_range">₹%1$s - ₹%2$s</string>
+    <string name="review_budget_min">Min ₹%1$s</string>
+    <string name="review_budget_max">Max ₹%1$s</string>
+    <string name="review_no_budget">No budget specified</string>
+    <string name="review_your_budget">Your Budget</string>
+    <string name="review_budget_note">Helpers will submit their offers within this range</string>
+    <string name="review_control_title">You’re in control</string>
+    <string name="review_control_body">You’ll receive offers from nearby helpers and choose the best one for your task.</string>
+    <string name="review_submit_failed">Your task could not be saved on this device. Nothing was lost — tap Post Task to try again.</string>
+    <string name="review_posting">Posting…</string>
+    <string name="review_try_again">Try Again</string>
+    <string name="review_post_task">Post Task</string>
+    <string name="review_secure">Your details are safe and secure</string>
+    <string name="action_edit">Edit</string>
+
+    <!-- Task flow: steps and container -->
+    <string name="step_details">Task Details</string>
+    <string name="step_location">Location</string>
+    <string name="step_photos">Photos</string>
+    <string name="step_review">Review</string>
+    <string name="discard_title">Discard this task?</string>
+    <string name="discard_body">Your category, details and photos for this task will be removed. This cannot be undone.</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_keep_editing">Keep editing</string>
+    <string name="flow_i_need_help">I need help</string>
+    <string name="cd_back">Back</string>
+    <string name="success_title">Task posted</string>
+    <string name="success_body">Helpers can see it now. Check My tasks to see whether someone has taken it on.</string>
+    <string name="success_view_tasks">View my tasks</string>
+    <string name="success_back_home">Back to home</string>
 </resources>

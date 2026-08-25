@@ -6,6 +6,7 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.foundation.BorderStroke
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.theme.FixTheme
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -70,7 +72,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "Where do you need help?",
+            text = stringResource(R.string.loc_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -79,7 +81,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Set the location for your task",
+            text = stringResource(R.string.loc_subtitle),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
@@ -91,14 +93,14 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         OutlinedTextField(
             value = uiState.locationQuery,
             onValueChange = { viewModel.updateLocationQuery(it) },
-            placeholder = { Text("Search address or area") },
+            placeholder = { Text(stringResource(R.string.loc_search)) },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
             trailingIcon = {
                 IconButton(onClick = { requestCurrentLocation() }) {
                     Icon(
                         Icons.Default.MyLocation,
-                        contentDescription = "Use my current location",
+                        contentDescription = stringResource(R.string.loc_use_current),
                         tint = FixTheme.colors.primary
                     )
                 }
@@ -156,7 +158,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             LocationNotice(
                 message = locationMessage,
                 isError = fetchState != LocationFetchState.RESOLVING,
-                actionLabel = if (fetchState == LocationFetchState.SERVICES_DISABLED) "Open settings" else null,
+                actionLabel = if (fetchState == LocationFetchState.SERVICES_DISABLED) stringResource(R.string.action_open_settings) else null,
                 onAction = {
                     context.startActivity(
                         Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
@@ -214,7 +216,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
                     ) {
                         Text(
-                            "Map preview — not an interactive map yet",
+                            stringResource(R.string.loc_map_preview),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -246,15 +248,15 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             )
                         }
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Use my current location", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.loc_use_current), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                             Text(
                                 text = when {
-                                    fetchState == LocationFetchState.RESOLVING -> "Finding you…"
+                                    fetchState == LocationFetchState.RESOLVING -> stringResource(R.string.loc_finding_you)
                                     useCurrentLocation && uiState.locationQuery.isNotBlank() ->
                                         uiState.locationQuery
                                     useCurrentLocation && uiState.latitude != null ->
-                                        "Position found, but no street address"
-                                    else -> "Off — enter an address above, or turn this on"
+                                        stringResource(R.string.loc_position_no_address)
+                                    else -> stringResource(R.string.loc_switch_off)
                                 },
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -277,7 +279,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = "Set your service area",
+            text = stringResource(R.string.loc_service_area_title),
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -306,19 +308,19 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Within ${uiState.selectedDistance} km",
+                        stringResource(R.string.loc_within_km, uiState.selectedDistance),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
                     )
                     Text(
-                        "Tap to change how far helpers can be",
+                        stringResource(R.string.loc_tap_to_change),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Icon(
                     Icons.Default.ChevronRight,
-                    contentDescription = "Change service area",
+                    contentDescription = stringResource(R.string.cd_change_service_area),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -327,11 +329,11 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         if (showDistancePicker) {
             AlertDialog(
                 onDismissRequest = { showDistancePicker = false },
-                title = { Text("Service area") },
+                title = { Text(stringResource(R.string.loc_service_area)) },
                 text = {
                     Column {
                         Text(
-                            "Helpers within this distance will see your task.",
+                            stringResource(R.string.loc_service_area_body),
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -356,14 +358,14 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                                     colors = RadioButtonDefaults.colors(selectedColor = FixTheme.colors.primary)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Within $km km", fontSize = 16.sp)
+                                Text(stringResource(R.string.loc_within_km, km), fontSize = 16.sp)
                             }
                         }
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = { showDistancePicker = false }) {
-                        Text("Done", color = FixTheme.colors.primary)
+                        Text(stringResource(R.string.action_done), color = FixTheme.colors.primary)
                     }
                 }
             )
@@ -388,8 +390,8 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Your location is safe with us", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("We never share your exact address with anyone.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.loc_safe_title), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(stringResource(R.string.loc_safe_body), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -401,7 +403,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         if (showError) {
             Text(
-                text = "Enter an address, or turn on 'Use my current location'",
+                text = stringResource(R.string.loc_required),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -425,7 +427,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.action_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -442,15 +444,15 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 private fun LocationFetchState.explain(): String? =
     when (this) {
         LocationFetchState.IDLE -> null
-        LocationFetchState.RESOLVING -> "Finding your location…"
+        LocationFetchState.RESOLVING -> stringResource(R.string.loc_finding)
         LocationFetchState.PERMISSION_REQUIRED ->
-            "Location access is off for this app. Allow it, or type the address above."
+            stringResource(R.string.loc_error_permission)
         LocationFetchState.SERVICES_DISABLED ->
-            "Location is switched off on this device. Turn it on, or type the address above."
+            stringResource(R.string.loc_error_disabled)
         LocationFetchState.UNAVAILABLE ->
-            "Couldn't get a location fix. Move somewhere with a clearer signal, or type the address above."
+            stringResource(R.string.loc_error_no_fix)
         LocationFetchState.NO_ADDRESS_FOUND ->
-            "Found your position, but not a street address. Please type it above."
+            stringResource(R.string.loc_error_no_address)
     }
 
 @Composable
