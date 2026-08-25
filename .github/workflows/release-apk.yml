@@ -93,7 +93,9 @@ jobs:
       - name: Summarise test results
         if: always()
         run: |
-          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          # tee, not >>: the step summary is not readable through the API, so the same line has
+          # to reach the log for anyone diagnosing a run from outside the web UI.
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
           import glob, xml.etree.ElementTree as ET
 
           tests = failures = errors = skipped = 0
