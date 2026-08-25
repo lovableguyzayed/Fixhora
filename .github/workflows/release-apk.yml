@@ -96,7 +96,7 @@ jobs:
           # tee, not >>: the step summary is not readable through the API, so the same line has
           # to reach the log for anyone diagnosing a run from outside the web UI.
           python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
-          import glob, xml.etree.ElementTree as ET
+          import glob, os, xml.etree.ElementTree as ET
 
           tests = failures = errors = skipped = 0
           suites = 0
@@ -114,12 +114,21 @@ jobs:
               skipped += int(root.get("skipped", 0))
 
           if suites == 0:
-              print("## Tests\n\n**No test results found.** The test task produced no XML.")
+              line = "No test results found — the test task produced no XML."
+              print("## Tests\n\n**%s**" % line)
           else:
               mark = "white_check_mark" if failures == 0 and errors == 0 else "x"
+              line = ("%d tests in %d classes — %d failures, %d errors, %d skipped"
+                      % (tests, suites, failures, errors, skipped))
               print("## Tests\n")
               print(":%s: **%d tests** in %d classes — %d failures, %d errors, %d skipped"
                     % (mark, tests, suites, failures, errors, skipped))
+
+          # Also carried into the release notes. The step summary is not readable through the API
+          # and this runner's log blobs are not reachable from every network, but the releases API
+          # is — so this is the one place the count can always be read back after the fact.
+          with open(os.environ["GITHUB_ENV"], "a") as env:
+              env.write("TEST_SUMMARY=%s\n" % line)
           EOF
 
       - name: Build debug APK
@@ -220,6 +229,8 @@ jobs:
           Download the .apk below on your phone and open it to install.
 
           $SIGNING_NOTE
+
+          Tests: $TEST_SUMMARY
 
           This installs straight over any earlier build of the same channel — they share one
           signing key. If Android says "App not installed", you still have a build from before
