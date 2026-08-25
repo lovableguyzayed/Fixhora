@@ -46,7 +46,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Browse jobs", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+                title = { Text(stringResource(R.string.map_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
         },
@@ -56,12 +56,12 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
             OutlinedTextField(
                 value = query,
                 onValueChange = viewModel::onMapQueryChange,
-                placeholder = { Text("Search open jobs") },
+                placeholder = { Text(stringResource(R.string.map_search_hint)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(onClick = { viewModel.onMapQueryChange("") }) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear search")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_clear_search))
                         }
                     }
                 },
@@ -82,7 +82,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
             ) {
                 item {
                     CategoryChip(
-                        label = "All",
+                        label = stringResource(R.string.filter_all),
                         selected = selectedCategoryId == null,
                         onClick = { viewModel.onMapCategorySelected(null) }
                     )
@@ -105,16 +105,16 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                     EmptyState(
                         icon = Icons.Default.SearchOff,
                         title = if (query.isNotBlank() || selectedCategoryId != null) {
-                            "No open jobs match"
+                            stringResource(R.string.map_empty_filtered_title)
                         } else {
-                            "No open jobs right now"
+                            stringResource(R.string.map_empty_title)
                         },
                         description = if (query.isNotBlank() || selectedCategoryId != null) {
-                            "Try another category, or clear the filters."
+                            stringResource(R.string.map_empty_filtered_body)
                         } else {
-                            "New requests appear here as soon as customers post them."
+                            stringResource(R.string.map_empty_body)
                         },
-                        actionText = if (query.isNotBlank() || selectedCategoryId != null) "Clear filters" else null,
+                        actionText = if (query.isNotBlank() || selectedCategoryId != null) stringResource(R.string.action_clear_filters) else null,
                         onAction = if (query.isNotBlank() || selectedCategoryId != null) {
                             {
                                 viewModel.onMapQueryChange("")
@@ -182,7 +182,7 @@ private fun MapPreviewNotice() {
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = "Map view isn't available yet — jobs are listed by category for now.",
+            text = stringResource(R.string.map_preview_notice),
             fontSize = 13.sp,
             color = FixTheme.colors.textPrimary,
             textAlign = TextAlign.Start

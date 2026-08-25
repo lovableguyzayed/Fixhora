@@ -77,7 +77,7 @@ fun WorkerChatListScreen(
 ) {
     Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt)) {
         TopAppBar(
-            title = { Text("Chats", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+            title = { Text(stringResource(R.string.chat_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
             // The filter icon and the "All / Unread / Pending Bids" chips are gone: read state and
             // bids do not exist in this app, so those filters could never have done anything.
             colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
@@ -86,12 +86,12 @@ fun WorkerChatListScreen(
         OutlinedTextField(
             value = query,
             onValueChange = onQueryChange,
-            placeholder = { Text("Search your conversations") },
+            placeholder = { Text(stringResource(R.string.chat_search_hint)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { onQueryChange("") }) {
-                        Icon(Icons.Default.Close, contentDescription = "Clear search")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_clear_search))
                     }
                 }
             },
@@ -110,13 +110,18 @@ fun WorkerChatListScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 EmptyState(
                     icon = Icons.Default.ChatBubbleOutline,
-                    title = if (query.isNotBlank()) "Nothing matches \"$query\"" else "No conversations yet",
+                    title =
+                        if (query.isNotBlank()) {
+                            stringResource(R.string.chat_empty_query_title, query)
+                        } else {
+                            stringResource(R.string.chat_empty_title)
+                        },
                     description = if (query.isNotBlank()) {
-                        "Try a different word, or clear the search."
+                        stringResource(R.string.chat_empty_query_body)
                     } else {
-                        "Once you accept a job, your chat with that customer appears here."
+                        stringResource(R.string.chat_empty_body)
                     },
-                    actionText = if (query.isNotBlank()) "Clear search" else null,
+                    actionText = if (query.isNotBlank()) stringResource(R.string.action_clear_search) else null,
                     onAction = if (query.isNotBlank()) ({ onQueryChange("") }) else null
                 )
             }
@@ -199,7 +204,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to chats")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back_to_chats))
                 }
             },
             // Call and "More" removed: there is no phone number stored and no menu to show.
@@ -210,8 +215,8 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 EmptyState(
                     icon = Icons.Default.ChatBubbleOutline,
-                    title = "No messages yet",
-                    description = "Send the first message about this job."
+                    title = stringResource(R.string.chat_thread_empty_title),
+                    description = stringResource(R.string.chat_thread_empty_body)
                 )
             }
         } else {
@@ -240,7 +245,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 OutlinedTextField(
                     value = messageText,
                     onValueChange = { messageText = it },
-                    placeholder = { Text("Type a message…") },
+                    placeholder = { Text(stringResource(R.string.chat_input_hint)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -262,7 +267,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send message",
+                        contentDescription = stringResource(R.string.cd_send_message),
                         tint = if (messageText.isNotBlank()) FixTheme.colors.primary else FixTheme.colors.onDisabled
                     )
                 }

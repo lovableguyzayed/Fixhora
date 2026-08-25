@@ -47,7 +47,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My tasks", fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+                title = { Text(stringResource(R.string.worker_tasks_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
                 // The Search / Filter / Sort icons are gone. Search is the field below, and
                 // neither filter nor sort was ever implemented.
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
@@ -59,12 +59,12 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
             OutlinedTextField(
                 value = query,
                 onValueChange = viewModel::onTaskQueryChange,
-                placeholder = { Text("Search by title, address or category") },
+                placeholder = { Text(stringResource(R.string.worker_tasks_search_hint)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(onClick = { viewModel.onTaskQueryChange("") }) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear search")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_clear_search))
                         }
                     }
                 },
@@ -92,7 +92,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                         onClick = { viewModel.onTabSelected(tab) },
                         label = {
                             Text(
-                                text = "${stringResource(tab.labelRes)} ($count)",
+                                text = stringResource(R.string.worker_tab_with_count, stringResource(tab.labelRes), count),
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
@@ -116,17 +116,21 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                     EmptyState(
                         icon = Icons.AutoMirrored.Filled.Assignment,
                         title = when {
-                            query.isNotBlank() -> "Nothing matches \"$query\""
-                            selectedTab == TaskTab.ALL -> "No tasks yet"
-                            else -> "Nothing in \"${stringResource(selectedTab.labelRes)}\""
+                            query.isNotBlank() -> stringResource(R.string.worker_tasks_empty_query_title, query)
+                            selectedTab == TaskTab.ALL -> stringResource(R.string.worker_tasks_empty_all_title)
+                            else ->
+                                stringResource(
+                                    R.string.worker_tasks_empty_tab_title,
+                                    stringResource(selectedTab.labelRes)
+                                )
                         },
                         description = when {
-                            query.isNotBlank() -> "Try a different word, or clear the search."
+                            query.isNotBlank() -> stringResource(R.string.worker_tasks_empty_query_body)
                             selectedTab == TaskTab.ALL ->
-                                "Customer requests appear here as soon as they are posted."
-                            else -> "Tasks move here as their status changes."
+                                stringResource(R.string.worker_tasks_empty_all_body)
+                            else -> stringResource(R.string.worker_tasks_empty_tab_body)
                         },
-                        actionText = if (query.isNotBlank()) "Clear search" else null,
+                        actionText = if (query.isNotBlank()) stringResource(R.string.action_clear_search) else null,
                         onAction = if (query.isNotBlank()) {
                             { viewModel.onTaskQueryChange("") }
                         } else null
@@ -166,7 +170,7 @@ private fun android.content.Context.openDirectionsTo(task: TaskEntity) {
     val destination =
         when {
             task.latitude != null && task.longitude != null ->
-                "geo:${task.latitude},${task.longitude}?q=${Uri.encode(task.locationQuery.ifBlank { "Task location" })}"
+                "geo:${task.latitude},${task.longitude}?q=${Uri.encode(task.locationQuery.ifBlank { getString(R.string.map_query_fallback) })}"
             task.locationQuery.isNotBlank() -> "geo:0,0?q=${Uri.encode(task.locationQuery)}"
             else -> return
         }
@@ -247,7 +251,10 @@ fun WorkerTaskCard(
                         budgetText(task.minBudget, task.maxBudget)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(Icons.Default.MyLocation, "Within ${task.selectedDistance} km")
+                    TaskMetaRow(
+                        Icons.Default.MyLocation,
+                        stringResource(R.string.loc_within_km, task.selectedDistance)
+                    )
                 }
             }
 
@@ -268,7 +275,7 @@ fun WorkerTaskCard(
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
                             border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border),
                             modifier = Modifier.weight(1f)
-                        ) { Text("Decline", fontWeight = FontWeight.SemiBold) }
+                        ) { Text(stringResource(R.string.action_decline), fontWeight = FontWeight.SemiBold) }
                         Button(
                             onClick = onAccept,
                             shape = RoundedCornerShape(8.dp),
@@ -277,7 +284,7 @@ fun WorkerTaskCard(
                                 contentColor = FixTheme.colors.onPrimary
                             ),
                             modifier = Modifier.weight(1f)
-                        ) { Text("Accept", fontWeight = FontWeight.Bold) }
+                        ) { Text(stringResource(R.string.action_accept), fontWeight = FontWeight.Bold) }
                     }
 
                 TaskStatus.ACCEPTED ->
@@ -286,8 +293,18 @@ fun WorkerTaskCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat, Modifier.weight(1f))
-                        CardAction(Icons.Default.Navigation, "Directions", onNavigate, Modifier.weight(1f))
+                        CardAction(
+                            Icons.AutoMirrored.Filled.Chat,
+                            stringResource(R.string.action_chat),
+                            onChat,
+                            Modifier.weight(1f)
+                        )
+                        CardAction(
+                            Icons.Default.Navigation,
+                            stringResource(R.string.action_directions),
+                            onNavigate,
+                            Modifier.weight(1f)
+                        )
                         Button(
                             onClick = onStart,
                             shape = RoundedCornerShape(8.dp),
@@ -296,7 +313,7 @@ fun WorkerTaskCard(
                                 contentColor = FixTheme.colors.onPrimary
                             ),
                             modifier = Modifier.weight(1f)
-                        ) { Text("Start", fontWeight = FontWeight.Bold) }
+                        ) { Text(stringResource(R.string.action_start), fontWeight = FontWeight.Bold) }
                     }
 
                 TaskStatus.IN_PROGRESS ->
@@ -305,8 +322,18 @@ fun WorkerTaskCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat, Modifier.weight(1f))
-                        CardAction(Icons.Default.Navigation, "Directions", onNavigate, Modifier.weight(1f))
+                        CardAction(
+                            Icons.AutoMirrored.Filled.Chat,
+                            stringResource(R.string.action_chat),
+                            onChat,
+                            Modifier.weight(1f)
+                        )
+                        CardAction(
+                            Icons.Default.Navigation,
+                            stringResource(R.string.action_directions),
+                            onNavigate,
+                            Modifier.weight(1f)
+                        )
                         Button(
                             onClick = onComplete,
                             shape = RoundedCornerShape(8.dp),
@@ -315,7 +342,7 @@ fun WorkerTaskCard(
                                 contentColor = FixTheme.colors.onPrimary
                             ),
                             modifier = Modifier.weight(1f)
-                        ) { Text("Done", fontWeight = FontWeight.Bold) }
+                        ) { Text(stringResource(R.string.action_done), fontWeight = FontWeight.Bold) }
                     }
 
                 TaskStatus.COMPLETED ->
@@ -331,18 +358,18 @@ fun WorkerTaskCard(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "Finished",
+                            stringResource(R.string.worker_finished),
                             color = FixTheme.colors.success,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Spacer(modifier = Modifier.weight(1f))
-                        CardAction(Icons.AutoMirrored.Filled.Chat, "Chat", onChat)
+                        CardAction(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.action_chat), onChat)
                     }
 
                 else ->
                     Text(
-                        "No actions available for this task.",
+                        stringResource(R.string.worker_no_actions),
                         fontSize = 13.sp,
                         color = FixTheme.colors.textSecondary
                     )
@@ -380,16 +407,24 @@ fun TaskMetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Str
     }
 }
 
+/**
+ * What a status is called **to the worker**, which is not what it is called to the customer:
+ * `REJECTED` reads as "Declined" here because the worker is the one who declined it, while
+ * [com.example.ui.format.customerStatusLabel] renders the same row as "No helper yet".
+ */
+@Composable
 fun TaskStatus.displayLabel(): String =
-    when (this) {
-        TaskStatus.DRAFT -> "Draft"
-        TaskStatus.SUBMITTED -> "New"
-        TaskStatus.ACCEPTED -> "Accepted"
-        TaskStatus.IN_PROGRESS -> "In progress"
-        TaskStatus.COMPLETED -> "Completed"
-        TaskStatus.CANCELLED -> "Cancelled"
-        TaskStatus.REJECTED -> "Declined"
-    }
+    stringResource(
+        when (this) {
+            TaskStatus.DRAFT -> R.string.worker_status_draft
+            TaskStatus.SUBMITTED -> R.string.worker_status_new
+            TaskStatus.ACCEPTED -> R.string.worker_status_accepted
+            TaskStatus.IN_PROGRESS -> R.string.worker_status_in_progress
+            TaskStatus.COMPLETED -> R.string.worker_status_completed
+            TaskStatus.CANCELLED -> R.string.worker_status_cancelled
+            TaskStatus.REJECTED -> R.string.worker_status_declined
+        }
+    )
 
 fun TaskStatus.tone(): StatusTone =
     when (this) {

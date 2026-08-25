@@ -20,14 +20,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.semantics.Role
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.ui.screens.taskflow.categoryTitles
 import com.example.ui.theme.FixTheme
 
-sealed class HelperScreen(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    object Home : HelperScreen("helper_home", "Home", Icons.Default.Home)
-    object Map : HelperScreen("helper_map", "Map", Icons.Default.Map)
-    object Chat : HelperScreen("helper_chat", "Chat", Icons.AutoMirrored.Filled.Chat)
-    object Tasks : HelperScreen("helper_tasks", "Tasks", Icons.AutoMirrored.Filled.Assignment)
+sealed class HelperScreen(
+    val route: String,
+    @StringRes val titleRes: Int,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    object Home : HelperScreen("helper_home", R.string.nav_home, Icons.Default.Home)
+    object Map : HelperScreen("helper_map", R.string.nav_map, Icons.Default.Map)
+    object Chat : HelperScreen("helper_chat", R.string.nav_chat, Icons.AutoMirrored.Filled.Chat)
+    object Tasks : HelperScreen("helper_tasks", R.string.nav_tasks, Icons.AutoMirrored.Filled.Assignment)
 }
 
 val helperBottomNavItems = listOf(
@@ -105,14 +112,14 @@ fun HelperFlowContainer(
                                 // show and the number was pure decoration.
                                 Icon(
                                     screen.icon,
-                                    contentDescription = screen.title,
+                                    contentDescription = stringResource(screen.titleRes),
                                     tint = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textSecondary,
                                     modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
                                 )
                                 if (isSelected) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = screen.title,
+                                        text = stringResource(screen.titleRes),
                                         color = FixTheme.colors.primary,
                                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                         style = MaterialTheme.typography.labelMedium

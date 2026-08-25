@@ -350,4 +350,88 @@
     <string name="success_body">Helpers can see it now. Check My tasks to see whether someone has taken it on.</string>
     <string name="success_view_tasks">View my tasks</string>
     <string name="success_back_home">Back to home</string>
+
+    <!-- Worker: bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_tasks">Tasks</string>
+
+    <!-- Worker: browse jobs (map tab) -->
+    <string name="map_title">Browse jobs</string>
+    <string name="map_search_hint">Search open jobs</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="filter_all">All</string>
+    <string name="map_empty_filtered_title">No open jobs match</string>
+    <string name="map_empty_title">No open jobs right now</string>
+    <string name="map_empty_filtered_body">Try another category, or clear the filters.</string>
+    <string name="map_empty_body">New requests appear here as soon as customers post them.</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="map_preview_notice">Map view isn\'t available yet — jobs are listed by category for now.</string>
+
+    <!-- Worker: home -->
+    <string name="worker_home_title">Find work nearby</string>
+    <string name="worker_no_jobs_in_progress">No jobs in progress</string>
+    <plurals name="jobs_in_progress">
+        <item quantity="one">%1$d job in progress</item>
+        <item quantity="other">%1$d jobs in progress</item>
+    </plurals>
+    <string name="worker_pipeline">Your pipeline</string>
+    <string name="worker_stat_open_nearby">Open nearby</string>
+    <string name="worker_stat_accepted">Accepted</string>
+    <string name="worker_stat_in_progress">In progress</string>
+    <string name="worker_stat_completed">Completed</string>
+    <string name="worker_stat_declined">Declined</string>
+    <string name="worker_stat_active">Active</string>
+    <string name="worker_available_jobs">Available nearby jobs</string>
+    <string name="worker_empty_title">No jobs nearby right now</string>
+    <string name="worker_empty_body">New requests from customers appear here as soon as they are posted.</string>
+    <string name="worker_your_work">Your work</string>
+    <string name="job_status_open">Open</string>
+    <string name="action_not_for_me">Not for me</string>
+    <string name="action_accept_job">Accept job</string>
+    <string name="action_ask_question">Ask a question</string>
+
+    <!-- Worker: my tasks -->
+    <string name="worker_tasks_title">My tasks</string>
+    <string name="worker_tasks_search_hint">Search by title, address or category</string>
+    <string name="worker_tab_with_count">%1$s (%2$d)</string>
+    <string name="worker_tasks_empty_query_title">Nothing matches \"%1$s\"</string>
+    <string name="worker_tasks_empty_all_title">No tasks yet</string>
+    <string name="worker_tasks_empty_tab_title">Nothing in \"%1$s\"</string>
+    <string name="worker_tasks_empty_query_body">Try a different word, or clear the search.</string>
+    <string name="worker_tasks_empty_all_body">Customer requests appear here as soon as they are posted.</string>
+    <string name="worker_tasks_empty_tab_body">Tasks move here as their status changes.</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="map_query_fallback">Task location</string>
+    <string name="action_decline">Decline</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_chat">Chat</string>
+    <string name="action_directions">Directions</string>
+    <string name="action_start">Start</string>
+    <string name="action_done">Done</string>
+    <string name="worker_finished">Finished</string>
+    <string name="worker_no_actions">No actions available for this task.</string>
+
+    <!-- Worker: status badges (the worker\'s own vocabulary, not the customer\'s) -->
+    <string name="worker_status_draft">Draft</string>
+    <string name="worker_status_new">New</string>
+    <string name="worker_status_accepted">Accepted</string>
+    <string name="worker_status_in_progress">In progress</string>
+    <string name="worker_status_completed">Completed</string>
+    <string name="worker_status_cancelled">Cancelled</string>
+    <string name="worker_status_declined">Declined</string>
+
+    <!-- Worker: chat -->
+    <string name="chat_title">Chats</string>
+    <string name="chat_search_hint">Search your conversations</string>
+    <string name="chat_empty_query_title">Nothing matches \"%1$s\"</string>
+    <string name="chat_empty_title">No conversations yet</string>
+    <string name="chat_empty_query_body">Try a different word, or clear the search.</string>
+    <string name="chat_empty_body">Once you accept a job, your chat with that customer appears here.</string>
+    <string name="cd_back_to_chats">Back to chats</string>
+    <string name="chat_thread_empty_title">No messages yet</string>
+    <string name="chat_thread_empty_body">Send the first message about this job.</string>
+    <string name="chat_input_hint">Type a message…</string>
+    <string name="cd_send_message">Send message</string>
 </resources>

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,16 +57,20 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                 title = {
                     Column {
                         Text(
-                            text = "Find work nearby",
+                            text = stringResource(R.string.worker_home_title),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = FixTheme.colors.textPrimary
                         )
                         Text(
                             text = if (stats.activeNow > 0) {
-                                "${stats.activeNow} job${if (stats.activeNow == 1) "" else "s"} in progress"
+                                pluralStringResource(
+                                    R.plurals.jobs_in_progress,
+                                    stats.activeNow,
+                                    stats.activeNow
+                                )
                             } else {
-                                "No jobs in progress"
+                                stringResource(R.string.worker_no_jobs_in_progress)
                             },
                             fontSize = 12.sp,
                             color = FixTheme.colors.textSecondary
@@ -90,33 +95,33 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
             item { WorkSummaryCard(stats) }
 
             item {
-                SectionHeader(title = "Your pipeline")
+                SectionHeader(title = stringResource(R.string.worker_pipeline))
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     item {
-                        SummaryCard("Open nearby", stats.availableNow, Icons.Default.Search,
+                        SummaryCard(stringResource(R.string.worker_stat_open_nearby), stats.availableNow, Icons.Default.Search,
                             FixTheme.colors.infoSurface, FixTheme.colors.info)
                     }
                     item {
-                        SummaryCard("Accepted", stats.accepted, Icons.AutoMirrored.Filled.Assignment,
+                        SummaryCard(stringResource(R.string.worker_stat_accepted), stats.accepted, Icons.AutoMirrored.Filled.Assignment,
                             FixTheme.colors.warningSurface, FixTheme.colors.warning)
                     }
                     item {
-                        SummaryCard("In progress", stats.inProgress, Icons.Default.PendingActions,
+                        SummaryCard(stringResource(R.string.worker_stat_in_progress), stats.inProgress, Icons.Default.PendingActions,
                             FixTheme.colors.warningSurface, FixTheme.colors.warning)
                     }
                     item {
-                        SummaryCard("Completed", stats.completed, Icons.Default.CheckCircle,
+                        SummaryCard(stringResource(R.string.worker_stat_completed), stats.completed, Icons.Default.CheckCircle,
                             FixTheme.colors.successSurface, FixTheme.colors.success)
                     }
                     item {
-                        SummaryCard("Declined", stats.declined, Icons.Default.Cancel,
+                        SummaryCard(stringResource(R.string.worker_stat_declined), stats.declined, Icons.Default.Cancel,
                             FixTheme.colors.dangerSurface, FixTheme.colors.danger)
                     }
                 }
             }
 
-            item { SectionHeader(title = "Available nearby jobs") }
+            item { SectionHeader(title = stringResource(R.string.worker_available_jobs)) }
 
             if (isLoading) {
                 items(3) { JobCardSkeleton() }
@@ -124,8 +129,8 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                 item {
                     EmptyState(
                         icon = Icons.Default.SearchOff,
-                        title = "No jobs nearby right now",
-                        description = "New requests from customers appear here as soon as they are posted.",
+                        title = stringResource(R.string.worker_empty_title),
+                        description = stringResource(R.string.worker_empty_body),
                         modifier = Modifier.padding(top = 24.dp)
                     )
                 }
@@ -161,7 +166,7 @@ fun WorkSummaryCard(stats: HelperStats) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                "Your work",
+                stringResource(R.string.worker_your_work),
                 color = FixTheme.colors.onPrimary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -171,9 +176,9 @@ fun WorkSummaryCard(stats: HelperStats) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                HeadlineStat("Open nearby", stats.availableNow)
-                HeadlineStat("Active", stats.activeNow)
-                HeadlineStat("Completed", stats.completed)
+                HeadlineStat(stringResource(R.string.worker_stat_open_nearby), stats.availableNow)
+                HeadlineStat(stringResource(R.string.worker_stat_active), stats.activeNow)
+                HeadlineStat(stringResource(R.string.worker_stat_completed), stats.completed)
             }
         }
     }
@@ -300,7 +305,7 @@ fun WorkerJobCard(
                         Text(postedAgo, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
                     }
                 }
-                StatusBadge(text = "Open", tone = StatusTone.INFO)
+                StatusBadge(text = stringResource(R.string.job_status_open), tone = StatusTone.INFO)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -329,7 +334,7 @@ fun WorkerJobCard(
                 taskLocationText(task.locationQuery, task.latitude != null)
             )
             Spacer(modifier = Modifier.height(6.dp))
-            JobMetaRow(Icons.Default.MyLocation, "Within ${task.selectedDistance} km")
+            JobMetaRow(Icons.Default.MyLocation, stringResource(R.string.loc_within_km, task.selectedDistance))
             Spacer(modifier = Modifier.height(6.dp))
             JobMetaRow(
                 Icons.Default.AccountBalanceWallet,
@@ -350,7 +355,7 @@ fun WorkerJobCard(
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
                     border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border)
                 ) {
-                    Text("Not for me", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_not_for_me), fontWeight = FontWeight.SemiBold)
                 }
                 Button(
                     onClick = onAccept,
@@ -361,7 +366,7 @@ fun WorkerJobCard(
                         contentColor = FixTheme.colors.onPrimary
                     )
                 ) {
-                    Text("Accept job", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.action_accept_job), fontWeight = FontWeight.Bold)
                 }
             }
             TextButton(
@@ -375,7 +380,7 @@ fun WorkerJobCard(
                     tint = FixTheme.colors.primary
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Ask a question", color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.action_ask_question), color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
             }
         }
     }
