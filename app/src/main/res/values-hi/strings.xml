@@ -395,7 +395,7 @@
     <string name="action_chat">चैट</string>
     <string name="action_directions">रास्ता</string>
     <string name="action_start">शुरू करें</string>
-    <string name="action_done">पूरा हुआ</string>
+    <string name="action_mark_done">पूरा हुआ</string>
     <string name="worker_finished">पूरा हो गया</string>
     <string name="worker_no_actions">इस काम के लिए अभी कोई कार्रवाई नहीं है।</string>
 

@@ -342,7 +342,7 @@ fun WorkerTaskCard(
                                 contentColor = FixTheme.colors.onPrimary
                             ),
                             modifier = Modifier.weight(1f)
-                        ) { Text(stringResource(R.string.action_done), fontWeight = FontWeight.Bold) }
+                        ) { Text(stringResource(R.string.action_mark_done), fontWeight = FontWeight.Bold) }
                     }
 
                 TaskStatus.COMPLETED ->

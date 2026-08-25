@@ -409,7 +409,7 @@
     <string name="action_chat">Chat</string>
     <string name="action_directions">Directions</string>
     <string name="action_start">Start</string>
-    <string name="action_done">Done</string>
+    <string name="action_mark_done">Done</string>
     <string name="worker_finished">Finished</string>
     <string name="worker_no_actions">No actions available for this task.</string>
 
