@@ -1,5 +1,35 @@
 # Changelog
 
+## Batch 10 — Close the verification loop
+
+Batch 9 went green and I reported the migration as proven. Auditing that claim afterwards turned up
+three loose ends, one of them a hole in my own verification.
+
+**I could not actually prove the tests ran.** The first signal was the step duration: 199s in
+Batch 9 against 196s in Batch 8. Three seconds for 36 new Robolectric tests looked impossible, so I
+suspected they had been skipped. Reading the log settled it — `> Task :app:testDebugUnitTest`
+executed (not `UP-TO-DATE`, not `SKIPPED`) taking 26s, with `33 actionable tasks: 33 executed` — and
+also explained the timing: both runs started from a cold Gradle User Home and Batch 9 additionally
+downloaded the Gradle distribution, so the totals were never comparable.
+
+The tests ran. But that came from **inference over a log**, not evidence. Gradle prints no test
+count on success, so nothing in CI stated how many tests executed. That is a bad place to leave the
+project's main safety net: the day a change stops a test class being discovered, the build stays
+green and nobody notices.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| CI publishes `test-results` and the HTML report, with `if: always()` | A failing run is exactly when the report is wanted, so it must not be conditional on success. | None. |
+| CI writes the test totals into the job summary | The run page now states "N tests in M classes — N failures". This is the check that would have answered my own question in seconds instead of by inference. It only reports and never gates the build, so a mis-parse is visible rather than dangerous. | None. |
+| **CI commits `app/schemas` when it changes** | Batch 9 turned on `exportSchema` and uploaded the JSON as an artifact — where it stayed. The proxy in this container blocks the artifact download host, so the file could not be ferried back by hand, and Room's `identityHash` cannot be written by hand either. Having CI commit it keeps the schema in sync with the entities forever rather than relying on somebody remembering. `[skip ci]` stops the push triggering another build; it rebases first in case someone pushed during the run. | Low. Pushes to the working branch, so a local clone goes one commit behind after each schema change. |
+| Four `AutoMirrored` icon deprecations fixed | The Batch 9 log flagged `Icons.Filled.Assignment` and `Icons.Filled.HelpOutline` as deprecated. **Two were mine** from Batch 8 (`CustomerFlowContainer.kt`, `MyTasksScreen.kt`); `WorkerHomeScreen.kt` and `TaskReviewScreen.kt` predate it. Auto-mirroring matters for right-to-left layouts, which is live given i18n is on the roadmap. | Low. Identical rendering in a left-to-right layout. |
+
+**Destructive operations: none.** Two CI steps added, four icon references swapped. The schema
+commit adds a generated file and never rewrites history. Rollback is reverting this commit.
+
+**What this does not fix:** nothing automated still exercises a Compose screen. The test count now
+published is for JVM and Robolectric tests only.
+
 ## Batch 9 — Room & migration tests
 
 For eight batches I repeated the same caveat: **`MIGRATION_2_3` had never run against a populated

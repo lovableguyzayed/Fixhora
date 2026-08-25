@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
@@ -95,7 +96,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                             FixTheme.colors.infoSurface, FixTheme.colors.info)
                     }
                     item {
-                        SummaryCard("Accepted", stats.accepted, Icons.Default.Assignment,
+                        SummaryCard("Accepted", stats.accepted, Icons.AutoMirrored.Filled.Assignment,
                             FixTheme.colors.warningSurface, FixTheme.colors.warning)
                     }
                     item {

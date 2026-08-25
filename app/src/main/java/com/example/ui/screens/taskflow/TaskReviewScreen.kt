@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
@@ -82,7 +83,7 @@ fun TaskReviewScreen(
                 val tint = category?.iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant
                 Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(tint.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
                     Icon(
-                        category?.icon ?: Icons.Default.HelpOutline,
+                        category?.icon ?: Icons.AutoMirrored.Filled.HelpOutline,
                         contentDescription = null,
                         tint = tint
                     )

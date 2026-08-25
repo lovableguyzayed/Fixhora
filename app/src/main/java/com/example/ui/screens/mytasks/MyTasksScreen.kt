@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Schedule
@@ -55,7 +55,7 @@ import com.example.ui.theme.Spacing
 fun MyTasksScreen(tasks: List<TaskEntity>, onOpenTask: (Int) -> Unit, onPostTask: () -> Unit) {
   if (tasks.isEmpty()) {
     EmptyState(
-      icon = Icons.Default.Assignment,
+      icon = Icons.AutoMirrored.Filled.Assignment,
       title = "No tasks yet",
       description =
         "Anything you post shows up here, with its status and a way to message the helper who " +

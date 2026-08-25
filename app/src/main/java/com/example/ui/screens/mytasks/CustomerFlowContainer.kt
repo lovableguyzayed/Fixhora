@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.PostAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -27,7 +27,7 @@ import com.example.ui.theme.FixTheme
 /** The two things a customer does: ask for something, and keep track of what they asked for. */
 private enum class CustomerTab(val label: String, val icon: ImageVector) {
   POST("Post a task", Icons.Default.PostAdd),
-  MY_TASKS("My tasks", Icons.Default.Assignment),
+  MY_TASKS("My tasks", Icons.AutoMirrored.Filled.Assignment),
 }
 
 /**

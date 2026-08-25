@@ -76,18 +76,79 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test --stacktrace
 
+      # Runs even when the tests fail - a failing run is exactly when the report is wanted.
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            app/build/reports/tests/**
+            app/build/test-results/**
+          if-no-files-found: warn
+
+      # Gradle prints no test count on success, so a green build said nothing about how many tests
+      # actually ran. The day a change stops a class being discovered, the build would stay green
+      # and nobody would notice. This puts the number on the run page.
+      - name: Summarise test results
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import glob, xml.etree.ElementTree as ET
+
+          tests = failures = errors = skipped = 0
+          suites = 0
+          for path in glob.glob("app/build/test-results/**/*.xml", recursive=True):
+              try:
+                  root = ET.parse(path).getroot()
+              except ET.ParseError:
+                  continue
+              if root.tag != "testsuite":
+                  continue
+              suites += 1
+              tests += int(root.get("tests", 0))
+              failures += int(root.get("failures", 0))
+              errors += int(root.get("errors", 0))
+              skipped += int(root.get("skipped", 0))
+
+          if suites == 0:
+              print("## Tests\n\n**No test results found.** The test task produced no XML.")
+          else:
+              mark = "white_check_mark" if failures == 0 and errors == 0 else "x"
+              print("## Tests\n")
+              print(":%s: **%d tests** in %d classes — %d failures, %d errors, %d skipped"
+                    % (mark, tests, suites, failures, errors, skipped))
+          EOF
+
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      # Room writes app/schemas/<db>/<version>.json at compile time. It belongs in the repository
-      # so the next migration has a reference instead of being written blind, but this container
-      # cannot run AGP - so CI publishes it and it gets committed from here.
-      - name: Upload Room schemas
-        uses: actions/upload-artifact@v4
-        with:
-          name: room-schemas
-          path: app/schemas/**
-          if-no-files-found: warn
+      # Room writes app/schemas/<db>/<version>.json during compilation. It belongs in the
+      # repository so the next migration is written against a reference rather than blind - which
+      # is exactly how MIGRATION_2_3 came to be hand-written against nothing. This container cannot
+      # run AGP, so CI is the only place the file can be produced; committing it here keeps it in
+      # sync with the entities forever instead of relying on somebody remembering.
+      #
+      # [skip ci] stops this push from triggering another build.
+      - name: Commit Room schemas if they changed
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          if [ ! -d app/schemas ]; then
+            echo "::warning::app/schemas was not generated - is exportSchema still on?"
+            exit 0
+          fi
+          git add app/schemas
+          if git diff --cached --quiet; then
+            echo "Schemas unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Export Room schema [skip ci]"
+          # Rebase first: a developer may have pushed while this build was running.
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
 
       - name: Decode release keystore
         id: keystore
