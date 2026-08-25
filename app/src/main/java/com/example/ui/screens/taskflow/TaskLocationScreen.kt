@@ -440,7 +440,11 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 /**
  * Says which of the four ordinary location failures happened, and what the user can do next.
  * Returns null when there is nothing to report.
+ *
+ * Composable because the wording comes from resources, which is what makes it follow the app's
+ * language setting. Its one caller is already inside a composable.
  */
+@Composable
 private fun LocationFetchState.explain(): String? =
     when (this) {
         LocationFetchState.IDLE -> null
