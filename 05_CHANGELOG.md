@@ -27,8 +27,36 @@ green and nobody notices.
 **Destructive operations: none.** Two CI steps added, four icon references swapped. The schema
 commit adds a generated file and never rewrites history. Rollback is reverting this commit.
 
-**What this does not fix:** nothing automated still exercises a Compose screen. The test count now
-published is for JVM and Robolectric tests only.
+### Result, quoted rather than inferred
+
+CI now prints, on run `32797968630`:
+
+```
+:white_check_mark: **113 tests** in 16 classes — 0 failures, 0 errors, 0 skipped
+```
+
+`0 skipped` is the part that matters: it is the direct answer to the suspicion that started this
+batch, and it is now published on every run instead of being reconstructed from a log afterwards.
+
+The schema auto-commit also proved idempotent — the second run reported "Schemas unchanged." and
+pushed nothing, so there is no commit loop.
+
+**Two mistakes of mine in this batch, both caught rather than shipped:**
+
+1. **My commit message contained a literal `[skip ci]`** while explaining the feature. GitHub scans
+   the whole message, so the Batch 10 build never ran at all. Reworded and force-pushed — my own
+   branch, and the commit had never been built.
+2. **My CI-polling script asked "is the latest run complete?"** The Batch 10 run had not registered
+   yet, so it matched the previous, already-green run and reported success for a build that did not
+   exist. It now matches on the commit SHA. Had I trusted it, I would have told you Batch 10 passed
+   when it had never started.
+
+Both are the same failure as the one this batch set out to fix: a verification shortcut that looks
+like verification. Three in one batch — the `[skip ci]` marker, the polling, and writing the count
+somewhere unreadable — each different, each ending in "green, proving nothing".
+
+**What this does not fix:** nothing automated still exercises a Compose screen. The 113 covers JVM
+and Robolectric tests only.
 
 ## Batch 9 — Room & migration tests
 
