@@ -1,5 +1,70 @@
 # Changelog
 
+## Batch 11 — Real i18n (English + Hindi)
+
+The sign-up screen offered a language choice, stored it, and then ignored it. Every screen in the
+app was written in English string literals, so picking Hindi changed a value in DataStore and
+nothing else. That is the kind of gap that reads as a broken app rather than a missing feature: the
+user makes a choice, the app acknowledges it, and nothing happens.
+
+### How the language is applied
+
+`LocalizedContent` wraps the app's content and overrides both `LocalContext` and
+`LocalConfiguration` with a context built from `createConfigurationContext`. Two alternatives were
+rejected for concrete reasons: `AppCompatDelegate.setApplicationLocales` needs AppCompat and this
+app is pure Compose, and the platform per-app language API is Android 13+ while `minSdk` is 24.
+This approach adds no dependency and works on every supported version.
+
+Both locals are required, not one: `stringResource` reads `LocalConfiguration` so that a language
+change recomposes, and `LocalContext.resources` to do the actual lookup. Providing only one gives a
+UI that either never updates or updates in the wrong language.
+
+### The part that is not translation
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| `Category` carries `@StringRes` ids; its `id` string is untouched | The `id` is what `TaskEntity.categoryId` stores. Translating it would have silently orphaned every task already in the database. | None — no stored value changed. |
+| Search matches localised category titles, passed in from the UI | This is a bug nobody would have reported as one: a Hindi user typing a Hindi category name would have searched it against English titles and got nothing back, with no error to explain why. `HelperViewModel` takes the titles from the composable rather than resolving them itself, so the ViewModel stays free of resources. | Low. `TaskFilters.kt` still has zero Android imports and its JVM tests are unchanged. |
+| `TaskFormatting.kt` split into decisions and words | "1 min ago" and "5 mins ago" differ in English and differ again, by different rules, in Hindi. Only `pluralStringResource` gets that right and it needs the number, not a finished sentence. The pure half returns `RelativeTime.Minutes(5)`; `TaskFormattingText.kt` turns it into words. | Low. The tests now assert the decision rather than English wording — which is the half that ever had bugs. |
+| `UpdateFailure` lost its English constructor argument | Same split: `data/update/UpdateChannel.kt` is deliberately Android-free so its tests run on a plain JVM, and it was carrying six sentences of user-facing prose. | None. Nothing read `.message` but the dialog; the tests compare enum values. |
+| `HelperScreen`, `CustomerTab`, `TaskScreen` and `TaskTab` carry `@StringRes` ids, not `String` labels | A navigation label held as a `String` is fixed at construction, so the bottom bar would have kept its launch-time language. Route strings are untouched — they are keys, not text. | None. |
+| Three `<plurals>` for relative time, one for job counts | `"${n} job${if (n == 1) "" else "s"}"` is English grammar written into layout code. Hindi inflects differently. | None. |
+| Argument order is positional (`%1$s`, `%2$d`) everywhere | Hindi reverses argument order in several of these strings; a bare `%s` cannot express that. | None. |
+
+**Destructive operations: none.** No schema change, no migration, no stored value rewritten. The
+category ids, task statuses, navigation routes and owner ids that exist in the database are
+byte-for-byte what they were. Rollback is reverting these nine commits; an installed app keeps its
+data either way.
+
+### What is translated
+
+380 English strings and 4 plurals, with 375 and 4 in Hindi. Five are deliberately untranslated and
+fall back to English by design: `brand_fixora` and `brand_x` (the product name), `language_english`
+and `language_hindi` (each shown in its own script, so that someone who cannot read the current
+language can still find their own), and `photos_debug_sample` (a debug-only label).
+
+### Verification
+
+No Compose or resource code can be compiled in this container — `dl.google.com` is blocked, so
+there is no Android SDK. Four checkers stand in for the compiler on the mechanical failure modes,
+and `scripts/check-composable-strings.py` is committed:
+
+- every `stringResource`/`pluralStringResource` call sits inside a `@Composable` function
+- no referenced string is missing, no defined string unused, no Hindi-only key
+- format-argument counts match between call site and resource, and Hindi placeholders match English
+- imports present and not duplicated
+
+These are not a substitute for a build, and they did not catch everything: `explain()` in
+`TaskLocationScreen.kt` shipped with `stringResource` in a non-composable function and failed CI on
+run `32801242047` with six compile errors. The composable checker was written in response and was
+verified to catch exactly that case before being committed. The import checker then caught two
+genuinely missing imports in the my-tasks screens before they reached CI.
+
+**Three occurrences of the same shape in one batch** — `AuthMessages` needing a `Context` because
+its callers sit inside `scope.launch { }`, `ProfileSetupScreen` having no `context` in scope, and
+`explain()` not being composable. Resolving a string is not a free operation you can drop anywhere;
+it needs either a composition or a `Context`, and a bulk find-and-replace does not know which.
+
 ## Batch 10 — Close the verification loop
 
 Batch 9 went green and I reported the migration as proven. Auditing that claim afterwards turned up
