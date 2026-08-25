@@ -15,7 +15,7 @@ that one choice, so the honest ordering is "what a local app still owes its user
 | Gap | Why it matters | Priority |
 | :--- | :--- | :--- |
 | **Full i18n** | The Hindi/English pill sets a stored preference and changes nothing else. Strings are hardcoded in Compose files, so nothing is translatable yet. Extracting to `strings.xml` is step one and only pays off with step two. | Must-have |
-| **Instrumented tests** | The unit suite (12 files, 77 tests) covers logic that has no Android dependency. Nothing exercises a Compose screen, a Room migration, or a real DAO. `Migration 2→3` in particular has never been run against a populated database. | Should-have |
+| **Compose UI tests** | Batch 9 covered Room: the migration, the DAOs and the repository transactions now run under Robolectric (16 files, 113 tests). What is still untested is the UI — nothing exercises a Compose screen, so every layout, navigation and accessibility claim rests on the manual script. | Should-have |
 | **Real map** | `WorkerMapScreen` is a category browser and says so. A real map needs `maps-compose` and a Maps SDK key. | Should-have |
 | **Notifications** | Nothing tells a worker a job was posted while the app was closed. Local notifications could cover the on-device cases; anything cross-device cannot work without a server. | Should-have |
 | **Tablet / landscape layout** | Single-column layouts stretch rather than reflow. Window size classes would fix it. | Nice-to-have |

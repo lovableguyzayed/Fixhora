@@ -1,5 +1,46 @@
 # Changelog
 
+## Batch 9 — Room & migration tests
+
+For eight batches I repeated the same caveat: **`MIGRATION_2_3` had never run against a populated
+database.** It is the one code path in this app that can destroy a user's data, and it had zero
+coverage — every one of the 77 tests covered logic deliberately kept free of Android imports, so
+Room, the DAOs and the migration were untested entirely.
+
+That mattered more than any missing feature. i18n and a real map are things that do not exist; this
+is a thing that exists and might be wrong. The migration rebuilds `tasks` by hand — CREATE /
+INSERT…SELECT / DROP / RENAME — and hand-writes `users` and three indexes. Room compares what it
+finds at open time against what it generated from the entities, and any disagreement throws
+`IllegalStateException: Migration didn't properly handle…` **on the user's device, on launch, with
+their data already committed to the new shape.** Release has no escape hatch on purpose:
+`fallbackToDestructiveMigrationFrom` is restricted to v1 so a bad migration surfaces as an error
+rather than as silent data loss.
+
+**Suite: 77 → 113 tests across 16 files.**
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| New `AppDatabaseMigrationTest` | Builds a real v2 SQLite file — the exact schema recovered from `878835e`, not a guess — populates it with a submitted task, a draft, comma-separated photo URIs and a chat message, marks it `user_version = 2`, then opens it through the **production** `Room.databaseBuilder(...).addMigrations(MIGRATION_2_3)` and reads through a DAO. Reading matters: Room validates lazily, so building the database proves nothing. | Low. Test-only. |
+| Asserts what the migration promises | Every row survives with its id; `ownerId` becomes `guest`; `photoUris` converts comma → newline (without that REPLACE every migrated task renders its photos as one broken URI); `createdAt` is recent rather than 1970; `chat_messages` is untouched; `users` works. | Low. |
+| Proves the unique index by violating it | Asserting an index exists by name would not prove it is unique. Inserting two accounts with one mobile must throw — `UserDao.insert` uses `OnConflictStrategy.ABORT` precisely so it does. | Low. |
+| New `TaskDaoTest` | First coverage for `getTasksForOwner` and `observeTask`, both added in Batch 8 and never run. A wrong `WHERE` here shows one customer another customer's tasks, or leaks an unfinished draft into a list of things they actually asked for. Also checks every `TaskStatus` round-trips through the converter. | Low. |
+| New `TaskRepositoryTest` | The draft transactions were written for real bugs in Batches 1 and 3 and never tested: repeated saves must leave one row, submit must promote the draft **in place** rather than copy it, discard must not touch a posted task, and drafts must stay per-owner. | Low. |
+| New `ChatDaoTest` | Both chat screens render with `reverseLayout = true` on the assumption the DAO returns newest first. Flip the `ORDER BY` and every conversation reads backwards. Also checks messages stay scoped to their task. | Low. |
+| Robolectric, `@Config(sdk = [34], application = Application::class)` | CI has no emulator, so an `androidTest` version of any of this would never run; Robolectric was already a `testImplementation`. The SDK is pinned rather than tracking `compileSdk` — the SQLite behaviour under test does not vary with it, and the first Room test in the project should not also be a bet on Robolectric's newest API support. The plain `Application` override stops `FixhoraApplication` opening the production database and seeding demo data inside every test. | Medium. Robolectric is new to this suite and downloads `android-all` jars on first run. |
+| `exportSchema = true` + `room.schemaLocation` | The schema Room expects existed only inside generated code, which is exactly how `MIGRATION_2_3` came to be written against no reference at all. With the JSON committed, a schema change shows up in a diff and the next migration can be checked rather than guessed. | Low. Additive; it only emits a file. |
+| CI uploads `app/schemas/**` as an artifact | This container cannot run AGP, so the JSON cannot be generated here. CI produces it and it is committed from the artifact. | None. |
+
+### Honest about one test
+
+`concurrent saves still leave one draft` runs under `runBlocking`, which is single-threaded. It
+exercises interleaving at suspension points, not true parallelism — it is a regression guard on the
+read-then-write shape, not a proof of thread safety. The comment on the test says so rather than
+letting the name imply more than it delivers.
+
+**Destructive operations: none.** Tests create throwaway databases; the migration test deletes only
+its own file, in the test's own database directory. The single production change is `exportSchema`,
+which writes a JSON file at compile time. Rollback is reverting this commit.
+
 ## Batch 8 — The customer's side of the loop
 
 A customer could post a task and then never see it again. The wizard ended on a success screen

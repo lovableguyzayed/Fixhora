@@ -6,10 +6,17 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Schemas are exported to `app/schemas` and committed.
+ *
+ * They were not, which is how `MIGRATION_2_3` came to be hand-written against no reference at all:
+ * the shape Room expects existed only inside the generated code. With the JSON committed, a schema
+ * change shows up in a diff and the next migration can be checked against it rather than guessed.
+ */
 @Database(
   entities = [TaskEntity::class, ChatMessageEntity::class, UserEntity::class],
   version = 3,
-  exportSchema = false,
+  exportSchema = true,
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {

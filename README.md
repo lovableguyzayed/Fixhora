@@ -172,14 +172,20 @@ backend, and what is deliberately not being done.
 ## Testing
 
 ```bash
-./gradlew test   # 77 unit tests across 12 files; CI runs these on every push
+./gradlew test   # 113 tests across 16 files; CI runs these on every push
 ```
 
-Those cover the logic that has no Android dependency — password hashing, validators, task status
-mapping, tab and search filtering, worker formatting, WCAG contrast, and the update checker. They
-run on the JVM in seconds, with no emulator.
+Two kinds, both on the JVM, no emulator:
 
-Nothing automated exercises a Compose screen, a Room migration, or a real device. That gap is
+- **Pure logic** — password hashing, validators, task status mapping, tab and search filtering,
+  task formatting, WCAG contrast, the update checker. Seconds to run.
+- **Room, under Robolectric** — `MIGRATION_2_3` against a real populated v2 database, the DAO
+  queries, and the draft transactions. The migration test is the important one: it builds the
+  schema a pre-Batch-1 build shipped, migrates it through the production database builder, and
+  fails if Room rejects the result — which is the crash an upgrading user would otherwise get on
+  launch.
+
+Nothing automated exercises a **Compose screen** or a real device. That gap is
 covered by **`06_MANUAL_TESTS.md`** — a numbered script for both roles, happy and failure paths,
 including the install-and-update sequence that this project has broken and fixed more than once.
 Run it against a release before handing the APK to anyone.

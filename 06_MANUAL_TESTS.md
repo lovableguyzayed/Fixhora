@@ -29,6 +29,7 @@ older one without being refused.
 | A10 | Confirm the install | App reopens; footer shows the **higher** version | |
 | A11 | **After updating, sign in state and posted tasks** | Still there. An update must not wipe data — only an uninstall does | |
 | A12 | Turn airplane mode on and tap the version footer | "No internet connection", with **Open releases** offered — not a silent failure | |
+| A13 | If you still have a device carrying a **pre-Batch-1** database (a build from before accounts existed), install the current APK over it | Launches, and old tasks are still listed. This is the one thing `AppDatabaseMigrationTest` cannot prove — it tests the migration, not this device's actual stored file | |
 
 ## B. Accounts (customer)
 

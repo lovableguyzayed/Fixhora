@@ -79,6 +79,16 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
+      # Room writes app/schemas/<db>/<version>.json at compile time. It belongs in the repository
+      # so the next migration has a reference instead of being written blind, but this container
+      # cannot run AGP - so CI publishes it and it gets committed from here.
+      - name: Upload Room schemas
+        uses: actions/upload-artifact@v4
+        with:
+          name: room-schemas
+          path: app/schemas/**
+          if-no-files-found: warn
+
       - name: Decode release keystore
         id: keystore
         if: env.HAS_RELEASE_KEY == 'true'
