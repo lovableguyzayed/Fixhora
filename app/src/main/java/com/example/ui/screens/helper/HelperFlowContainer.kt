@@ -20,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.ui.semantics.Role
+import com.example.ui.screens.taskflow.categoryTitles
 import com.example.ui.theme.FixTheme
 
 sealed class HelperScreen(val route: String, val title: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
@@ -41,6 +42,12 @@ fun HelperFlowContainer(
     onBackToRoles: () -> Unit,
     viewModel: HelperViewModel
 ) {
+    // Search matches the category names the user can actually see, so the ViewModel is told what
+    // they say in the active language. Recomposes when the language changes, because
+    // stringResource does.
+    val titles = categoryTitles()
+    LaunchedEffect(titles) { viewModel.onCategoryTitlesChanged(titles) }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

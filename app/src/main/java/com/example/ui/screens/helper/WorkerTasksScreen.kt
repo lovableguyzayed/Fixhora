@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.format.budgetLabel
 import com.example.ui.format.locationLabel
 import com.example.ui.format.posterLabel
@@ -90,7 +92,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                         onClick = { viewModel.onTabSelected(tab) },
                         label = {
                             Text(
-                                text = "${tab.label} ($count)",
+                                text = "${stringResource(tab.labelRes)} ($count)",
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                             )
                         },
@@ -116,7 +118,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                         title = when {
                             query.isNotBlank() -> "Nothing matches \"$query\""
                             selectedTab == TaskTab.ALL -> "No tasks yet"
-                            else -> "Nothing in \"${selectedTab.label}\""
+                            else -> "Nothing in \"${stringResource(selectedTab.labelRes)}\""
                         },
                         description = when {
                             query.isNotBlank() -> "Try a different word, or clear the search."
@@ -212,7 +214,7 @@ fun WorkerTaskCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                task.descriptionTitle.ifBlank { category?.title ?: "Untitled request" },
+                task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_untitled) },
                 fontWeight = FontWeight.Bold,
                 fontSize = 17.sp,
                 color = FixTheme.colors.textPrimary
@@ -232,7 +234,7 @@ fun WorkerTaskCard(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
-                    TaskMetaRow(Icons.Default.Category, category?.title ?: "Uncategorised")
+                    TaskMetaRow(Icons.Default.Category, category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_uncategorised))
                     Spacer(modifier = Modifier.height(4.dp))
                     TaskMetaRow(
                         Icons.Default.LocationOn,

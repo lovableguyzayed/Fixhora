@@ -60,17 +60,42 @@ class TaskFiltersTest {
   @Test
   fun `every tab is reachable, so none can be permanently empty`() {
     TaskTab.entries.forEach { tab ->
-      assertTrue("${tab.label} matched nothing", tasks.filterFor(tab, "").isNotEmpty())
+      assertTrue("${tab.name} matched nothing", tasks.filterFor(tab, "").isNotEmpty())
     }
   }
+
+  /** Category titles come from the caller, in whatever language is on screen. */
+  private val englishTitles =
+    mapOf("repairs" to "Home Repairs", "cleaning" to "Cleaning", "painting" to "Painting",
+          "moving" to "Moving Help")
 
   /** The search box previously accepted input and filtered nothing. */
   @Test
   fun `search matches title, details, location and category name`() {
     assertEquals(listOf(1), tasks.filterFor(TaskTab.ALL, "sink").map { it.id })
     assertEquals(listOf(2), tasks.filterFor(TaskTab.ALL, "bengaluru").map { it.id })
-    assertEquals(listOf(3), tasks.filterFor(TaskTab.ALL, "Painting").map { it.id })
+    assertEquals(listOf(3), tasks.filterFor(TaskTab.ALL, "Painting", englishTitles).map { it.id })
     assertTrue(tasks.filterFor(TaskTab.ALL, "definitely-not-there").isEmpty())
+  }
+
+  /**
+   * The point of taking the titles as a parameter: a Hindi user types Hindi, and the search has to
+   * match what is actually on their screen rather than the English the data happens to carry.
+   */
+  @Test
+  fun `search matches the category name in whatever language was supplied`() {
+    val hindiTitles = mapOf("painting" to "पेंटिंग")
+
+    assertEquals(listOf(3), tasks.filterFor(TaskTab.ALL, "पेंटिंग", hindiTitles).map { it.id })
+    // The English name is not on screen in that language, so it must not match.
+    assertTrue(tasks.filterFor(TaskTab.ALL, "Painting", hindiTitles).isEmpty())
+  }
+
+  /** With no titles supplied, search still works on everything else the task carries. */
+  @Test
+  fun `search without category titles falls back to the task's own fields`() {
+    assertEquals(listOf(1), tasks.filterFor(TaskTab.ALL, "sink").map { it.id })
+    assertTrue(tasks.filterFor(TaskTab.ALL, "Painting").isEmpty())
   }
 
   @Test

@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.Role
+import com.example.R
 import com.example.ui.theme.FixTheme
 
 @Composable
@@ -40,7 +42,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "What do you need help with?",
+            text = stringResource(R.string.task_category_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -49,7 +51,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Choose a category that best fits your task",
+            text = stringResource(R.string.task_category_subtitle),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             textAlign = TextAlign.Center,
@@ -58,14 +60,14 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         
         var showError by remember { mutableStateOf(false) }
         val filteredCategories = dummyCategories.filter {
-            it.title.contains(uiState.searchCategoryQuery, ignoreCase = true) ||
-            it.subtitle.contains(uiState.searchCategoryQuery, ignoreCase = true)
+            stringResource(it.titleRes).contains(uiState.searchCategoryQuery, ignoreCase = true) ||
+            stringResource(it.subtitleRes).contains(uiState.searchCategoryQuery, ignoreCase = true)
         }
 
         OutlinedTextField(
             value = uiState.searchCategoryQuery,
             onValueChange = { viewModel.updateSearchCategoryQuery(it) },
-            placeholder = { Text("Search category") },
+            placeholder = { Text(stringResource(R.string.task_category_search)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -75,7 +77,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Popular Categories",
+            text = stringResource(R.string.task_category_popular),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
@@ -95,7 +97,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         .fillMaxWidth()
                         .aspectRatio(0.8f)
                         // selectable, not clickable: the border and tint show the choice
-                        // visually, but only this reports "selected" to a screen reader.
+                        // visually, but only this reports stringResource(R.string.cd_category_selected) to a screen reader.
                         .selectable(selected = isSelected, role = Role.RadioButton) {
                             viewModel.updateCategory(category.id)
                             showError = false
@@ -142,7 +144,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             Text(
-                                text = category.title,
+                                text = stringResource(category.titleRes),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = if (isSelected) FixTheme.colors.primary else MaterialTheme.colorScheme.onSurface,
@@ -152,7 +154,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             Spacer(modifier = Modifier.height(4.dp))
                             
                             Text(
-                                text = category.subtitle,
+                                text = stringResource(category.subtitleRes),
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                                 textAlign = TextAlign.Center,
@@ -166,7 +168,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         
         if (showError) {
             Text(
-                text = "Please select a category to continue",
+                text = stringResource(R.string.task_category_required),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -189,7 +191,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.action_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )

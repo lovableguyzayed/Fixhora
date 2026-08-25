@@ -58,6 +58,21 @@ class HelperViewModel(
       }
       .asState(emptyMap())
 
+  // ------------------------------------------------------------------ search vocabulary
+
+  /**
+   * Category names in the language currently on screen, keyed by id.
+   *
+   * Supplied by the UI because a ViewModel cannot resolve a string resource, and search has to
+   * match the words the user can actually see. Empty until the first screen reports them, which
+   * only means search falls back to the task's own fields for that instant.
+   */
+  private val _categoryTitles = MutableStateFlow<Map<String, String>>(emptyMap())
+
+  fun onCategoryTitlesChanged(titles: Map<String, String>) {
+    if (_categoryTitles.value != titles) _categoryTitles.value = titles
+  }
+
   // ------------------------------------------------------------------ task list filtering
 
   private val _taskQuery = MutableStateFlow("")
@@ -67,7 +82,9 @@ class HelperViewModel(
   val selectedTab: StateFlow<TaskTab> = _selectedTab.asStateFlow()
 
   val filteredTasks: StateFlow<List<TaskEntity>> =
-    combine(allTasks, _selectedTab, _taskQuery) { tasks, tab, query -> tasks.filterFor(tab, query) }
+    combine(allTasks, _selectedTab, _taskQuery, _categoryTitles) { tasks, tab, query, titles ->
+        tasks.filterFor(tab, query, titles)
+      }
       .asState(emptyList())
 
   fun onTaskQueryChange(query: String) {
@@ -88,8 +105,14 @@ class HelperViewModel(
   val mapCategoryId: StateFlow<String?> = _mapCategoryId.asStateFlow()
 
   val mapTasks: StateFlow<List<TaskEntity>> =
-    combine(availableTasks, _mapQuery, _mapCategoryId) { tasks, query, categoryId ->
-        tasks.filter { (categoryId == null || it.categoryId == categoryId) && it.matchesQuery(query) }
+    combine(availableTasks, _mapQuery, _mapCategoryId, _categoryTitles) {
+        tasks,
+        query,
+        categoryId,
+        titles ->
+        tasks.filter {
+          (categoryId == null || it.categoryId == categoryId) && it.matchesQuery(query, titles)
+        }
       }
       .asState(emptyList())
 
@@ -107,7 +130,9 @@ class HelperViewModel(
   val chatQuery: StateFlow<String> = _chatQuery.asStateFlow()
 
   val conversations: StateFlow<List<TaskEntity>> =
-    combine(allTasks, _chatQuery) { tasks, query -> tasks.conversations().filter { it.matchesQuery(query) } }
+    combine(allTasks, _chatQuery, _categoryTitles) { tasks, query, titles ->
+        tasks.conversations().filter { it.matchesQuery(query, titles) }
+      }
       .asState(emptyList())
 
   fun onChatQueryChange(query: String) {

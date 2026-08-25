@@ -154,4 +154,47 @@
     <string name="error_no_account_for_mobile">No account found for this number. Create one to continue.</string>
     <string name="error_otp_mismatch">That code is not correct. Check it and try again.</string>
     <string name="error_unexpected">Something went wrong on this device. Please try again.</string>
+
+    <!-- Task categories. The ids are storage values and never change; only the words do. -->
+    <string name="cat_repairs_title">Home Repairs</string>
+    <string name="cat_repairs_sub">Plumbing, electrical, carpentry &amp; more</string>
+    <string name="cat_cleaning_title">Cleaning</string>
+    <string name="cat_cleaning_sub">Home, office, deep cleaning</string>
+    <string name="cat_moving_title">Moving Help</string>
+    <string name="cat_moving_sub">Packing, loading, transport &amp; more</string>
+    <string name="cat_tech_title">Tech Support</string>
+    <string name="cat_tech_sub">Device setup, software help</string>
+    <string name="cat_errands_title">Errands</string>
+    <string name="cat_errands_sub">Grocery, pickup, delivery &amp; more</string>
+    <string name="cat_painting_title">Painting</string>
+    <string name="cat_painting_sub">Home painting, touch ups &amp; more</string>
+    <string name="cat_car_title">Car Services</string>
+    <string name="cat_car_sub">Wash, minor repair, battery &amp; more</string>
+    <string name="cat_tutoring_title">Tutoring</string>
+    <string name="cat_tutoring_sub">Academic help, online or in-person</string>
+    <string name="cat_more_title">More</string>
+    <string name="cat_more_sub">Others not listed here</string>
+
+    <!-- Worker task tabs. The enum keeps the status mapping; only the labels live here. -->
+    <string name="tab_all">All</string>
+    <string name="tab_new">New</string>
+    <string name="tab_accepted">Accepted</string>
+    <string name="tab_in_progress">In Progress</string>
+    <string name="tab_completed">Completed</string>
+    <string name="tab_declined">Declined</string>
+
+    <!-- Task flow: category step -->
+    <string name="task_category_title">What do you need help with?</string>
+    <string name="task_category_subtitle">Choose a category that best fits your task</string>
+    <string name="task_category_search">Search category</string>
+    <string name="task_category_popular">Popular Categories</string>
+    <string name="task_category_required">Please select a category to continue</string>
+    <string name="cd_category_selected">selected</string>
+
+    <!-- Fallbacks when a task carries no title or no category. -->
+    <string name="task_untitled">Untitled request</string>
+    <string name="task_conversation">Conversation</string>
+    <string name="task_uncategorised">Uncategorised</string>
+    <string name="category_not_selected">Not selected</string>
+    <string name="category_tap_edit">Tap Edit to choose a category</string>
 </resources>

@@ -141,4 +141,47 @@
     <string name="error_no_account_for_mobile">इस नंबर पर कोई खाता नहीं मिला। आगे बढ़ने के लिए एक बनाएँ।</string>
     <string name="error_otp_mismatch">ये कोड सही नहीं है। जाँच कर दोबारा कोशिश करें।</string>
     <string name="error_unexpected">इस डिवाइस पर कुछ गड़बड़ हुई। दोबारा कोशिश करें।</string>
+
+    <!-- Task categories. The ids are storage values and never change; only the words do. -->
+    <string name="cat_repairs_title">घर की मरम्मत</string>
+    <string name="cat_repairs_sub">प्लंबिंग, बिजली, बढ़ईगीरी और बहुत कुछ</string>
+    <string name="cat_cleaning_title">सफ़ाई</string>
+    <string name="cat_cleaning_sub">घर, ऑफ़िस, गहरी सफ़ाई</string>
+    <string name="cat_moving_title">सामान शिफ़्टिंग</string>
+    <string name="cat_moving_sub">पैकिंग, लोडिंग, ढुलाई और बहुत कुछ</string>
+    <string name="cat_tech_title">तकनीकी मदद</string>
+    <string name="cat_tech_sub">डिवाइस सेटअप, सॉफ़्टवेयर मदद</string>
+    <string name="cat_errands_title">छोटे काम</string>
+    <string name="cat_errands_sub">किराना, पिकअप, डिलीवरी और बहुत कुछ</string>
+    <string name="cat_painting_title">पेंटिंग</string>
+    <string name="cat_painting_sub">घर की पेंटिंग, टच-अप और बहुत कुछ</string>
+    <string name="cat_car_title">गाड़ी की सेवाएँ</string>
+    <string name="cat_car_sub">धुलाई, छोटी मरम्मत, बैटरी और बहुत कुछ</string>
+    <string name="cat_tutoring_title">ट्यूशन</string>
+    <string name="cat_tutoring_sub">पढ़ाई में मदद, ऑनलाइन या घर पर</string>
+    <string name="cat_more_title">अन्य</string>
+    <string name="cat_more_sub">जो यहाँ सूची में नहीं है</string>
+
+    <!-- Worker task tabs. The enum keeps the status mapping; only the labels live here. -->
+    <string name="tab_all">सभी</string>
+    <string name="tab_new">नए</string>
+    <string name="tab_accepted">स्वीकृत</string>
+    <string name="tab_in_progress">चल रहे</string>
+    <string name="tab_completed">पूरे</string>
+    <string name="tab_declined">अस्वीकृत</string>
+
+    <!-- Task flow: category step -->
+    <string name="task_category_title">आपको किस चीज़ में मदद चाहिए?</string>
+    <string name="task_category_subtitle">अपने काम के लिए सबसे सही श्रेणी चुनें</string>
+    <string name="task_category_search">श्रेणी खोजें</string>
+    <string name="task_category_popular">लोकप्रिय श्रेणियाँ</string>
+    <string name="task_category_required">आगे बढ़ने के लिए एक श्रेणी चुनें</string>
+    <string name="cd_category_selected">चुना गया</string>
+
+    <!-- Fallbacks when a task carries no title or no category. -->
+    <string name="task_untitled">बिना शीर्षक का अनुरोध</string>
+    <string name="task_conversation">बातचीत</string>
+    <string name="task_uncategorised">बिना श्रेणी</string>
+    <string name="category_not_selected">चुना नहीं गया</string>
+    <string name="category_tap_edit">श्रेणी चुनने के लिए Edit दबाएँ</string>
 </resources>

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.components.MessageBubble
 import com.example.ui.format.budgetLabel
 import com.example.ui.format.relativeTimeLabel
@@ -149,7 +151,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                task.descriptionTitle.ifBlank { category?.title ?: "Untitled request" },
+                task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_untitled) },
                 fontWeight = FontWeight.Bold,
                 fontSize = 15.sp,
                 color = FixTheme.colors.textPrimary,
@@ -180,7 +182,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             title = {
                 Column {
                     Text(
-                        task.descriptionTitle.ifBlank { category?.title ?: "Conversation" },
+                        task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_conversation) },
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = FixTheme.colors.textPrimary,

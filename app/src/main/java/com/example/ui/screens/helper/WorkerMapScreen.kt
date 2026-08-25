@@ -13,12 +13,14 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
 import com.example.ui.format.posterLabel
 import com.example.ui.components.EmptyState
 import com.example.ui.screens.taskflow.dummyCategories
@@ -89,7 +91,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                 // "🔥 Trending / ⭐ Recommended / 🛠 Electrician" chips that matched nothing.
                 items(dummyCategories) { category ->
                     CategoryChip(
-                        label = category.title,
+                        label = stringResource(category.titleRes),
                         selected = selectedCategoryId == category.id,
                         onClick = { viewModel.onMapCategorySelected(category.id) }
                     )

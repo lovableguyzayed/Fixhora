@@ -2,7 +2,6 @@ package com.example.ui.screens.helper
 
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
-import com.example.ui.screens.taskflow.dummyCategories
 
 /**
  * The tabs on the worker's task list, each backed by a real [TaskStatus].
@@ -11,13 +10,13 @@ import com.example.ui.screens.taskflow.dummyCategories
  * so "In Progress" and "Cancelled" could never show anything, and a "Pending" tab existed for a
  * status no task ever had.
  */
-enum class TaskTab(val label: String, val status: TaskStatus?) {
-  ALL("All", null),
-  NEW("New", TaskStatus.SUBMITTED),
-  ACCEPTED("Accepted", TaskStatus.ACCEPTED),
-  IN_PROGRESS("In Progress", TaskStatus.IN_PROGRESS),
-  COMPLETED("Completed", TaskStatus.COMPLETED),
-  DECLINED("Declined", TaskStatus.REJECTED),
+enum class TaskTab(val status: TaskStatus?) {
+  ALL(null),
+  NEW(TaskStatus.SUBMITTED),
+  ACCEPTED(TaskStatus.ACCEPTED),
+  IN_PROGRESS(TaskStatus.IN_PROGRESS),
+  COMPLETED(TaskStatus.COMPLETED),
+  DECLINED(TaskStatus.REJECTED),
 }
 
 /**
@@ -25,19 +24,29 @@ enum class TaskTab(val label: String, val status: TaskStatus?) {
  *
  * Searches everything a helper would plausibly type: the title, the details, the address and the
  * category name. The search box used to accept input and filter nothing at all.
+ *
+ * [categoryTitles] maps a category id to its name **in the language currently on screen**, and is
+ * supplied by the caller rather than looked up here. Reaching into `dummyCategories` for the title
+ * would have meant matching English words while the user reads and types Hindi — and it would have
+ * dragged Android resources into a file kept deliberately free of them so it can be unit-tested on
+ * a plain JVM. This is the same shape `posterLabel(ownerId, ownerNames)` already uses.
  */
-fun TaskEntity.matchesQuery(query: String): Boolean {
+fun TaskEntity.matchesQuery(query: String, categoryTitles: Map<String, String> = emptyMap()): Boolean {
   val trimmed = query.trim()
   if (trimmed.isEmpty()) return true
-  val categoryTitle = dummyCategories.find { it.id == categoryId }?.title.orEmpty()
+  val categoryTitle = categoryTitles[categoryId].orEmpty()
   return listOf(descriptionTitle, descriptionDetails, locationQuery, categoryTitle).any {
     it.contains(trimmed, ignoreCase = true)
   }
 }
 
 /** Applies the selected tab and the search box together. */
-fun List<TaskEntity>.filterFor(tab: TaskTab, query: String): List<TaskEntity> =
-  filter { (tab.status == null || it.status == tab.status) && it.matchesQuery(query) }
+fun List<TaskEntity>.filterFor(
+  tab: TaskTab,
+  query: String,
+  categoryTitles: Map<String, String> = emptyMap(),
+): List<TaskEntity> =
+  filter { (tab.status == null || it.status == tab.status) && it.matchesQuery(query, categoryTitles) }
 
 /** Tasks with a live engagement, which are the ones a helper can be in a conversation about. */
 fun List<TaskEntity>.conversations(): List<TaskEntity> =

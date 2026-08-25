@@ -1,5 +1,6 @@
 package com.example.ui.screens.taskflow
 
+import com.example.R
 import com.example.ui.screens.TaskScreen
 
 import androidx.compose.foundation.BorderStroke
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,8 +78,8 @@ fun TaskReviewScreen(
         // Category Card
         ReviewCard(
             label = "Category",
-            title = category?.title ?: "Not selected",
-            subtitle = category?.subtitle ?: "Tap Edit to choose a category",
+            title = category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.category_not_selected),
+            subtitle = category?.let { stringResource(it.subtitleRes) } ?: stringResource(R.string.category_tap_edit),
             onEditClick = { onNavigateToStep(TaskScreen.Category.route) },
             icon = {
                 val tint = category?.iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant
