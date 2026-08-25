@@ -50,4 +50,108 @@
 
     <!-- Build version footer. The version itself is never translated. -->
     <string name="version_footer_tap_to_check">v%1$s (%2$d) · tap to check for updates</string>
+
+    <!-- Field labels. Used both on the input itself and inside "X is required". -->
+    <string name="field_mobile_number">Mobile Number</string>
+    <string name="field_phone_number">Phone Number</string>
+    <string name="field_password">Password</string>
+    <string name="field_new_password">New Password</string>
+    <string name="field_confirm_password">Confirm Password</string>
+    <string name="field_full_name">Full Name</string>
+    <string name="field_email_optional">Email Address (Optional)</string>
+    <string name="field_city">City</string>
+    <string name="field_state">State</string>
+    <string name="field_gender_optional">Gender (Optional)</string>
+    <string name="field_birth_year_optional">Birth Year (Optional)</string>
+    <string name="field_pin_code_optional">PIN Code (Optional)</string>
+
+    <!-- Short names for the same fields, as they read inside an error sentence. -->
+    <string name="label_mobile_number">Mobile number</string>
+    <string name="label_password">Password</string>
+    <string name="label_confirmation">Confirmation</string>
+    <string name="label_full_name">Full name</string>
+    <string name="label_email">Email</string>
+    <string name="label_code">Code</string>
+    <string name="label_pin_code">PIN code</string>
+
+    <!-- Sign in -->
+    <string name="signin_title">Welcome Back</string>
+    <string name="signin_subtitle">Sign in to continue</string>
+    <string name="action_forgot_password">Forgot Password?</string>
+    <string name="action_continue_with_mobile_otp">Continue with Mobile OTP</string>
+    <string name="signin_no_account">Don\'t have an account? </string>
+    <string name="action_create_new_account">Create New Account</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+
+    <!-- Sign up -->
+    <string name="signup_title">Create Your Account</string>
+    <string name="password_requirement">At least %1$d characters, with a letter and a number</string>
+    <string name="terms_agree">I agree to the Terms &amp; Privacy Policy</string>
+    <string name="terms_required">Please accept the Terms &amp; Privacy Policy to continue</string>
+    <string name="action_signup_with_otp">Sign Up with Mobile OTP</string>
+    <string name="signup_have_account">Already have an account? </string>
+    <string name="divider_or"> OR </string>
+
+    <!-- Mobile OTP. There is no SMS gateway, and the copy says so rather than pretending. -->
+    <string name="mobile_login_title">Login with Mobile Number</string>
+    <string name="mobile_login_subtitle">Enter your mobile number to receive a verification code.</string>
+    <string name="demo_no_sms">No SMS is sent in this build. The code appears on the next screen.</string>
+    <string name="demo_your_code">No SMS is sent in this build. Your code is %1$s.</string>
+    <string name="demo_mode">Demo mode</string>
+    <string name="action_send_otp">Send OTP</string>
+    <string name="action_resend">Resend</string>
+    <string name="otp_title">Verify Your Mobile Number</string>
+    <string name="otp_subtitle">Enter the %1$d-digit code for %2$s.</string>
+    <string name="otp_resend_in">Resend code in %1$ds</string>
+    <string name="otp_resend">Resend code</string>
+    <string name="action_verify">Verify</string>
+    <string name="action_edit_mobile">Edit mobile number</string>
+    <string name="otp_sent_toast">OTP sent to your mobile</string>
+    <string name="cd_go_back">Go back</string>
+
+    <!-- Forgot and reset password -->
+    <string name="forgot_title">Forgot Password</string>
+    <string name="forgot_subtitle">Enter your registered mobile number and we\'ll send a verification code.</string>
+    <string name="action_verify_otp">Verify OTP</string>
+    <string name="code_sent_to">Code sent to %1$s.</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="reset_title">Reset Password</string>
+    <string name="reset_subtitle">Choose a new password for your account.</string>
+    <string name="action_save_new_password">Save New Password</string>
+
+    <!-- Profile and permissions -->
+    <string name="profile_title">Profile Setup</string>
+    <string name="profile_subtitle">This helps helpers nearby know who they are working with.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_allow">Allow</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_dont_ask_again">Don\'t ask again</string>
+    <string name="perm_location_title">Location</string>
+    <string name="perm_location_body">Used to show tasks and helpers near you, and to fill in your task address.</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_body">Used to tell you when someone accepts your task or sends a message.</string>
+    <string name="perm_denied_notice">Permissions were turned off for this app. You can enable them in Settings, or continue without them.</string>
+    <string name="action_open_settings">Open Settings</string>
+    <string name="action_allow_permissions">Allow Permissions</string>
+    <string name="action_continue_without">Continue without these</string>
+    <string name="perm_change_later">You can change this later in your device settings.</string>
+    <string name="perm_granted">Granted</string>
+
+    <!-- Validation. Every message says what is wrong and what to do about it. -->
+    <string name="error_required">%1$s is required</string>
+    <string name="error_name_too_short">Enter your full name</string>
+    <string name="error_mobile_incomplete">Enter a 10-digit mobile number</string>
+    <string name="error_mobile_invalid_prefix">An Indian mobile number starts with 6, 7, 8 or 9</string>
+    <string name="error_email_invalid">Enter a valid email, like name@example.com</string>
+    <string name="error_password_too_short">Use at least %1$d characters</string>
+    <string name="error_password_needs_letter_and_digit">Mix at least one letter and one number</string>
+    <string name="error_password_mismatch">Both passwords must match</string>
+    <string name="error_otp_incomplete">Enter all %1$d digits</string>
+    <string name="error_pin_code_invalid">Enter a valid 6-digit PIN code</string>
+    <string name="error_invalid_credentials">That mobile number and password do not match. Please try again.</string>
+    <string name="error_mobile_taken">This number already has an account. Try signing in instead.</string>
+    <string name="error_no_account_for_mobile">No account found for this number. Create one to continue.</string>
+    <string name="error_otp_mismatch">That code is not correct. Check it and try again.</string>
+    <string name="error_unexpected">Something went wrong on this device. Please try again.</string>
 </resources>

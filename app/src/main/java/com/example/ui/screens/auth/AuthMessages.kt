@@ -1,5 +1,8 @@
 package com.example.ui.screens.auth
 
+import android.content.Context
+import androidx.annotation.StringRes
+import com.example.R
 import com.example.util.FieldError
 import com.example.util.Validators
 
@@ -8,29 +11,39 @@ import com.example.util.Validators
  *
  * Every message says what is wrong *and* what to do about it — "Enter a 10-digit mobile number"
  * rather than "Invalid input". Keeping the mapping here, away from the rules themselves, is what
- * will let a Hindi build swap these strings without touching validation.
+ * lets the Hindi build swap these strings without touching validation.
+ *
+ * These take a [Context] rather than being `@Composable`, because several call sites are local
+ * functions that resolve a message inside `scope.launch { }` — outside composition, where a
+ * composable call will not compile. The context handed in comes from `LocalContext`, which
+ * `LocalizedContent` has already switched to the chosen language, so resolving through it honours
+ * the preference exactly as `stringResource` would.
+ *
+ * [fieldLabel] is a resource id rather than a string so the caller cannot accidentally pass an
+ * untranslated literal into a translated sentence.
  */
-fun FieldError.message(fieldLabel: String): String =
+fun FieldError.message(context: Context, @StringRes fieldLabel: Int): String =
   when (this) {
-    FieldError.REQUIRED -> "$fieldLabel is required"
-    FieldError.NAME_TOO_SHORT -> "Enter your full name"
-    FieldError.MOBILE_INCOMPLETE -> "Enter a 10-digit mobile number"
-    FieldError.MOBILE_INVALID_PREFIX -> "An Indian mobile number starts with 6, 7, 8 or 9"
-    FieldError.EMAIL_INVALID -> "Enter a valid email, like name@example.com"
+    FieldError.REQUIRED -> context.getString(R.string.error_required, context.getString(fieldLabel))
+    FieldError.NAME_TOO_SHORT -> context.getString(R.string.error_name_too_short)
+    FieldError.MOBILE_INCOMPLETE -> context.getString(R.string.error_mobile_incomplete)
+    FieldError.MOBILE_INVALID_PREFIX -> context.getString(R.string.error_mobile_invalid_prefix)
+    FieldError.EMAIL_INVALID -> context.getString(R.string.error_email_invalid)
     FieldError.PASSWORD_TOO_SHORT ->
-      "Use at least ${Validators.MIN_PASSWORD_LENGTH} characters"
-    FieldError.PASSWORD_NEEDS_LETTER_AND_DIGIT -> "Mix at least one letter and one number"
-    FieldError.PASSWORD_MISMATCH -> "Both passwords must match"
-    FieldError.OTP_INCOMPLETE -> "Enter all ${Validators.OTP_LENGTH} digits"
-    FieldError.PIN_CODE_INVALID -> "Enter a valid 6-digit PIN code"
+      context.getString(R.string.error_password_too_short, Validators.MIN_PASSWORD_LENGTH)
+    FieldError.PASSWORD_NEEDS_LETTER_AND_DIGIT ->
+      context.getString(R.string.error_password_needs_letter_and_digit)
+    FieldError.PASSWORD_MISMATCH -> context.getString(R.string.error_password_mismatch)
+    FieldError.OTP_INCOMPLETE ->
+      context.getString(R.string.error_otp_incomplete, Validators.OTP_LENGTH)
+    FieldError.PIN_CODE_INVALID -> context.getString(R.string.error_pin_code_invalid)
   }
 
-fun FormError.message(): String =
+fun FormError.message(context: Context): String =
   when (this) {
-    FormError.INVALID_CREDENTIALS -> "That mobile number and password do not match. Please try again."
-    FormError.MOBILE_ALREADY_REGISTERED ->
-      "This number already has an account. Try signing in instead."
-    FormError.NO_ACCOUNT_FOR_MOBILE -> "No account found for this number. Create one to continue."
-    FormError.OTP_MISMATCH -> "That code is not correct. Check it and try again."
-    FormError.UNEXPECTED -> "Something went wrong on this device. Please try again."
+    FormError.INVALID_CREDENTIALS -> context.getString(R.string.error_invalid_credentials)
+    FormError.MOBILE_ALREADY_REGISTERED -> context.getString(R.string.error_mobile_taken)
+    FormError.NO_ACCOUNT_FOR_MOBILE -> context.getString(R.string.error_no_account_for_mobile)
+    FormError.OTP_MISMATCH -> context.getString(R.string.error_otp_mismatch)
+    FormError.UNEXPECTED -> context.getString(R.string.error_unexpected)
   }

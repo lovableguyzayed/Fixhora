@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import com.example.R
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +49,8 @@ fun SignInScreen(
   val state by viewModel.signIn.collectAsState()
   var passwordVisible by remember { mutableStateOf(false) }
   val focusManager = LocalFocusManager.current
+  // Localized by LocalizedContent, so messages resolved here honour the chosen language.
+  val context = LocalContext.current
 
   // Navigation is driven by the sign-in actually succeeding, not by the button being pressed.
   LaunchedEffect(state.signedIn) {
@@ -56,22 +61,22 @@ fun SignInScreen(
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(40.dp))
-    Text("Welcome Back", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+    Text(stringResource(R.string.signin_title), fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(8.dp))
-    Text("Sign in to continue", fontSize = 16.sp, color = FixTheme.colors.textSecondary)
+    Text(stringResource(R.string.signin_subtitle), fontSize = 16.sp, color = FixTheme.colors.textSecondary)
     Spacer(modifier = Modifier.height(32.dp))
 
     state.formError?.let {
-      FormErrorBanner(it.message())
+      FormErrorBanner(it.message(context))
       Spacer(modifier = Modifier.height(16.dp))
     }
 
     AuthTextField(
       value = state.mobile,
       onValueChange = viewModel::onSignInMobileChange,
-      label = "Mobile Number",
+      label = stringResource(R.string.field_mobile_number),
       leadingIcon = Icons.Default.Phone,
-      error = state.mobileError?.message("Mobile number"),
+      error = state.mobileError?.message(context, R.string.label_mobile_number),
       keyboardType = KeyboardType.Phone,
       imeAction = ImeAction.Next,
       onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -83,9 +88,9 @@ fun SignInScreen(
     AuthTextField(
       value = state.password,
       onValueChange = viewModel::onSignInPasswordChange,
-      label = "Password",
+      label = stringResource(R.string.field_password),
       leadingIcon = Icons.Default.Lock,
-      error = state.passwordError?.message("Password"),
+      error = state.passwordError?.message(context, R.string.label_password),
       keyboardType = KeyboardType.Password,
       imeAction = ImeAction.Done,
       onImeAction = {
@@ -100,7 +105,7 @@ fun SignInScreen(
           Icon(
             imageVector =
               if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+            contentDescription = if (passwordVisible) stringResource(R.string.cd_hide_password) else stringResource(R.string.cd_show_password),
           )
         }
       },
@@ -109,13 +114,13 @@ fun SignInScreen(
     Spacer(modifier = Modifier.height(8.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
       TextButton(onClick = onForgotPasswordClick, enabled = !state.isSubmitting) {
-        Text("Forgot Password?", color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.action_forgot_password), color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
       }
     }
 
     Spacer(modifier = Modifier.height(16.dp))
     SubmitButton(
-      text = "Sign In",
+      text = stringResource(R.string.action_sign_in),
       isSubmitting = state.isSubmitting,
       onClick = {
         focusManager.clearFocus()
@@ -127,7 +132,7 @@ fun SignInScreen(
     OrDivider()
     Spacer(modifier = Modifier.height(24.dp))
 
-    AlternativeLoginButton("Continue with Mobile OTP", onMobileLoginClick, !state.isSubmitting)
+    AlternativeLoginButton(stringResource(R.string.action_continue_with_mobile_otp), onMobileLoginClick, !state.isSubmitting)
 
     Spacer(modifier = Modifier.height(32.dp))
     Row(
@@ -135,9 +140,9 @@ fun SignInScreen(
       horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Text("Don't have an account? ", color = FixTheme.colors.textSecondary)
+      Text(stringResource(R.string.signin_no_account), color = FixTheme.colors.textSecondary)
       Text(
-        "Create New Account",
+        stringResource(R.string.action_create_new_account),
         color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
         // Padding sits inside the clickable, so it grows the touch target rather than just the
@@ -163,6 +168,8 @@ fun CreateAccountScreen(
   val state by viewModel.signUp.collectAsState()
   var passwordVisible by remember { mutableStateOf(false) }
   val focusManager = LocalFocusManager.current
+  // Localized by LocalizedContent, so messages resolved here honour the chosen language.
+  val context = LocalContext.current
 
   LaunchedEffect(prefilledMobile) { viewModel.prefillSignUpMobile(prefilledMobile) }
 
@@ -174,20 +181,20 @@ fun CreateAccountScreen(
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(24.dp))
-    Text("Create Your Account", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+    Text(stringResource(R.string.signup_title), fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(24.dp))
 
     state.formError?.let {
-      FormErrorBanner(it.message())
+      FormErrorBanner(it.message(context))
       Spacer(modifier = Modifier.height(16.dp))
     }
 
     AuthTextField(
       value = state.fullName,
       onValueChange = viewModel::onSignUpFullNameChange,
-      label = "Full Name",
+      label = stringResource(R.string.field_full_name),
       leadingIcon = Icons.Default.Person,
-      error = state.fullNameError?.message("Full name"),
+      error = state.fullNameError?.message(context, R.string.label_full_name),
       keyboardType = KeyboardType.Text,
       imeAction = ImeAction.Next,
       onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -198,9 +205,9 @@ fun CreateAccountScreen(
     AuthTextField(
       value = state.mobile,
       onValueChange = viewModel::onSignUpMobileChange,
-      label = "Mobile Number",
+      label = stringResource(R.string.field_mobile_number),
       leadingIcon = Icons.Default.Phone,
-      error = state.mobileError?.message("Mobile number"),
+      error = state.mobileError?.message(context, R.string.label_mobile_number),
       keyboardType = KeyboardType.Phone,
       imeAction = ImeAction.Next,
       onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -211,9 +218,9 @@ fun CreateAccountScreen(
     AuthTextField(
       value = state.email,
       onValueChange = viewModel::onSignUpEmailChange,
-      label = "Email Address (Optional)",
+      label = stringResource(R.string.field_email_optional),
       leadingIcon = Icons.Outlined.Email,
-      error = state.emailError?.message("Email"),
+      error = state.emailError?.message(context, R.string.label_email),
       keyboardType = KeyboardType.Email,
       imeAction = ImeAction.Next,
       onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -224,11 +231,11 @@ fun CreateAccountScreen(
     AuthTextField(
       value = state.password,
       onValueChange = viewModel::onSignUpPasswordChange,
-      label = "Password",
+      label = stringResource(R.string.field_password),
       leadingIcon = Icons.Default.Lock,
-      error = state.passwordError?.message("Password"),
+      error = state.passwordError?.message(context, R.string.label_password),
       supportingText =
-        "At least ${com.example.util.Validators.MIN_PASSWORD_LENGTH} characters, with a letter and a number",
+        stringResource(R.string.password_requirement, com.example.util.Validators.MIN_PASSWORD_LENGTH),
       keyboardType = KeyboardType.Password,
       imeAction = ImeAction.Next,
       onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
@@ -240,7 +247,7 @@ fun CreateAccountScreen(
           Icon(
             imageVector =
               if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+            contentDescription = if (passwordVisible) stringResource(R.string.cd_hide_password) else stringResource(R.string.cd_show_password),
           )
         }
       },
@@ -250,9 +257,9 @@ fun CreateAccountScreen(
     AuthTextField(
       value = state.confirmPassword,
       onValueChange = viewModel::onSignUpConfirmPasswordChange,
-      label = "Confirm Password",
+      label = stringResource(R.string.field_confirm_password),
       leadingIcon = Icons.Default.Lock,
-      error = state.confirmPasswordError?.message("Confirmation"),
+      error = state.confirmPasswordError?.message(context, R.string.label_confirmation),
       keyboardType = KeyboardType.Password,
       imeAction = ImeAction.Done,
       onImeAction = {
@@ -271,11 +278,11 @@ fun CreateAccountScreen(
         enabled = !state.isSubmitting,
         colors = CheckboxDefaults.colors(checkedColor = FixTheme.colors.primary),
       )
-      Text("I agree to the Terms & Privacy Policy", fontSize = 14.sp, color = FixTheme.colors.textPrimary)
+      Text(stringResource(R.string.terms_agree), fontSize = 14.sp, color = FixTheme.colors.textPrimary)
     }
     if (state.termsNotAccepted) {
       Text(
-        "Please accept the Terms & Privacy Policy to continue",
+        stringResource(R.string.terms_required),
         color = MaterialTheme.colorScheme.error,
         fontSize = 12.sp,
         modifier = Modifier.padding(start = 12.dp),
@@ -284,7 +291,7 @@ fun CreateAccountScreen(
 
     Spacer(modifier = Modifier.height(24.dp))
     SubmitButton(
-      text = "Create Account",
+      text = stringResource(R.string.action_create_account),
       isSubmitting = state.isSubmitting,
       onClick = {
         focusManager.clearFocus()
@@ -296,7 +303,7 @@ fun CreateAccountScreen(
     OrDivider()
     Spacer(modifier = Modifier.height(24.dp))
 
-    AlternativeLoginButton("Sign Up with Mobile OTP", onMobileOtpClick, !state.isSubmitting)
+    AlternativeLoginButton(stringResource(R.string.action_signup_with_otp), onMobileOtpClick, !state.isSubmitting)
 
     Spacer(modifier = Modifier.height(32.dp))
     Row(
@@ -304,9 +311,9 @@ fun CreateAccountScreen(
       horizontalArrangement = Arrangement.Center,
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      Text("Already have an account? ", color = FixTheme.colors.textSecondary)
+      Text(stringResource(R.string.signup_have_account), color = FixTheme.colors.textSecondary)
       Text(
-        "Sign In",
+        stringResource(R.string.action_sign_in),
         color = FixTheme.colors.primary,
         fontWeight = FontWeight.Bold,
         modifier =
@@ -411,7 +418,7 @@ fun FormErrorBanner(message: String) {
 fun OrDivider() {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
-    Text(" OR ", color = FixTheme.colors.textSecondary, modifier = Modifier.padding(horizontal = 8.dp))
+    Text(stringResource(R.string.divider_or), color = FixTheme.colors.textSecondary, modifier = Modifier.padding(horizontal = 8.dp))
     HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
   }
 }

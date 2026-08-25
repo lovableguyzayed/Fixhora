@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +44,8 @@ import com.example.ui.theme.*
 @Composable
 fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) {
   val state by viewModel.profile.collectAsState()
+  // Localized by LocalizedContent, so validation messages honour the chosen language.
+  val context = LocalContext.current
 
   LaunchedEffect(Unit) { viewModel.loadProfileFromSession() }
 
@@ -53,10 +57,10 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
     modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
   ) {
     Spacer(modifier = Modifier.height(24.dp))
-    Text("Profile Setup", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+    Text(stringResource(R.string.profile_title), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
     Spacer(modifier = Modifier.height(8.dp))
     Text(
-      "This helps helpers nearby know who they are working with.",
+      stringResource(R.string.profile_subtitle),
       fontSize = 16.sp,
       color = FixTheme.colors.textSecondary,
     )
@@ -65,9 +69,9 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
     AuthTextField(
       value = state.fullName,
       onValueChange = { viewModel.onProfileFieldChange(fullName = it) },
-      label = "Full Name",
+      label = stringResource(R.string.field_full_name),
       leadingIcon = Icons.Default.Person,
-      error = state.fullNameError?.message("Full name"),
+      error = state.fullNameError?.message(context, R.string.label_full_name),
       keyboardType = KeyboardType.Text,
       imeAction = ImeAction.Next,
       onImeAction = {},
@@ -80,7 +84,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
         AuthTextField(
           value = state.gender,
           onValueChange = { viewModel.onProfileFieldChange(gender = it) },
-          label = "Gender (Optional)",
+          label = stringResource(R.string.field_gender_optional),
           leadingIcon = Icons.Default.Wc,
           error = null,
           keyboardType = KeyboardType.Text,
@@ -93,7 +97,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
         AuthTextField(
           value = state.dateOfBirth,
           onValueChange = { viewModel.onProfileFieldChange(dateOfBirth = it) },
-          label = "Birth Year (Optional)",
+          label = stringResource(R.string.field_birth_year_optional),
           leadingIcon = Icons.Default.Cake,
           error = null,
           keyboardType = KeyboardType.Number,
@@ -110,7 +114,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
         AuthTextField(
           value = state.city,
           onValueChange = { viewModel.onProfileFieldChange(city = it) },
-          label = "City",
+          label = stringResource(R.string.field_city),
           leadingIcon = Icons.Default.LocationCity,
           error = null,
           keyboardType = KeyboardType.Text,
@@ -123,7 +127,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
         AuthTextField(
           value = state.state,
           onValueChange = { viewModel.onProfileFieldChange(state = it) },
-          label = "State",
+          label = stringResource(R.string.field_state),
           leadingIcon = Icons.Default.Map,
           error = null,
           keyboardType = KeyboardType.Text,
@@ -138,9 +142,9 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
     AuthTextField(
       value = state.pinCode,
       onValueChange = { viewModel.onProfileFieldChange(pinCode = it) },
-      label = "PIN Code (Optional)",
+      label = stringResource(R.string.field_pin_code_optional),
       leadingIcon = Icons.Default.Pin,
-      error = state.pinCodeError?.message("PIN code"),
+      error = state.pinCodeError?.message(context, R.string.label_pin_code),
       keyboardType = KeyboardType.Number,
       imeAction = ImeAction.Done,
       onImeAction = { viewModel.submitProfile() },
@@ -149,7 +153,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
 
     Spacer(modifier = Modifier.height(32.dp))
     SubmitButton(
-      text = "Continue",
+      text = stringResource(R.string.action_continue),
       isSubmitting = state.isSubmitting,
       onClick = { viewModel.submitProfile() },
     )
@@ -160,7 +164,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
 /**
  * Asks for the permissions the app genuinely uses, through the real system dialogs.
  *
- * This screen used to describe permissions and then request nothing at all, so "Allow" and "Skip"
+ * This screen used to describe permissions and then request nothing at all, so stringResource(R.string.action_allow) and stringResource(R.string.action_skip)
  * did exactly the same thing and location never worked.
  */
 @Composable
@@ -176,7 +180,7 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
       locationGranted = context.hasLocationPermission()
       notificationsGranted = context.hasNotificationPermission()
       // Android reports an immediate denial without showing a dialog once the user has chosen
-      // "Don't ask again", which is the only case where Settings is the honest next step.
+      // stringResource(R.string.action_dont_ask_again), which is the only case where Settings is the honest next step.
       deniedPermanently = results.isNotEmpty() && results.values.none { it } && !locationGranted
     }
 
@@ -192,8 +196,8 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
       icon = Icons.Default.LocationOn,
       iconTint = FixTheme.colors.primary,
       background = LightBlueBorder,
-      title = "Location",
-      description = "Used to show tasks and helpers near you, and to fill in your task address.",
+      title = stringResource(R.string.perm_location_title),
+      description = stringResource(R.string.perm_location_body),
       granted = locationGranted,
     )
 
@@ -203,31 +207,31 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
       icon = Icons.Default.NotificationsActive,
       iconTint = FixTheme.colors.accentGraphic,
       background = LightOrangeBorder,
-      title = "Notifications",
-      description = "Used to tell you when someone accepts your task or sends a message.",
+      title = stringResource(R.string.perm_notifications_title),
+      description = stringResource(R.string.perm_notifications_body),
       granted = notificationsGranted,
     )
 
     if (deniedPermanently) {
       Spacer(modifier = Modifier.height(24.dp))
       FormErrorBanner(
-        "Permissions were turned off for this app. You can enable them in Settings, or continue without them."
+        stringResource(R.string.perm_denied_notice)
       )
     }
 
     Spacer(modifier = Modifier.weight(1f))
 
     if (allHandled) {
-      SubmitButton(text = "Continue", isSubmitting = false, onClick = onPermissionsHandled)
+      SubmitButton(text = stringResource(R.string.action_continue), isSubmitting = false, onClick = onPermissionsHandled)
     } else if (deniedPermanently) {
       SubmitButton(
-        text = "Open Settings",
+        text = stringResource(R.string.action_open_settings),
         isSubmitting = false,
         onClick = { context.openAppSettings() },
       )
     } else {
       SubmitButton(
-        text = "Allow Permissions",
+        text = stringResource(R.string.action_allow_permissions),
         isSubmitting = false,
         onClick = { launcher.launch(requiredPermissions()) },
       )
@@ -236,14 +240,14 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
     Spacer(modifier = Modifier.height(8.dp))
     TextButton(onClick = onPermissionsHandled) {
       Text(
-        if (allHandled) "Skip" else "Continue without these",
+        if (allHandled) stringResource(R.string.action_skip) else stringResource(R.string.action_continue_without),
         color = FixTheme.colors.textSecondary,
         fontWeight = FontWeight.Medium,
       )
     }
     Spacer(modifier = Modifier.height(16.dp))
     Text(
-      "You can change this later in your device settings.",
+      stringResource(R.string.perm_change_later),
       fontSize = 12.sp,
       color = FixTheme.colors.textSecondary,
       textAlign = TextAlign.Center,
@@ -275,7 +279,7 @@ private fun PermissionRow(
         Spacer(modifier = Modifier.width(8.dp))
         Icon(
           Icons.Default.CheckCircle,
-          contentDescription = "Granted",
+          contentDescription = stringResource(R.string.perm_granted),
           tint = FixTheme.colors.success,
           modifier = Modifier.size(18.dp),
         )

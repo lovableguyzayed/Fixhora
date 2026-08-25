@@ -37,4 +37,108 @@
 
     <!-- The version and the build number stay as they are; only the instruction is translated. -->
     <string name="version_footer_tap_to_check">v%1$s (%2$d) · अपडेट देखने के लिए टैप करें</string>
+
+    <!-- Field labels. Used both on the input itself and inside "X is required". -->
+    <string name="field_mobile_number">मोबाइल नंबर</string>
+    <string name="field_phone_number">फ़ोन नंबर</string>
+    <string name="field_password">पासवर्ड</string>
+    <string name="field_new_password">नया पासवर्ड</string>
+    <string name="field_confirm_password">पासवर्ड दोबारा डालें</string>
+    <string name="field_full_name">पूरा नाम</string>
+    <string name="field_email_optional">ईमेल पता (वैकल्पिक)</string>
+    <string name="field_city">शहर</string>
+    <string name="field_state">राज्य</string>
+    <string name="field_gender_optional">लिंग (वैकल्पिक)</string>
+    <string name="field_birth_year_optional">जन्म वर्ष (वैकल्पिक)</string>
+    <string name="field_pin_code_optional">पिन कोड (वैकल्पिक)</string>
+
+    <!-- Short names for the same fields, as they read inside an error sentence. -->
+    <string name="label_mobile_number">मोबाइल नंबर</string>
+    <string name="label_password">पासवर्ड</string>
+    <string name="label_confirmation">पुष्टि</string>
+    <string name="label_full_name">पूरा नाम</string>
+    <string name="label_email">ईमेल</string>
+    <string name="label_code">कोड</string>
+    <string name="label_pin_code">पिन कोड</string>
+
+    <!-- Sign in -->
+    <string name="signin_title">वापस स्वागत है</string>
+    <string name="signin_subtitle">जारी रखने के लिए साइन इन करें</string>
+    <string name="action_forgot_password">पासवर्ड भूल गए?</string>
+    <string name="action_continue_with_mobile_otp">मोबाइल OTP से आगे बढ़ें</string>
+    <string name="signin_no_account">खाता नहीं है? </string>
+    <string name="action_create_new_account">नया खाता बनाएँ</string>
+    <string name="cd_show_password">पासवर्ड दिखाएँ</string>
+    <string name="cd_hide_password">पासवर्ड छिपाएँ</string>
+
+    <!-- Sign up -->
+    <string name="signup_title">अपना खाता बनाएँ</string>
+    <string name="password_requirement">कम से कम %1$d अक्षर, जिनमें एक अक्षर और एक अंक हो</string>
+    <string name="terms_agree">मैं सेवा शर्तों और गोपनीयता नीति से सहमत हूँ</string>
+    <string name="terms_required">आगे बढ़ने के लिए सेवा शर्तें और गोपनीयता नीति स्वीकार करें</string>
+    <string name="action_signup_with_otp">मोबाइल OTP से खाता बनाएँ</string>
+    <string name="signup_have_account">पहले से खाता है? </string>
+    <string name="divider_or"> या </string>
+
+    <!-- Mobile OTP. There is no SMS gateway, and the copy says so rather than pretending. -->
+    <string name="mobile_login_title">मोबाइल नंबर से लॉगिन</string>
+    <string name="mobile_login_subtitle">सत्यापन कोड पाने के लिए अपना मोबाइल नंबर डालें।</string>
+    <string name="demo_no_sms">इस बिल्ड में कोई SMS नहीं भेजा जाता। कोड अगली स्क्रीन पर दिखेगा।</string>
+    <string name="demo_your_code">इस बिल्ड में कोई SMS नहीं भेजा जाता। आपका कोड %1$s है।</string>
+    <string name="demo_mode">डेमो मोड</string>
+    <string name="action_send_otp">OTP भेजें</string>
+    <string name="action_resend">दोबारा भेजें</string>
+    <string name="otp_title">अपना मोबाइल नंबर सत्यापित करें</string>
+    <string name="otp_subtitle">%2$s के लिए %1$d अंकों का कोड डालें।</string>
+    <string name="otp_resend_in">%1$d सेकंड में दोबारा भेजें</string>
+    <string name="otp_resend">कोड दोबारा भेजें</string>
+    <string name="action_verify">सत्यापित करें</string>
+    <string name="action_edit_mobile">मोबाइल नंबर बदलें</string>
+    <string name="otp_sent_toast">आपके मोबाइल पर OTP भेजा गया</string>
+    <string name="cd_go_back">वापस जाएँ</string>
+
+    <!-- Forgot and reset password -->
+    <string name="forgot_title">पासवर्ड भूल गए</string>
+    <string name="forgot_subtitle">अपना पंजीकृत मोबाइल नंबर डालें, हम सत्यापन कोड भेजेंगे।</string>
+    <string name="action_verify_otp">OTP सत्यापित करें</string>
+    <string name="code_sent_to">%1$s पर कोड भेजा गया।</string>
+    <string name="enter_otp">OTP डालें</string>
+    <string name="reset_title">पासवर्ड बदलें</string>
+    <string name="reset_subtitle">अपने खाते के लिए नया पासवर्ड चुनें।</string>
+    <string name="action_save_new_password">नया पासवर्ड सहेजें</string>
+
+    <!-- Profile and permissions -->
+    <string name="profile_title">प्रोफ़ाइल सेटअप</string>
+    <string name="profile_subtitle">इससे आस-पास के सहायकों को पता चलता है कि वे किसके साथ काम कर रहे हैं।</string>
+    <string name="action_continue">आगे बढ़ें</string>
+    <string name="action_allow">अनुमति दें</string>
+    <string name="action_skip">छोड़ें</string>
+    <string name="action_dont_ask_again">दोबारा न पूछें</string>
+    <string name="perm_location_title">स्थान</string>
+    <string name="perm_location_body">आपके आस-पास के कार्य और सहायक दिखाने के लिए, और आपके कार्य का पता भरने के लिए।</string>
+    <string name="perm_notifications_title">सूचनाएँ</string>
+    <string name="perm_notifications_body">जब कोई आपका कार्य स्वीकार करे या संदेश भेजे, तब आपको बताने के लिए।</string>
+    <string name="perm_denied_notice">इस ऐप के लिए अनुमतियाँ बंद हैं। आप इन्हें सेटिंग्स में चालू कर सकते हैं, या बिना इनके आगे बढ़ सकते हैं।</string>
+    <string name="action_open_settings">सेटिंग्स खोलें</string>
+    <string name="action_allow_permissions">अनुमतियाँ दें</string>
+    <string name="action_continue_without">बिना इनके आगे बढ़ें</string>
+    <string name="perm_change_later">आप इसे बाद में अपने डिवाइस की सेटिंग्स में बदल सकते हैं।</string>
+    <string name="perm_granted">मिल गई</string>
+
+    <!-- Validation. Every message says what is wrong and what to do about it. -->
+    <string name="error_required">%1$s ज़रूरी है</string>
+    <string name="error_name_too_short">अपना पूरा नाम डालें</string>
+    <string name="error_mobile_incomplete">10 अंकों का मोबाइल नंबर डालें</string>
+    <string name="error_mobile_invalid_prefix">भारतीय मोबाइल नंबर 6, 7, 8 या 9 से शुरू होता है</string>
+    <string name="error_email_invalid">सही ईमेल डालें, जैसे name@example.com</string>
+    <string name="error_password_too_short">कम से कम %1$d अक्षर इस्तेमाल करें</string>
+    <string name="error_password_needs_letter_and_digit">कम से कम एक अक्षर और एक अंक मिलाएँ</string>
+    <string name="error_password_mismatch">दोनों पासवर्ड एक जैसे होने चाहिए</string>
+    <string name="error_otp_incomplete">पूरे %1$d अंक डालें</string>
+    <string name="error_pin_code_invalid">सही 6 अंकों का पिन कोड डालें</string>
+    <string name="error_invalid_credentials">ये मोबाइल नंबर और पासवर्ड मेल नहीं खाते। दोबारा कोशिश करें।</string>
+    <string name="error_mobile_taken">इस नंबर पर पहले से खाता है। साइन इन करके देखें।</string>
+    <string name="error_no_account_for_mobile">इस नंबर पर कोई खाता नहीं मिला। आगे बढ़ने के लिए एक बनाएँ।</string>
+    <string name="error_otp_mismatch">ये कोड सही नहीं है। जाँच कर दोबारा कोशिश करें।</string>
+    <string name="error_unexpected">इस डिवाइस पर कुछ गड़बड़ हुई। दोबारा कोशिश करें।</string>
 </resources>
