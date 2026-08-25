@@ -40,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontStyle
 import com.example.BuildConfig
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
+import com.example.data.session.AppLanguage
 import com.example.data.session.UserRole
 import com.example.ui.theme.*
 
@@ -53,9 +55,10 @@ fun RoleSelectionScreen(
     signedInName: String?,
     onRoleSelected: (UserRole) -> Unit,
     onSignOut: () -> Unit,
-    onCheckForUpdates: () -> Unit = {}
+    onCheckForUpdates: () -> Unit = {},
+    language: AppLanguage = AppLanguage.ENGLISH,
+    onLanguageChange: (AppLanguage) -> Unit = {}
 ) {
-    var selectedLanguage by remember { mutableStateOf("English") }
 
     Scaffold(
         containerColor = FixTheme.colors.background
@@ -80,17 +83,17 @@ fun RoleSelectionScreen(
                 // Branding Area
                 Image(
                     painter = painterResource(id = R.drawable.img_logo),
-                    contentDescription = "FixoraX Logo",
+                    contentDescription = stringResource(R.string.cd_logo),
                     modifier = Modifier.size(120.dp),
                     contentScale = ContentScale.Fit
                 )
 
                 val appName = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
-                        append("Fixora")
+                        append(stringResource(R.string.brand_fixora))
                     }
                     withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 56.sp)) {
-                        append("X")
+                        append(stringResource(R.string.brand_x))
                     }
                 }
                 Text(
@@ -101,10 +104,12 @@ fun RoleSelectionScreen(
                     modifier = Modifier.offset(y = (-28).dp)
                 )
 
-                // Heading Section
-                val isHindi = selectedLanguage == "हिंदी"
+                // Devanagari sets taller than Latin at the same point size, so the heading gets a
+                // slightly smaller size and tighter leading in Hindi. That is typography, not
+                // translation, which is why it stays in code while the words move to resources.
+                val isHindi = language == AppLanguage.HINDI
                 Text(
-                    text = if (isHindi) "आप कैसे शुरुआत\nकरना चाहेंगे?" else "How would you\nlike to get started?",
+                    text = stringResource(R.string.role_heading),
                     fontSize = if (isHindi) 28.sp else 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = FixTheme.colors.textPrimary,
@@ -115,7 +120,7 @@ fun RoleSelectionScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = if (isHindi) "जारी रखने के लिए एक भूमिका चुनें" else "Choose a role to continue",
+                    text = stringResource(R.string.role_subheading),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = FixTheme.colors.textSecondary,
@@ -132,8 +137,8 @@ fun RoleSelectionScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     WideRoleSelectionCard(
-                        title = if (isHindi) "मुझे मदद चाहिए" else "I need help",
-                        description = if (isHindi) "एक कार्य पोस्ट करें और पास में विश्वसनीय सहायक खोजें।" else "Post a task and find trusted helpers nearby.",
+                        title = stringResource(R.string.role_customer_title),
+                        description = stringResource(R.string.role_customer_description),
                         borderColor = LightBlueBorder,
                         buttonColor = FixTheme.colors.primary,
                         illustrationId = R.drawable.img_customer,
@@ -141,8 +146,8 @@ fun RoleSelectionScreen(
                     )
 
                     WideRoleSelectionCard(
-                        title = if (isHindi) "मैं मदद करना चाहता हूँ" else "I want to help",
-                        description = if (isHindi) "पास के कार्य खोजें और दूसरों की मदद करके कमाएं।" else "Find tasks nearby and earn by helping others.",
+                        title = stringResource(R.string.role_worker_title),
+                        description = stringResource(R.string.role_worker_description),
                         borderColor = LightOrangeBorder,
                         buttonColor = FixTheme.colors.accentGraphic,
                         illustrationId = R.drawable.img_worker,
@@ -161,13 +166,13 @@ fun RoleSelectionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (isHindi) "साइन इन: $signedInName" else "Signed in as $signedInName",
+                            text = stringResource(R.string.signed_in_as, signedInName),
                             fontSize = 14.sp,
                             color = FixTheme.colors.textSecondary
                         )
                         TextButton(onClick = onSignOut) {
                             Text(
-                                text = if (isHindi) "साइन आउट" else "Sign out",
+                                text = stringResource(R.string.action_sign_out),
                                 fontSize = 14.sp,
                                 color = FixTheme.colors.primary,
                                 fontWeight = FontWeight.SemiBold
@@ -184,7 +189,7 @@ fun RoleSelectionScreen(
                 ) {
                     HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
                     Text(
-                        text = if (isHindi) "भाषा चुनें" else "Choose Language",
+                        text = stringResource(R.string.language_heading),
                         modifier = Modifier.padding(horizontal = 16.dp),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
@@ -203,22 +208,22 @@ fun RoleSelectionScreen(
                 ) {
                     LanguagePill(
                         modifier = Modifier.weight(1f),
-                        text = "English",
-                        isSelected = selectedLanguage == "English",
-                        onClick = { selectedLanguage = "English" }
+                        text = stringResource(R.string.language_english),
+                        isSelected = language == AppLanguage.ENGLISH,
+                        onClick = { onLanguageChange(AppLanguage.ENGLISH) }
                     )
                     LanguagePill(
                         modifier = Modifier.weight(1f),
-                        text = "हिंदी",
-                        isSelected = selectedLanguage == "हिंदी",
-                        onClick = { selectedLanguage = "हिंदी" }
+                        text = stringResource(R.string.language_hindi),
+                        isSelected = language == AppLanguage.HINDI,
+                        onClick = { onLanguageChange(AppLanguage.HINDI) }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = if (isHindi) "आप बाद में सेटिंग्स में भाषा बदल सकते हैं" else "You can change the language later in settings",
+                    text = stringResource(R.string.language_change_later),
                     fontSize = 14.sp,
                     color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center
@@ -231,7 +236,12 @@ fun RoleSelectionScreen(
                 // Tapping it forces an update check: the automatic one only runs every six hours,
                 // so this is how you ask right after a new build is published.
                 Text(
-                    text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) · tap to check for updates",
+                    text =
+                        stringResource(
+                            R.string.version_footer_tap_to_check,
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE
+                        ),
                     fontSize = 12.sp,
                     color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
@@ -377,7 +387,7 @@ fun WideRoleSelectionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Get Started",
+                        text = stringResource(R.string.role_get_started),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = buttonColor
@@ -445,7 +455,7 @@ fun LanguagePill(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(R.string.cd_selected),
                         tint = FixTheme.colors.onPrimary,
                         modifier = Modifier.size(12.dp)
                     )

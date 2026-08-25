@@ -1,0 +1,40 @@
+<resources>
+    <!--
+      Hindi. Anything missing here falls back to values/strings.xml, which is Android's own
+      resource resolution - a partly translated app reads English for the rest rather than
+      breaking. Strings marked translatable="false" in the default file are absent on purpose.
+
+      The existing Hindi on the role screen was written inline in Kotlin; it is carried over here
+      rather than retranslated, so nothing regresses.
+    -->
+
+    <!-- Splash and welcome -->
+    <string name="cd_logo">FixoraX लोगो</string>
+    <string name="cd_welcome_illustration">स्वागत चित्र</string>
+    <string name="splash_tagline">कुशल कारीगरों को उन लोगों से जोड़ना जिन्हें मदद चाहिए।</string>
+    <string name="welcome_title_prefix">स्वागत है </string>
+    <string name="welcome_subtitle">आस-पास भरोसेमंद कारीगर ढूंढें, या अपना हुनर दूसरों तक पहुँचाएँ।</string>
+    <string name="action_sign_in">साइन इन</string>
+    <string name="action_create_account">खाता बनाएँ</string>
+    <string name="action_continue_as_guest">बिना खाते के आगे बढ़ें</string>
+    <string name="welcome_terms_notice">आगे बढ़ने पर आप हमारी सेवा शर्तों और गोपनीयता नीति से सहमत होते हैं।</string>
+
+    <!-- Role selection. Carried over from the inline Hindi that was already on this screen. -->
+    <string name="role_heading">आप कैसे शुरुआत\nकरना चाहेंगे?</string>
+    <string name="role_subheading">जारी रखने के लिए एक भूमिका चुनें</string>
+    <string name="role_customer_title">मुझे मदद चाहिए</string>
+    <string name="role_customer_description">एक कार्य पोस्ट करें और पास में विश्वसनीय सहायक खोजें।</string>
+    <string name="role_worker_title">मैं मदद करना चाहता हूँ</string>
+    <string name="role_worker_description">पास के कार्य खोजें और दूसरों की मदद करके कमाएं।</string>
+    <string name="role_get_started">शुरू करें</string>
+    <string name="cd_selected">चुना गया</string>
+    <string name="signed_in_as">साइन इन: %1$s</string>
+    <string name="action_sign_out">साइन आउट</string>
+
+    <!-- Language -->
+    <string name="language_heading">भाषा चुनें</string>
+    <string name="language_change_later">आप बाद में सेटिंग्स में भाषा बदल सकते हैं</string>
+
+    <!-- The version and the build number stay as they are; only the instruction is translated. -->
+    <string name="version_footer_tap_to_check">v%1$s (%2$d) · अपडेट देखने के लिए टैप करें</string>
+</resources>

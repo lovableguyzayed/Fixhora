@@ -3,5 +3,51 @@
       app_name is deliberately NOT declared here. It is supplied per build type by resValue in
       app/build.gradle.kts, so the debug channel can label itself "FixoraX (Debug)" and sit on the
       device alongside the release build. Declaring it here as well would be a duplicate resource.
+
+      Everything else the user reads belongs in this file. Strings were previously written inline
+      in the Compose sources, and the role screen carried thirteen hand-written `if (isHindi)`
+      ternaries - a pattern that cannot scale past one screen and left the rest of the app
+      English-only whatever the user picked.
+
+      Any string not translated in values-hi/ falls back to the value here. That is Android's own
+      resource resolution, not a bug: a partly translated app shows English for the rest rather
+      than crashing or showing a key.
     -->
+
+    <!-- Brand. Not translated: it is a name. -->
+    <string name="brand_fixora" translatable="false">Fixora</string>
+    <string name="brand_x" translatable="false">X</string>
+
+    <!-- Splash and welcome -->
+    <string name="cd_logo">FixoraX logo</string>
+    <string name="cd_welcome_illustration">Welcome illustration</string>
+    <string name="splash_tagline">Connecting skilled workers with people who need help.</string>
+    <string name="welcome_title_prefix">Welcome to </string>
+    <string name="welcome_subtitle">Find trusted local workers or offer your skills to people nearby.</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_create_account">Create Account</string>
+    <string name="action_continue_as_guest">Continue as Guest</string>
+    <string name="welcome_terms_notice">By continuing, you agree to our Terms of Service and Privacy Policy.</string>
+
+    <!-- Role selection -->
+    <string name="role_heading">How would you\nlike to get started?</string>
+    <string name="role_subheading">Choose a role to continue</string>
+    <string name="role_customer_title">I need help</string>
+    <string name="role_customer_description">Post a task and find trusted helpers nearby.</string>
+    <string name="role_worker_title">I want to help</string>
+    <string name="role_worker_description">Find tasks nearby and earn by helping others.</string>
+    <string name="role_get_started">Get Started</string>
+    <string name="cd_selected">Selected</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="action_sign_out">Sign out</string>
+
+    <!-- Language -->
+    <string name="language_heading">Choose language</string>
+    <string name="language_change_later">You can change the language later in settings</string>
+    <!-- Each language is named in its own language, so it is readable whichever one is active. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_hindi" translatable="false">हिंदी</string>
+
+    <!-- Build version footer. The version itself is never translated. -->
+    <string name="version_footer_tap_to_check">v%1$s (%2$d) · tap to check for updates</string>
 </resources>

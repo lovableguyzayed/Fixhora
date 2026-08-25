@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
-                contentDescription = "FixoraX Logo",
+                contentDescription = stringResource(R.string.cd_logo),
                 modifier = Modifier
                     .size(120.dp)
                     .alpha(alpha.value)
@@ -58,7 +59,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             Text(
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
-                        append("Fixora")
+                        append(stringResource(R.string.brand_fixora))
                     }
                     withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 48.sp)) {
                         append("X")
@@ -73,7 +74,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Connecting Skilled Workers with People Who Need Help.",
+                text = stringResource(R.string.splash_tagline),
                 fontSize = 14.sp,
                 color = FixTheme.colors.textSecondary,
                 textAlign = TextAlign.Center,
@@ -101,7 +102,7 @@ fun WelcomeScreen(
         Spacer(modifier = Modifier.height(40.dp))
         Image(
             painter = painterResource(id = R.drawable.img_worker), // Assuming worker illustration acts as large welcome image
-            contentDescription = "Welcome Illustration",
+            contentDescription = stringResource(R.string.cd_welcome_illustration),
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
@@ -111,10 +112,10 @@ fun WelcomeScreen(
         Text(
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = FixTheme.colors.textPrimary)) {
-                    append("Welcome to ")
+                    append(stringResource(R.string.welcome_title_prefix))
                 }
                 withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
-                    append("Fixora")
+                    append(stringResource(R.string.brand_fixora))
                 }
                 withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 42.sp)) {
                     append("X")
@@ -126,7 +127,7 @@ fun WelcomeScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Find trusted local workers or offer your skills to people nearby.",
+            text = stringResource(R.string.welcome_subtitle),
             fontSize = 16.sp,
             color = FixTheme.colors.textSecondary,
             textAlign = TextAlign.Center
@@ -141,7 +142,7 @@ fun WelcomeScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
         ) {
-            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.action_sign_in), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
@@ -153,15 +154,15 @@ fun WelcomeScreen(
             border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.primary),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.primary)
         ) {
-            Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.action_create_account), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(onClick = onGuestClick) {
-            Text("Continue as Guest", color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.action_continue_as_guest), color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "By continuing, you agree to our Terms of Service and Privacy Policy.",
+            text = stringResource(R.string.welcome_terms_notice),
             fontSize = 12.sp,
             color = FixTheme.colors.textSecondary,
             textAlign = TextAlign.Center,

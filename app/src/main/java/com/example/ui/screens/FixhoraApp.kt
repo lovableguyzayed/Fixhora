@@ -19,6 +19,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.FixhoraApplication
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.data.session.Session
 import com.example.data.session.UserRole
 import com.example.ui.screens.auth.AuthViewModel
 import com.example.ui.screens.auth.CreateAccountScreen
@@ -230,10 +232,18 @@ private fun AppNavHost(
         val userId = application.sessionManager.current().userId
         signedInName = userId?.let { application.userRepository.findById(it)?.fullName }
       }
+      // Read from the session, not from local state: the pill used to forget the choice as soon as
+      // you left the screen, because it only ever wrote to `remember`.
+      val session by
+        application.sessionManager.session.collectAsStateWithLifecycle(initialValue = Session())
 
       RoleSelectionScreen(
         signedInName = signedInName,
         onCheckForUpdates = onCheckForUpdates,
+        language = session.language,
+        onLanguageChange = { chosen ->
+          scope.launch { application.sessionManager.setLanguage(chosen) }
+        },
         onRoleSelected = { role ->
           scope.launch { application.sessionManager.setActiveRole(role) }
           when (role) {
