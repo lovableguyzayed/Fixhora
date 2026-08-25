@@ -22,10 +22,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.ui.format.budgetLabel
-import com.example.ui.format.locationLabel
-import com.example.ui.format.posterLabel
-import com.example.ui.format.relativeTimeLabel
+import com.example.ui.format.budgetText
+import com.example.ui.format.taskLocationText
+import com.example.ui.format.posterText
+import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.ui.components.EmptyState
@@ -141,7 +141,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                     items(tasks, key = { it.id }) { task ->
                         WorkerTaskCard(
                             task = task,
-                            posterName = posterLabel(task.ownerId, ownerNames),
+                            posterName = posterText(task.ownerId, ownerNames),
                             onAccept = { viewModel.acceptTask(task) },
                             onDecline = { viewModel.rejectTask(task) },
                             onStart = { viewModel.startTask(task) },
@@ -186,7 +186,7 @@ fun WorkerTaskCard(
     onNavigate: () -> Unit
 ) {
     val category = dummyCategories.find { it.id == task.categoryId }
-    val postedAgo = relativeTimeLabel(task.createdAt, System.currentTimeMillis())
+    val postedAgo = relativeTimeText(task.createdAt)
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -238,13 +238,13 @@ fun WorkerTaskCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     TaskMetaRow(
                         Icons.Default.LocationOn,
-                        locationLabel(task.locationQuery, task.latitude != null)
+                        taskLocationText(task.locationQuery, task.latitude != null)
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     TaskMetaRow(
                         Icons.Default.AccountBalanceWallet,
-                        budgetLabel(task.minBudget, task.maxBudget)
+                        budgetText(task.minBudget, task.maxBudget)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     TaskMetaRow(Icons.Default.MyLocation, "Within ${task.selectedDistance} km")

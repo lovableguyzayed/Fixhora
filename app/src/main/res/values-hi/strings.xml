@@ -184,4 +184,55 @@
     <string name="task_uncategorised">बिना श्रेणी</string>
     <string name="category_not_selected">चुना नहीं गया</string>
     <string name="category_tap_edit">श्रेणी चुनने के लिए Edit दबाएँ</string>
+
+    <!-- Task age. The counted ones are plurals so English and Hindi each get their own rules. -->
+    <string name="time_just_now">अभी</string>
+    <string name="time_yesterday">कल</string>
+    <string name="time_over_a_month">एक महीने से ज़्यादा पहले</string>
+
+    <!-- Who posted a task. There is no verification and no rating, so nothing implies either. -->
+    <string name="poster_demo">डेमो अनुरोध</string>
+    <string name="poster_guest">अतिथि का अनुरोध</string>
+    <string name="poster_customer">ग्राहक</string>
+
+    <!-- Budget. The rupee sign stays outside the translation. -->
+    <string name="budget_range">₹%1$s – ₹%2$s</string>
+    <string name="budget_from">₹%1$s से</string>
+    <string name="budget_up_to">₹%1$s तक</string>
+    <string name="budget_not_set">कोई बजट नहीं दिया</string>
+
+    <!-- Location. Distance is not shown because the helper's own position is not tracked. -->
+    <string name="location_pinned">नक्शे पर जगह चुनी गई</string>
+    <string name="location_not_given">कोई जगह नहीं दी</string>
+
+    <!-- Task status, as the customer who posted it would describe it. -->
+    <string name="status_draft">ड्राफ़्ट</string>
+    <string name="status_waiting">सहायक का इंतज़ार</string>
+    <string name="status_helper_assigned">सहायक मिल गया</string>
+    <string name="status_in_progress">काम चल रहा है</string>
+    <string name="status_completed">पूरा हुआ</string>
+    <string name="status_cancelled">रद्द किया गया</string>
+    <string name="status_no_helper_yet">अभी कोई सहायक नहीं</string>
+    <string name="status_detail_draft">अभी पोस्ट नहीं हुआ। पूरा करने के लिए बाकी चरण भरें।</string>
+    <string name="status_detail_waiting">आपका कार्य सहायकों को दिख रहा है। देखते रहिए कि किसी ने लिया या नहीं।</string>
+    <string name="status_detail_assigned">एक सहायक ने ये काम ले लिया है। आप नीचे संदेश भेज सकते हैं।</string>
+    <string name="status_detail_in_progress">सहायक ने काम शुरू कर दिया है।</string>
+    <string name="status_detail_completed">सहायक ने इसे पूरा बताया है।</string>
+    <string name="status_detail_cancelled">आपने ये कार्य रद्द कर दिया।</string>
+    <string name="status_detail_rejected">एक सहायक ने ये नहीं लिया। ये अब भी बाकी सबके लिए खुला है।</string>
+
+    <plurals name="minutes_ago">
+        <item quantity="one">%d मिनट पहले</item>
+        <item quantity="other">%d मिनट पहले</item>
+    </plurals>
+
+    <plurals name="hours_ago">
+        <item quantity="one">%d घंटा पहले</item>
+        <item quantity="other">%d घंटे पहले</item>
+    </plurals>
+
+    <plurals name="days_ago">
+        <item quantity="one">%d दिन पहले</item>
+        <item quantity="other">%d दिन पहले</item>
+    </plurals>
 </resources>

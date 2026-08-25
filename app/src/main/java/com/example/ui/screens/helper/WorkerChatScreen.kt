@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.components.MessageBubble
-import com.example.ui.format.budgetLabel
-import com.example.ui.format.relativeTimeLabel
+import com.example.ui.format.budgetText
+import com.example.ui.format.relativeTimeText
 import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
 import com.example.ui.components.EmptyState
@@ -160,7 +160,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                relativeTimeLabel(task.createdAt, System.currentTimeMillis()),
+                relativeTimeText(task.createdAt),
                 fontSize = 12.sp,
                 color = FixTheme.colors.textSecondary
             )
@@ -191,7 +191,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     )
                     // Was a hardcoded green "Online". Presence is not tracked.
                     Text(
-                        budgetLabel(task.minBudget, task.maxBudget),
+                        budgetText(task.minBudget, task.maxBudget),
                         fontSize = 12.sp,
                         color = FixTheme.colors.textSecondary
                     )
@@ -226,7 +226,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     MessageBubble(
                         text = message.text,
                         isSender = message.senderId == ChatRepository.SENDER_WORKER,
-                        time = relativeTimeLabel(message.timestamp, System.currentTimeMillis())
+                        time = relativeTimeText(message.timestamp)
                     )
                 }
             }

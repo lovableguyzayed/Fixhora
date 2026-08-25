@@ -29,7 +29,7 @@ enum class TaskTab(val status: TaskStatus?) {
  * supplied by the caller rather than looked up here. Reaching into `dummyCategories` for the title
  * would have meant matching English words while the user reads and types Hindi — and it would have
  * dragged Android resources into a file kept deliberately free of them so it can be unit-tested on
- * a plain JVM. This is the same shape `posterLabel(ownerId, ownerNames)` already uses.
+ * a plain JVM. This is the same shape `poster(ownerId, ownerNames)` already uses.
  */
 fun TaskEntity.matchesQuery(query: String, categoryTitles: Map<String, String> = emptyMap()): Boolean {
   val trimmed = query.trim()

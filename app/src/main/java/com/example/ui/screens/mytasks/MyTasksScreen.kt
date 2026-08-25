@@ -36,10 +36,10 @@ import com.example.ui.components.EmptyState
 import com.example.ui.components.FixCard
 import com.example.ui.components.StatusBadge
 import com.example.ui.components.StatusTone
-import com.example.ui.format.budgetLabel
+import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusLabel
-import com.example.ui.format.locationLabel
-import com.example.ui.format.relativeTimeLabel
+import com.example.ui.format.taskLocationText
+import com.example.ui.format.relativeTimeText
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Radius
 import com.example.ui.theme.Spacing
@@ -105,9 +105,9 @@ private fun MyTaskCard(task: TaskEntity, onClick: () -> Unit) {
 
       Spacer(Modifier.height(Spacing.md))
 
-      MetaRow(Icons.Default.Schedule, "Posted ${relativeTimeLabel(task.createdAt, System.currentTimeMillis())}")
-      MetaRow(Icons.Default.LocationOn, locationLabel(task.locationQuery, task.latitude != null))
-      MetaRow(Icons.Default.Payments, budgetLabel(task.minBudget, task.maxBudget))
+      MetaRow(Icons.Default.Schedule, "Posted ${relativeTimeText(task.createdAt)}")
+      MetaRow(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null))
+      MetaRow(Icons.Default.Payments, budgetText(task.minBudget, task.maxBudget))
 
       if (task.acceptedByHelperId != null) {
         MetaRow(Icons.AutoMirrored.Filled.Chat, "Tap to message your helper")

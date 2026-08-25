@@ -44,13 +44,13 @@ import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
 import com.example.ui.components.FixCard
 import com.example.ui.components.StatusBadge
-import com.example.ui.format.budgetLabel
+import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusDetail
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.hasAssignedHelper
 import com.example.ui.format.isCancellableByCustomer
-import com.example.ui.format.locationLabel
-import com.example.ui.format.relativeTimeLabel
+import com.example.ui.format.taskLocationText
+import com.example.ui.format.relativeTimeText
 import com.example.ui.components.MessageBubble
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Radius
@@ -173,7 +173,7 @@ fun MyTaskDetailScreen(
             MessageBubble(
               text = message.text,
               isSender = message.senderId == ChatRepository.SENDER_CUSTOMER,
-              time = relativeTimeLabel(message.timestamp, System.currentTimeMillis()),
+              time = relativeTimeText(message.timestamp),
             )
           }
         }
@@ -222,7 +222,7 @@ private fun TaskSummary(task: TaskEntity, onRequestCancel: () -> Unit, modifier:
       ) {
         StatusBadge(text = customerStatusLabel(task.status), tone = task.status.customerTone())
         Text(
-          text = relativeTimeLabel(task.createdAt, System.currentTimeMillis()),
+          text = relativeTimeText(task.createdAt),
           fontSize = 12.sp,
           color = colors.textSecondary,
         )
@@ -238,10 +238,10 @@ private fun TaskSummary(task: TaskEntity, onRequestCancel: () -> Unit, modifier:
 
       Spacer(Modifier.height(Spacing.md))
       Text(
-        text = locationLabel(task.locationQuery, task.latitude != null),
+        text = taskLocationText(task.locationQuery, task.latitude != null),
         color = colors.textSecondary,
       )
-      Text(text = budgetLabel(task.minBudget, task.maxBudget), color = colors.textSecondary)
+      Text(text = budgetText(task.minBudget, task.maxBudget), color = colors.textSecondary)
 
       if (isCancellableByCustomer(task.status)) {
         Spacer(Modifier.height(Spacing.lg))

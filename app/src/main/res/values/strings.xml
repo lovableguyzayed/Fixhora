@@ -197,4 +197,55 @@
     <string name="task_uncategorised">Uncategorised</string>
     <string name="category_not_selected">Not selected</string>
     <string name="category_tap_edit">Tap Edit to choose a category</string>
+
+    <!-- Task age. The counted ones are plurals so English and Hindi each get their own rules. -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_yesterday">Yesterday</string>
+    <string name="time_over_a_month">Over a month ago</string>
+
+    <!-- Who posted a task. There is no verification and no rating, so nothing implies either. -->
+    <string name="poster_demo">Demo request</string>
+    <string name="poster_guest">Guest request</string>
+    <string name="poster_customer">Customer</string>
+
+    <!-- Budget. The rupee sign stays outside the translation. -->
+    <string name="budget_range">₹%1$s – ₹%2$s</string>
+    <string name="budget_from">From ₹%1$s</string>
+    <string name="budget_up_to">Up to ₹%1$s</string>
+    <string name="budget_not_set">No budget set</string>
+
+    <!-- Location. Distance is not shown because the helper's own position is not tracked. -->
+    <string name="location_pinned">Location pinned on map</string>
+    <string name="location_not_given">No location given</string>
+
+    <!-- Task status, as the customer who posted it would describe it. -->
+    <string name="status_draft">Draft</string>
+    <string name="status_waiting">Waiting for a helper</string>
+    <string name="status_helper_assigned">Helper assigned</string>
+    <string name="status_in_progress">Work in progress</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_no_helper_yet">No helper yet</string>
+    <string name="status_detail_draft">Not posted yet. Finish the steps to publish it.</string>
+    <string name="status_detail_waiting">Your task is visible to helpers. Check back to see if it was picked up.</string>
+    <string name="status_detail_assigned">A helper has taken this on. You can message them below.</string>
+    <string name="status_detail_in_progress">The helper has started work.</string>
+    <string name="status_detail_completed">The helper marked this done.</string>
+    <string name="status_detail_cancelled">You cancelled this task.</string>
+    <string name="status_detail_rejected">A helper passed on this one. It is still open to everybody else.</string>
+
+    <plurals name="minutes_ago">
+        <item quantity="one">%d min ago</item>
+        <item quantity="other">%d mins ago</item>
+    </plurals>
+
+    <plurals name="hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
 </resources>

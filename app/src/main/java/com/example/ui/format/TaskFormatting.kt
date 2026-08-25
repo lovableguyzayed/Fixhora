@@ -3,14 +3,20 @@ package com.example.ui.format
 import com.example.data.room.TaskStatus
 
 /**
- * Text formatting for anything that renders a task.
+ * What a task's fields *mean*, without deciding what they say.
  *
- * Lived in `ui/screens/helper` while only the worker screens showed tasks. The customer's own task
- * list needs the same labels, and one shared copy beats two that drift apart.
+ * Every function here returns a decision — "this is four hours old", "no budget was given" — and
+ * the UI turns that into words. That split exists for two reasons:
  *
- * Deliberately free of Android imports so it can be tested on a plain JVM. These replace hardcoded
- * strings — "10 mins ago", "Customer Name", "2.5 km away" — that were printed regardless of what
- * the task actually held.
+ * 1. **Plurals.** "1 min ago" and "5 mins ago" differ in English, and differ again in Hindi. Only
+ *    `pluralStringResource` gets that right, and it needs the number, not a finished sentence.
+ * 2. **Testability.** This file has no Android imports, so its tests run on a plain JVM in
+ *    milliseconds. Returning `R.string` ids or resolved strings would have dragged the resource
+ *    system in here for nothing.
+ *
+ * The tests that used to assert English wording now assert the decision, which is the part that
+ * ever had bugs: a clock-skew case reading "in -3 minutes", a card claiming "10 mins ago" whatever
+ * the age, "2.5 km away" for a distance nobody tracked.
  */
 
 /** Owner id used by the debug seeder; see `DemoDataSeeder`. */
@@ -22,56 +28,86 @@ private const val MINUTE = 60_000L
 private const val HOUR = 60 * MINUTE
 private const val DAY = 24 * HOUR
 
+/** How old a task is, in the coarsest unit that still says something useful. */
+sealed interface RelativeTime {
+  data object JustNow : RelativeTime
+
+  data class Minutes(val value: Int) : RelativeTime
+
+  data class Hours(val value: Int) : RelativeTime
+
+  data object Yesterday : RelativeTime
+
+  data class Days(val value: Int) : RelativeTime
+
+  data object OverAMonth : RelativeTime
+}
+
 /**
- * How long ago a task was posted, from its `createdAt`.
+ * Age of a task, from its `createdAt`.
  *
- * A future timestamp reads as "Just now" rather than a negative duration: clock skew between
- * writing a row and reading it back should not produce "in -3 minutes".
+ * A future timestamp reads as [RelativeTime.JustNow] rather than a negative duration: clock skew
+ * between writing a row and reading it back should not produce "in -3 minutes".
  */
-fun relativeTimeLabel(createdAt: Long, now: Long): String {
+fun relativeTime(createdAt: Long, now: Long): RelativeTime {
   val elapsed = now - createdAt
   return when {
-    elapsed < MINUTE -> "Just now"
-    elapsed < HOUR -> {
-      val minutes = elapsed / MINUTE
-      if (minutes == 1L) "1 min ago" else "$minutes mins ago"
-    }
-    elapsed < DAY -> {
-      val hours = elapsed / HOUR
-      if (hours == 1L) "1 hour ago" else "$hours hours ago"
-    }
-    elapsed < 30 * DAY -> {
-      val days = elapsed / DAY
-      if (days == 1L) "Yesterday" else "$days days ago"
-    }
-    else -> "Over a month ago"
+    elapsed < MINUTE -> RelativeTime.JustNow
+    elapsed < HOUR -> RelativeTime.Minutes((elapsed / MINUTE).toInt())
+    elapsed < DAY -> RelativeTime.Hours((elapsed / HOUR).toInt())
+    elapsed < 2 * DAY -> RelativeTime.Yesterday
+    elapsed < 30 * DAY -> RelativeTime.Days((elapsed / DAY).toInt())
+    else -> RelativeTime.OverAMonth
   }
 }
 
 /**
- * Who posted the task.
+ * Who posted a task.
  *
- * Every card used to read "Customer Name" with a verified tick and a 4.8 rating, none of which
- * came from anywhere. There is no verification and no rating system, so this reports only what is
- * actually known: the account's name, or that the task came from a guest or the demo seeder.
+ * Every card used to read "Customer Name" with a verified tick and a 4.8 rating, none of which came
+ * from anywhere. There is no verification and no rating system, so this reports only what is
+ * actually known.
  */
-fun posterLabel(ownerId: String, ownerNames: Map<String, String>): String =
-  when {
-    ownerNames[ownerId]?.isNotBlank() == true -> ownerNames.getValue(ownerId)
-    ownerId == DEMO_OWNER_ID -> "Demo request"
-    ownerId == GUEST_OWNER_ID -> "Guest request"
-    else -> "Customer"
-  }
+sealed interface Poster {
+  data class Named(val name: String) : Poster
 
-/** The customer's budget, or an honest note that they did not give one. */
-fun budgetLabel(minBudget: String, maxBudget: String): String {
+  data object DemoRequest : Poster
+
+  data object GuestRequest : Poster
+
+  /** A real account whose name is not loaded, or an id nothing matches. */
+  data object UnknownCustomer : Poster
+}
+
+fun poster(ownerId: String, ownerNames: Map<String, String>): Poster {
+  val name = ownerNames[ownerId]
+  return when {
+    !name.isNullOrBlank() -> Poster.Named(name)
+    ownerId == DEMO_OWNER_ID -> Poster.DemoRequest
+    ownerId == GUEST_OWNER_ID -> Poster.GuestRequest
+    else -> Poster.UnknownCustomer
+  }
+}
+
+/** What the customer said they would pay, or an honest note that they said nothing. */
+sealed interface Budget {
+  data class Range(val min: String, val max: String) : Budget
+
+  data class From(val min: String) : Budget
+
+  data class UpTo(val max: String) : Budget
+
+  data object NotSet : Budget
+}
+
+fun budget(minBudget: String, maxBudget: String): Budget {
   val min = minBudget.trim()
   val max = maxBudget.trim()
   return when {
-    min.isNotEmpty() && max.isNotEmpty() -> "₹$min – ₹$max"
-    min.isNotEmpty() -> "From ₹$min"
-    max.isNotEmpty() -> "Up to ₹$max"
-    else -> "No budget set"
+    min.isNotEmpty() && max.isNotEmpty() -> Budget.Range(min, max)
+    min.isNotEmpty() -> Budget.From(min)
+    max.isNotEmpty() -> Budget.UpTo(max)
+    else -> Budget.NotSet
   }
 }
 
@@ -79,53 +115,22 @@ fun budgetLabel(minBudget: String, maxBudget: String): String {
  * Where the job is.
  *
  * The feed used to print "2.5 km away" for anything posted with the location switch on. Distance
- * needs the helper's own position, which the app does not track, so this shows the address the
+ * needs the helper's own position, which the app does not track, so this reports the address the
  * customer actually gave.
  */
-fun locationLabel(locationQuery: String, hasCoordinates: Boolean): String =
+sealed interface TaskLocation {
+  data class Address(val text: String) : TaskLocation
+
+  data object PinnedOnMap : TaskLocation
+
+  data object NotGiven : TaskLocation
+}
+
+fun taskLocation(locationQuery: String, hasCoordinates: Boolean): TaskLocation =
   when {
-    locationQuery.isNotBlank() -> locationQuery
-    hasCoordinates -> "Location pinned on map"
-    else -> "No location given"
-  }
-
-/**
- * What a status means **to the customer who posted the task**.
- *
- * The stored `TaskStatus` names describe the row, not the situation: "SUBMITTED" tells a customer
- * nothing about whether anyone has picked their job up. These read as answers to "what is
- * happening with my task?".
- *
- * Kept separate from the worker's own labels on purpose — the same row means different things to
- * the two sides. `REJECTED` is "declined" to the worker who declined it, but to the customer it
- * simply means nobody has taken it yet.
- */
-fun customerStatusLabel(status: TaskStatus): String =
-  when (status) {
-    TaskStatus.DRAFT -> "Draft"
-    TaskStatus.SUBMITTED -> "Waiting for a helper"
-    TaskStatus.ACCEPTED -> "Helper assigned"
-    TaskStatus.IN_PROGRESS -> "Work in progress"
-    TaskStatus.COMPLETED -> "Completed"
-    TaskStatus.CANCELLED -> "Cancelled"
-    TaskStatus.REJECTED -> "No helper yet"
-  }
-
-/**
- * One line of context under the status, so the label is not the only thing the customer gets.
- *
- * The old success screen promised "You will be notified once someone accepts your task", which was
- * never true — there are no notifications. These say what is actually the case.
- */
-fun customerStatusDetail(status: TaskStatus): String =
-  when (status) {
-    TaskStatus.DRAFT -> "Not posted yet. Finish the steps to publish it."
-    TaskStatus.SUBMITTED -> "Your task is visible to helpers. Check back to see if it was picked up."
-    TaskStatus.ACCEPTED -> "A helper has taken this on. You can message them below."
-    TaskStatus.IN_PROGRESS -> "The helper has started work."
-    TaskStatus.COMPLETED -> "The helper marked this done."
-    TaskStatus.CANCELLED -> "You cancelled this task."
-    TaskStatus.REJECTED -> "A helper passed on this one. It is still open to everybody else."
+    locationQuery.isNotBlank() -> TaskLocation.Address(locationQuery)
+    hasCoordinates -> TaskLocation.PinnedOnMap
+    else -> TaskLocation.NotGiven
   }
 
 /**
