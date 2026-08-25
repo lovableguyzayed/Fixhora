@@ -108,16 +108,17 @@ data class ReleaseInfo(
 /**
  * Why a check could not answer the question.
  *
- * Each case carries its own message: "update check failed" tells the user nothing about whether to
- * retry now, wait, or go download the APK by hand.
+ * Each case is distinct because "update check failed" tells the user nothing about whether to retry
+ * now, wait, or go download the APK by hand. The wording lives in `UpdateFailureText.kt` so that
+ * this file stays free of Android imports and keeps running as a plain JVM test.
  */
-enum class UpdateFailure(val message: String) {
-  NO_NETWORK("No internet connection. Try again once you are back online."),
-  RATE_LIMITED("GitHub is rate-limiting update checks right now. Try again in an hour."),
-  SERVER_ERROR("Could not reach the update server."),
-  MALFORMED_RESPONSE("The update server sent something unexpected."),
-  NO_ASSET_FOR_CHANNEL("The latest release has no APK for this build."),
-  DOWNLOAD_FAILED("The download did not finish. Check your connection and try again."),
+enum class UpdateFailure {
+  NO_NETWORK,
+  RATE_LIMITED,
+  SERVER_ERROR,
+  MALFORMED_RESPONSE,
+  NO_ASSET_FOR_CHANNEL,
+  DOWNLOAD_FAILED,
 }
 
 /** The outcome of asking the releases page what the newest build is. */

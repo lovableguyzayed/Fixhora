@@ -37,6 +37,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.repository.ChatRepository
 import com.example.data.room.ChatMessageEntity
 import com.example.data.room.TaskEntity
@@ -83,11 +85,10 @@ fun MyTaskDetailScreen(
       containerColor = colors.surface,
       titleContentColor = colors.textPrimary,
       textContentColor = colors.textSecondary,
-      title = { Text("Cancel this task?", fontWeight = FontWeight.SemiBold) },
+      title = { Text(stringResource(R.string.mytasks_cancel_title), fontWeight = FontWeight.SemiBold) },
       text = {
         Text(
-          "It stops being visible to helpers. This cannot be undone — you would have to post it " +
-            "again."
+          stringResource(R.string.mytasks_cancel_body)
         )
       },
       confirmButton = {
@@ -97,12 +98,12 @@ fun MyTaskDetailScreen(
             onCancelTask()
           }
         ) {
-          Text("Cancel task", color = colors.danger, fontWeight = FontWeight.SemiBold)
+          Text(stringResource(R.string.mytasks_cancel_confirm), color = colors.danger, fontWeight = FontWeight.SemiBold)
         }
       },
       dismissButton = {
         TextButton(onClick = { confirmingCancel = false }) {
-          Text("Keep it", color = colors.textSecondary)
+          Text(stringResource(R.string.mytasks_cancel_keep), color = colors.textSecondary)
         }
       },
     )
@@ -114,14 +115,14 @@ fun MyTaskDetailScreen(
       TopAppBar(
         title = {
           Text(
-            text = task.descriptionTitle.ifBlank { "Untitled task" },
+            text = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) },
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
           )
         },
         navigationIcon = {
           IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to my tasks")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back_to_my_tasks))
           }
         },
         colors =
@@ -145,7 +146,7 @@ fun MyTaskDetailScreen(
         // input would imply otherwise.
         Box(modifier = Modifier.fillMaxSize().padding(Spacing.xl), contentAlignment = Alignment.TopCenter) {
           Text(
-            text = "Messaging opens once a helper takes this task on.",
+            text = stringResource(R.string.mytasks_chat_locked),
             color = colors.textSecondary,
           )
         }
@@ -158,7 +159,7 @@ fun MyTaskDetailScreen(
           contentAlignment = Alignment.Center,
         ) {
           Text(
-            text = "No messages yet. Say hello to your helper.",
+            text = stringResource(R.string.mytasks_chat_empty),
             color = colors.textSecondary,
           )
         }
@@ -187,7 +188,7 @@ fun MyTaskDetailScreen(
           value = draft,
           onValueChange = { draft = it },
           modifier = Modifier.weight(1f),
-          placeholder = { Text("Message your helper") },
+          placeholder = { Text(stringResource(R.string.mytasks_chat_hint)) },
           shape = RoundedCornerShape(Radius.md),
           maxLines = 4,
         )
@@ -201,7 +202,7 @@ fun MyTaskDetailScreen(
         ) {
           Icon(
             Icons.AutoMirrored.Filled.Send,
-            contentDescription = "Send message",
+            contentDescription = stringResource(R.string.cd_send_message),
             tint = if (draft.isNotBlank()) colors.primary else colors.disabled,
           )
         }
@@ -246,7 +247,7 @@ private fun TaskSummary(task: TaskEntity, onRequestCancel: () -> Unit, modifier:
       if (isCancellableByCustomer(task.status)) {
         Spacer(Modifier.height(Spacing.lg))
         FixButton(
-          text = "Cancel this task",
+          text = stringResource(R.string.mytasks_cancel_action),
           onClick = onRequestCancel,
           style = FixButtonStyle.DANGER,
         )

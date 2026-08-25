@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.R
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
@@ -67,7 +69,7 @@ fun FixButton(
   style: FixButtonStyle = FixButtonStyle.PRIMARY,
   enabled: Boolean = true,
   isLoading: Boolean = false,
-  loadingText: String = "Please wait…",
+  loadingText: String = stringResource(R.string.action_please_wait),
 ) {
   val colors = FixTheme.colors
   val shape = RoundedCornerShape(Radius.md)

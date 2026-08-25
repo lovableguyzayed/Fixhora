@@ -17,10 +17,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.BuildConfig
+import com.example.R
 import com.example.data.update.UpdateChannel
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Spacing
@@ -71,12 +73,13 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
       Text(
         text =
           when (state.phase) {
-            UpdatePhase.UPDATE_AVAILABLE -> "Update available"
-            UpdatePhase.NEEDS_INSTALL_PERMISSION -> "One permission needed"
-            UpdatePhase.DOWNLOADING -> "Downloading update"
-            UpdatePhase.READY_TO_INSTALL -> "Ready to install"
-            UpdatePhase.UP_TO_DATE -> "You are up to date"
-            else -> "Update check failed"
+            UpdatePhase.UPDATE_AVAILABLE -> stringResource(R.string.update_title_available)
+            UpdatePhase.NEEDS_INSTALL_PERMISSION ->
+              stringResource(R.string.update_title_permission)
+            UpdatePhase.DOWNLOADING -> stringResource(R.string.update_title_downloading)
+            UpdatePhase.READY_TO_INSTALL -> stringResource(R.string.update_title_ready)
+            UpdatePhase.UP_TO_DATE -> stringResource(R.string.update_title_current)
+            else -> stringResource(R.string.update_title_failed)
           },
         fontWeight = FontWeight.SemiBold,
       )
@@ -86,24 +89,31 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
         when (state.phase) {
           UpdatePhase.UPDATE_AVAILABLE ->
             Text(
-              "Version ${release?.versionName.orEmpty()} is available. " +
-                "You are on ${BuildConfig.VERSION_NAME}.\n\n" +
-                "Download size: ${release?.displaySize.orEmpty()}. " +
-                "Your account and posted tasks stay as they are."
+              stringResource(
+                R.string.update_body_available,
+                release?.versionName.orEmpty(),
+                BuildConfig.VERSION_NAME,
+                release?.displaySize.orEmpty(),
+              )
             )
 
           UpdatePhase.NEEDS_INSTALL_PERMISSION ->
             Text(
-              "Android needs your permission before this app can install its own updates. " +
-                "Turn on \"Allow from this source\" on the next screen, then come back — " +
-                "the download will start on its own."
+              stringResource(R.string.update_body_permission)
             )
 
           UpdatePhase.DOWNLOADING -> {
             val fraction = state.progressFraction
             Text(
-              if (fraction == null) "Starting download…"
-              else "${(fraction * 100).toInt()}% of ${UpdateChannel.formatBytes(state.totalBytes)}"
+              if (fraction == null) {
+                stringResource(R.string.update_body_starting)
+              } else {
+                stringResource(
+                  R.string.update_body_progress,
+                  (fraction * 100).toInt(),
+                  UpdateChannel.formatBytes(state.totalBytes),
+                )
+              }
             )
             Spacer(Modifier.height(Spacing.md))
             if (fraction == null) {
@@ -124,19 +134,18 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
 
           UpdatePhase.READY_TO_INSTALL ->
             Text(
-              "The installer should be open. If it is not, tap Install below and confirm the " +
-                "system prompt."
+              stringResource(R.string.update_body_ready)
             )
 
           UpdatePhase.UP_TO_DATE ->
-            Text("${BuildConfig.VERSION_NAME} is the newest build published.")
+            Text(stringResource(R.string.update_body_current, BuildConfig.VERSION_NAME))
 
           else ->
             Column {
-              Text(state.failure?.message ?: "Something went wrong while checking for updates.")
+              Text(state.failure?.text() ?: stringResource(R.string.update_body_failed_generic))
               Spacer(Modifier.height(Spacing.md))
               Text(
-                text = "You can always download the APK from the releases page instead.",
+                text = stringResource(R.string.update_body_failed_hint),
                 fontSize = 13.sp,
                 color = colors.textMuted,
               )
@@ -148,19 +157,19 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
       when (state.phase) {
         UpdatePhase.UPDATE_AVAILABLE ->
           TextButton(onClick = viewModel::startDownload) {
-            Text("Update now", color = colors.primary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_action_now), color = colors.primary, fontWeight = FontWeight.SemiBold)
           }
 
         UpdatePhase.NEEDS_INSTALL_PERMISSION ->
           TextButton(
             onClick = { viewModel.installPermissionIntent()?.let(permissionLauncher::launch) }
           ) {
-            Text("Open settings", color = colors.primary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_action_settings), color = colors.primary, fontWeight = FontWeight.SemiBold)
           }
 
         UpdatePhase.READY_TO_INSTALL ->
           TextButton(onClick = { viewModel.installIntent()?.let(context::startActivity) }) {
-            Text("Install", color = colors.primary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_action_install), color = colors.primary, fontWeight = FontWeight.SemiBold)
           }
 
         UpdatePhase.FAILED ->
@@ -172,12 +181,12 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
               viewModel.dismiss()
             }
           ) {
-            Text("Open releases", color = colors.primary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_action_releases), color = colors.primary, fontWeight = FontWeight.SemiBold)
           }
 
         else ->
           TextButton(onClick = viewModel::dismiss) {
-            Text("OK", color = colors.primary, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.update_action_ok), color = colors.primary, fontWeight = FontWeight.SemiBold)
           }
       }
     },
@@ -186,10 +195,10 @@ fun UpdateDialog(viewModel: UpdateViewModel) {
       when (state.phase) {
         UpdatePhase.UP_TO_DATE -> Unit
         UpdatePhase.DOWNLOADING ->
-          TextButton(onClick = viewModel::dismiss) { Text("Cancel", color = colors.textSecondary) }
+          TextButton(onClick = viewModel::dismiss) { Text(stringResource(R.string.update_action_cancel), color = colors.textSecondary) }
         else ->
           TextButton(onClick = viewModel::dismiss) {
-            Text("Not now", color = colors.textSecondary)
+            Text(stringResource(R.string.update_action_not_now), color = colors.textSecondary)
           }
       }
     },

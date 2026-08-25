@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.ui.components.EmptyState
@@ -56,11 +58,10 @@ fun MyTasksScreen(tasks: List<TaskEntity>, onOpenTask: (Int) -> Unit, onPostTask
   if (tasks.isEmpty()) {
     EmptyState(
       icon = Icons.AutoMirrored.Filled.Assignment,
-      title = "No tasks yet",
+      title = stringResource(R.string.mytasks_empty_title),
       description =
-        "Anything you post shows up here, with its status and a way to message the helper who " +
-          "takes it on.",
-      actionText = "Post a task",
+        stringResource(R.string.mytasks_empty_body),
+      actionText = stringResource(R.string.mytasks_post_a_task),
       onAction = onPostTask,
       modifier = Modifier.fillMaxSize(),
     )
@@ -79,7 +80,7 @@ fun MyTasksScreen(tasks: List<TaskEntity>, onOpenTask: (Int) -> Unit, onPostTask
 @Composable
 private fun MyTaskCard(task: TaskEntity, onClick: () -> Unit) {
   val colors = FixTheme.colors
-  val title = task.descriptionTitle.ifBlank { "Untitled task" }
+  val title = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) }
 
   FixCard(
     modifier =
@@ -105,12 +106,15 @@ private fun MyTaskCard(task: TaskEntity, onClick: () -> Unit) {
 
       Spacer(Modifier.height(Spacing.md))
 
-      MetaRow(Icons.Default.Schedule, "Posted ${relativeTimeText(task.createdAt)}")
+      MetaRow(
+        Icons.Default.Schedule,
+        stringResource(R.string.mytasks_posted_ago, relativeTimeText(task.createdAt))
+      )
       MetaRow(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null))
       MetaRow(Icons.Default.Payments, budgetText(task.minBudget, task.maxBudget))
 
       if (task.acceptedByHelperId != null) {
-        MetaRow(Icons.AutoMirrored.Filled.Chat, "Tap to message your helper")
+        MetaRow(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.mytasks_tap_to_message))
       }
     }
   }

@@ -39,8 +39,11 @@ for path in sorted(pathlib.Path("app/src/main/java").rglob("*.kt")):
                 j -= 1
             else:
                 break
-        # Walk past the signature first: a parameter list may span many lines, and its closing
-        # `) {` sits at the fun's own indent, which would otherwise look like the end of the body.
+        # Walk past the signature before looking for the end of the body: a parameter list may span
+        # many lines, and its closing `) {` sits at the fun's own indent, which would otherwise look
+        # like the end of the body. The signature itself stays inside the fun's range, so that a
+        # @Composable default argument (`text: String = stringResource(...)`) is still attributed to
+        # the function it belongs to — legal on a composable, an error on a plain one.
         depth = 0
         body_from = i + 1
         for k in range(i, len(lines)):

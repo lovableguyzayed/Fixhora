@@ -434,4 +434,56 @@
     <string name="chat_thread_empty_body">Send the first message about this job.</string>
     <string name="chat_input_hint">Type a message…</string>
     <string name="cd_send_message">Send message</string>
+
+    <!-- Customer: my tasks -->
+    <string name="mytasks_empty_title">No tasks yet</string>
+    <string name="mytasks_empty_body">Anything you post shows up here, with its status and a way to message the helper who takes it on.</string>
+    <string name="mytasks_post_a_task">Post a task</string>
+    <string name="mytasks_posted_ago">Posted %1$s</string>
+    <string name="mytasks_tap_to_message">Tap to message your helper</string>
+    <string name="mytasks_cancel_title">Cancel this task?</string>
+    <string name="mytasks_cancel_body">It stops being visible to helpers. This cannot be undone — you would have to post it again.</string>
+    <string name="mytasks_cancel_confirm">Cancel task</string>
+    <string name="mytasks_cancel_keep">Keep it</string>
+    <string name="cd_back_to_my_tasks">Back to my tasks</string>
+    <string name="mytasks_chat_locked">Messaging opens once a helper takes this task on.</string>
+    <string name="mytasks_chat_empty">No messages yet. Say hello to your helper.</string>
+    <string name="mytasks_chat_hint">Message your helper</string>
+    <string name="mytasks_cancel_action">Cancel this task</string>
+
+    <!-- In-app update -->
+    <string name="update_title_available">Update available</string>
+    <string name="update_title_permission">One permission needed</string>
+    <string name="update_title_downloading">Downloading update</string>
+    <string name="update_title_ready">Ready to install</string>
+    <string name="update_title_current">You are up to date</string>
+    <string name="update_title_failed">Update check failed</string>
+    <string name="update_body_available">Version %1$s is available. You are on %2$s.\n\nDownload size: %3$s. Your account and posted tasks stay as they are.</string>
+    <string name="update_body_permission">Android needs your permission before this app can install its own updates. Turn on \"Allow from this source\" on the next screen, then come back — the download will start on its own.</string>
+    <string name="update_body_starting">Starting download…</string>
+    <string name="update_body_progress">%1$d%% of %2$s</string>
+    <string name="update_body_ready">The installer should be open. If it is not, tap Install below and confirm the system prompt.</string>
+    <string name="update_body_current">%1$s is the newest build published.</string>
+    <string name="update_body_failed_generic">Something went wrong while checking for updates.</string>
+    <string name="update_body_failed_hint">You can always download the APK from the releases page instead.</string>
+    <string name="update_action_now">Update now</string>
+    <string name="update_action_settings">Open settings</string>
+    <string name="update_action_install">Install</string>
+    <string name="update_action_releases">Open releases</string>
+    <string name="update_action_ok">OK</string>
+    <string name="update_action_cancel">Cancel</string>
+    <string name="update_action_not_now">Not now</string>
+
+    <!-- In-app update: why a check could not answer the question -->
+    <string name="update_fail_no_network">No internet connection. Try again once you are back online.</string>
+    <string name="update_fail_rate_limited">GitHub is rate-limiting update checks right now. Try again in an hour.</string>
+    <string name="update_fail_server">Could not reach the update server.</string>
+    <string name="update_fail_malformed">The update server sent something unexpected.</string>
+    <string name="update_fail_no_asset">The latest release has no APK for this build.</string>
+    <string name="update_fail_download">The download did not finish. Check your connection and try again.</string>
+
+    <!-- Customer: bottom navigation, and the shared button loading label -->
+    <string name="customer_tab_post">Post a task</string>
+    <string name="customer_tab_my_tasks">My tasks</string>
+    <string name="action_please_wait">Please wait…</string>
 </resources>

@@ -420,4 +420,56 @@
     <string name="chat_thread_empty_body">इस काम के बारे में पहला संदेश भेजें।</string>
     <string name="chat_input_hint">संदेश लिखें…</string>
     <string name="cd_send_message">संदेश भेजें</string>
+
+    <!-- Customer: my tasks -->
+    <string name="mytasks_empty_title">अभी कोई काम नहीं</string>
+    <string name="mytasks_empty_body">आप जो भी काम डालेंगे वह यहाँ दिखेगा — उसकी स्थिति के साथ, और जो मददगार उसे लेगा उससे बात करने का तरीका भी।</string>
+    <string name="mytasks_post_a_task">काम डालें</string>
+    <string name="mytasks_posted_ago">%1$s डाला गया</string>
+    <string name="mytasks_tap_to_message">मददगार से बात करने के लिए टैप करें</string>
+    <string name="mytasks_cancel_title">यह काम रद्द करें?</string>
+    <string name="mytasks_cancel_body">यह मददगारों को दिखना बंद हो जाएगा। इसे वापस नहीं किया जा सकता — दोबारा डालना पड़ेगा।</string>
+    <string name="mytasks_cancel_confirm">काम रद्द करें</string>
+    <string name="mytasks_cancel_keep">रहने दें</string>
+    <string name="cd_back_to_my_tasks">मेरे काम पर वापस</string>
+    <string name="mytasks_chat_locked">कोई मददगार यह काम लेगा, तभी बातचीत शुरू हो पाएगी।</string>
+    <string name="mytasks_chat_empty">अभी कोई संदेश नहीं। अपने मददगार को नमस्ते कहें।</string>
+    <string name="mytasks_chat_hint">अपने मददगार को संदेश भेजें</string>
+    <string name="mytasks_cancel_action">यह काम रद्द करें</string>
+
+    <!-- In-app update -->
+    <string name="update_title_available">नया अपडेट उपलब्ध</string>
+    <string name="update_title_permission">एक अनुमति चाहिए</string>
+    <string name="update_title_downloading">अपडेट डाउनलोड हो रहा है</string>
+    <string name="update_title_ready">इंस्टॉल के लिए तैयार</string>
+    <string name="update_title_current">आप अप-टू-डेट हैं</string>
+    <string name="update_title_failed">अपडेट जाँच विफल</string>
+    <string name="update_body_available">वर्ज़न %1$s उपलब्ध है। आपके पास %2$s है।\n\nडाउनलोड साइज़: %3$s। आपका अकाउंट और डाले हुए काम जैसे हैं वैसे ही रहेंगे।</string>
+    <string name="update_body_permission">यह ऐप खुद को अपडेट कर सके, इसके लिए Android को आपकी अनुमति चाहिए। अगली स्क्रीन पर \"इस स्रोत से अनुमति दें\" चालू करें और वापस आ जाएँ — डाउनलोड अपने आप शुरू हो जाएगा।</string>
+    <string name="update_body_starting">डाउनलोड शुरू हो रहा है…</string>
+    <string name="update_body_progress">%2$s में से %1$d%%</string>
+    <string name="update_body_ready">इंस्टॉलर खुल जाना चाहिए। अगर नहीं खुला, तो नीचे Install दबाएँ और सिस्टम की पुष्टि स्वीकार करें।</string>
+    <string name="update_body_current">%1$s ही सबसे नया प्रकाशित बिल्ड है।</string>
+    <string name="update_body_failed_generic">अपडेट जाँचते समय कुछ गड़बड़ हो गई।</string>
+    <string name="update_body_failed_hint">आप APK को releases पेज से भी डाउनलोड कर सकते हैं।</string>
+    <string name="update_action_now">अभी अपडेट करें</string>
+    <string name="update_action_settings">सेटिंग्स खोलें</string>
+    <string name="update_action_install">इंस्टॉल करें</string>
+    <string name="update_action_releases">releases खोलें</string>
+    <string name="update_action_ok">ठीक है</string>
+    <string name="update_action_cancel">रद्द करें</string>
+    <string name="update_action_not_now">अभी नहीं</string>
+
+    <!-- In-app update: failure reasons -->
+    <string name="update_fail_no_network">इंटरनेट नहीं है। ऑनलाइन आने पर दोबारा कोशिश करें।</string>
+    <string name="update_fail_rate_limited">GitHub अभी अपडेट जाँच सीमित कर रहा है। एक घंटे बाद कोशिश करें।</string>
+    <string name="update_fail_server">अपडेट सर्वर तक नहीं पहुँच पाए।</string>
+    <string name="update_fail_malformed">अपडेट सर्वर ने कुछ अनपेक्षित भेजा।</string>
+    <string name="update_fail_no_asset">नई रिलीज़ में इस बिल्ड के लिए कोई APK नहीं है।</string>
+    <string name="update_fail_download">डाउनलोड पूरा नहीं हुआ। कनेक्शन जाँचकर दोबारा कोशिश करें।</string>
+
+    <!-- Customer: bottom navigation, and the shared button loading label -->
+    <string name="customer_tab_post">काम डालें</string>
+    <string name="customer_tab_my_tasks">मेरे काम</string>
+    <string name="action_please_wait">कृपया प्रतीक्षा करें…</string>
 </resources>

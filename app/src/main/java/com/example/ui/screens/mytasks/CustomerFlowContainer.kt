@@ -19,15 +19,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.example.R
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.screens.TaskFlowContainer
 import com.example.ui.theme.FixTheme
 
 /** The two things a customer does: ask for something, and keep track of what they asked for. */
-private enum class CustomerTab(val label: String, val icon: ImageVector) {
-  POST("Post a task", Icons.Default.PostAdd),
-  MY_TASKS("My tasks", Icons.AutoMirrored.Filled.Assignment),
+private enum class CustomerTab(@StringRes val labelRes: Int, val icon: ImageVector) {
+  POST(R.string.customer_tab_post, Icons.Default.PostAdd),
+  MY_TASKS(R.string.customer_tab_my_tasks, Icons.AutoMirrored.Filled.Assignment),
 }
 
 /**
@@ -74,7 +77,7 @@ fun CustomerFlowContainer(
             selected = tab == entry,
             onClick = { tab = entry },
             icon = { Icon(entry.icon, contentDescription = null) },
-            label = { Text(entry.label) },
+            label = { Text(stringResource(entry.labelRes)) },
             colors =
               NavigationBarItemDefaults.colors(
                 selectedIconColor = FixTheme.colors.primary,
