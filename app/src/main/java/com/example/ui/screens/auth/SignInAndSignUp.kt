@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
 import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.selection.toggleable
 import com.example.ui.theme.*
 
 @Composable
@@ -45,6 +46,7 @@ fun SignInScreen(
   onMobileLoginClick: () -> Unit,
   onCreateAccountClick: () -> Unit,
   onForgotPasswordClick: () -> Unit,
+  onBack: (() -> Unit)? = null,
 ) {
   val state by viewModel.signIn.collectAsState()
   var passwordVisible by remember { mutableStateOf(false) }
@@ -57,14 +59,9 @@ fun SignInScreen(
     if (state.signedIn) onLoginSuccess()
   }
 
-  Column(
-    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
-  ) {
-    Spacer(modifier = Modifier.height(40.dp))
-    Text(stringResource(R.string.signin_title), fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
-    Spacer(modifier = Modifier.height(8.dp))
-    Text(stringResource(R.string.signin_subtitle), fontSize = 16.sp, color = FixTheme.colors.textSecondary)
-    Spacer(modifier = Modifier.height(32.dp))
+  AuthScreen(onBack = onBack) {
+    AuthHeader(stringResource(R.string.signin_title), stringResource(R.string.signin_subtitle))
+    Spacer(modifier = Modifier.height(Spacing.xxl))
 
     state.formError?.let {
       FormErrorBanner(it.message(context))
@@ -111,14 +108,18 @@ fun SignInScreen(
       },
     )
 
-    Spacer(modifier = Modifier.height(8.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-      TextButton(onClick = onForgotPasswordClick, enabled = !state.isSubmitting) {
-        Text(stringResource(R.string.action_forgot_password), color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
+      // No end padding, so the text lines up with the field edge above it.
+      TextButton(
+        onClick = onForgotPasswordClick,
+        enabled = !state.isSubmitting,
+        contentPadding = PaddingValues(start = Spacing.md, end = 0.dp),
+      ) {
+        Text(stringResource(R.string.action_forgot_password), style = MaterialTheme.typography.titleSmall, color = FixTheme.colors.primary)
       }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(Spacing.lg))
     SubmitButton(
       text = stringResource(R.string.action_sign_in),
       isSubmitting = state.isSubmitting,
@@ -134,26 +135,13 @@ fun SignInScreen(
 
     AlternativeLoginButton(stringResource(R.string.action_continue_with_mobile_otp), onMobileLoginClick, !state.isSubmitting)
 
-    Spacer(modifier = Modifier.height(32.dp))
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.Center,
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Text(stringResource(R.string.signin_no_account), color = FixTheme.colors.textSecondary)
-      Text(
-        stringResource(R.string.action_create_new_account),
-        color = FixTheme.colors.primary,
-        fontWeight = FontWeight.Bold,
-        // Padding sits inside the clickable, so it grows the touch target rather than just the
-        // gap around it. The bare text was about 20dp tall — under half the 48dp minimum.
-        modifier =
-          Modifier.clip(RoundedCornerShape(Radius.sm))
-            .clickable(enabled = !state.isSubmitting, role = Role.Button) { onCreateAccountClick() }
-            .padding(horizontal = Spacing.sm, vertical = 14.dp),
-      )
-    }
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(Spacing.xl))
+    AuthFooterPrompt(
+      prompt = stringResource(R.string.signin_no_account),
+      action = stringResource(R.string.action_create_new_account),
+      onClick = onCreateAccountClick,
+      enabled = !state.isSubmitting,
+    )
   }
 }
 
@@ -177,12 +165,9 @@ fun CreateAccountScreen(
     if (state.registered) onCreateSuccess()
   }
 
-  Column(
-    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
-  ) {
-    Spacer(modifier = Modifier.height(24.dp))
-    Text(stringResource(R.string.signup_title), fontSize = 32.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
-    Spacer(modifier = Modifier.height(24.dp))
+  AuthScreen(onBack = onBack) {
+    AuthHeader(stringResource(R.string.signup_title), stringResource(R.string.signup_subtitle))
+    Spacer(modifier = Modifier.height(Spacing.xxl))
 
     state.formError?.let {
       FormErrorBanner(it.message(context))
@@ -270,22 +255,40 @@ fun CreateAccountScreen(
       visualTransformation = PasswordVisualTransformation(),
     )
 
-    Spacer(modifier = Modifier.height(16.dp))
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Spacer(modifier = Modifier.height(Spacing.sm))
+    // The whole row is the toggle, and the box sits flush with the fields above instead of being
+    // indented by the checkbox's own 48dp touch padding.
+    Row(
+      modifier =
+        Modifier.fillMaxWidth()
+          .clip(RoundedCornerShape(Radius.sm))
+          .toggleable(
+            value = state.agreedToTerms,
+            enabled = !state.isSubmitting,
+            role = Role.Checkbox,
+            onValueChange = viewModel::onSignUpTermsChange,
+          )
+          .heightIn(min = MinTouchTarget),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
       Checkbox(
         checked = state.agreedToTerms,
-        onCheckedChange = viewModel::onSignUpTermsChange,
+        onCheckedChange = null,
         enabled = !state.isSubmitting,
-        colors = CheckboxDefaults.colors(checkedColor = FixTheme.colors.primary),
+        colors =
+          CheckboxDefaults.colors(
+            checkedColor = FixTheme.colors.primary,
+            uncheckedColor = if (state.termsNotAccepted) FixTheme.colors.danger else FixTheme.colors.textSecondary,
+          ),
       )
-      Text(stringResource(R.string.terms_agree), fontSize = 14.sp, color = FixTheme.colors.textPrimary)
+      Spacer(modifier = Modifier.width(Spacing.md))
+      Text(stringResource(R.string.terms_agree), style = MaterialTheme.typography.bodyMedium, color = FixTheme.colors.textPrimary)
     }
     if (state.termsNotAccepted) {
       Text(
         stringResource(R.string.terms_required),
         color = MaterialTheme.colorScheme.error,
-        fontSize = 12.sp,
-        modifier = Modifier.padding(start = 12.dp),
+        style = MaterialTheme.typography.bodySmall,
       )
     }
 
@@ -305,24 +308,13 @@ fun CreateAccountScreen(
 
     AlternativeLoginButton(stringResource(R.string.action_signup_with_otp), onMobileOtpClick, !state.isSubmitting)
 
-    Spacer(modifier = Modifier.height(32.dp))
-    Row(
-      modifier = Modifier.fillMaxWidth(),
-      horizontalArrangement = Arrangement.Center,
-      verticalAlignment = Alignment.CenterVertically,
-    ) {
-      Text(stringResource(R.string.signup_have_account), color = FixTheme.colors.textSecondary)
-      Text(
-        stringResource(R.string.action_sign_in),
-        color = FixTheme.colors.primary,
-        fontWeight = FontWeight.Bold,
-        modifier =
-          Modifier.clip(RoundedCornerShape(Radius.sm))
-            .clickable(enabled = !state.isSubmitting, role = Role.Button) { onBack() }
-            .padding(horizontal = Spacing.sm, vertical = 14.dp),
-      )
-    }
-    Spacer(modifier = Modifier.height(24.dp))
+    Spacer(modifier = Modifier.height(Spacing.xl))
+    AuthFooterPrompt(
+      prompt = stringResource(R.string.signup_have_account),
+      action = stringResource(R.string.action_sign_in),
+      onClick = onBack,
+      enabled = !state.isSubmitting,
+    )
   }
 }
 
@@ -346,6 +338,7 @@ fun AuthTextField(
   supportingText: String? = null,
   visualTransformation: VisualTransformation = VisualTransformation.None,
   trailingIcon: (@Composable () -> Unit)? = null,
+  prefix: String? = null,
 ) {
   Column(modifier = Modifier.fillMaxWidth()) {
     OutlinedTextField(
@@ -354,6 +347,7 @@ fun AuthTextField(
       label = { Text(label) },
       leadingIcon = { Icon(leadingIcon, contentDescription = null) },
       trailingIcon = trailingIcon,
+      prefix = prefix?.let { { Text(it, color = FixTheme.colors.textPrimary) } },
       isError = error != null,
       enabled = enabled,
       singleLine = true,
@@ -365,11 +359,16 @@ fun AuthTextField(
           onDone = { onImeAction() },
         ),
       modifier = Modifier.fillMaxWidth(),
-      shape = RoundedCornerShape(12.dp),
+      shape = RoundedCornerShape(Radius.md),
       colors =
         OutlinedTextFieldDefaults.colors(
           focusedBorderColor = FixTheme.colors.primary,
           unfocusedBorderColor = FixTheme.colors.border,
+          focusedLabelColor = FixTheme.colors.primary,
+          unfocusedLabelColor = FixTheme.colors.textSecondary,
+          focusedLeadingIconColor = FixTheme.colors.primary,
+          unfocusedLeadingIconColor = FixTheme.colors.textSecondary,
+          cursorColor = FixTheme.colors.primary,
         ),
     )
     val helper = error ?: supportingText
@@ -377,8 +376,8 @@ fun AuthTextField(
       Text(
         text = helper,
         color = if (error != null) MaterialTheme.colorScheme.error else FixTheme.colors.textSecondary,
-        fontSize = 12.sp,
-        modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(start = Spacing.lg, top = Spacing.xs),
       )
     }
   }
@@ -418,7 +417,12 @@ fun FormErrorBanner(message: String) {
 fun OrDivider() {
   Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
     HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
-    Text(stringResource(R.string.divider_or), color = FixTheme.colors.textSecondary, modifier = Modifier.padding(horizontal = 8.dp))
+    Text(
+      stringResource(R.string.divider_or),
+      style = MaterialTheme.typography.labelMedium,
+      color = FixTheme.colors.textSecondary,
+      modifier = Modifier.padding(horizontal = Spacing.lg),
+    )
     HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
   }
 }

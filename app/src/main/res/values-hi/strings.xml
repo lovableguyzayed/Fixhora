@@ -12,7 +12,7 @@
     <string name="cd_logo">FixoraX लोगो</string>
     <string name="cd_welcome_illustration">स्वागत चित्र</string>
     <string name="splash_tagline">कुशल कारीगरों को उन लोगों से जोड़ना जिन्हें मदद चाहिए।</string>
-    <string name="welcome_title_prefix">स्वागत है </string>
+    <string name="welcome_headline">मदद लें, मदद करें।</string>
     <string name="welcome_subtitle">आस-पास भरोसेमंद कारीगर ढूंढें, या अपना हुनर दूसरों तक पहुँचाएँ।</string>
     <string name="action_sign_in">साइन इन</string>
     <string name="action_create_account">खाता बनाएँ</string>
@@ -50,6 +50,9 @@
     <string name="field_state">राज्य</string>
     <string name="field_gender_optional">लिंग (वैकल्पिक)</string>
     <string name="field_birth_year_optional">जन्म वर्ष (वैकल्पिक)</string>
+    <string name="gender_male">पुरुष</string>
+    <string name="gender_female">महिला</string>
+    <string name="gender_other">अन्य</string>
     <string name="field_pin_code_optional">पिन कोड (वैकल्पिक)</string>
 
     <!-- Short names for the same fields, as they read inside an error sentence. -->
@@ -73,6 +76,7 @@
 
     <!-- Sign up -->
     <string name="signup_title">अपना खाता बनाएँ</string>
+    <string name="signup_subtitle">शुरू करने में बस एक मिनट लगेगा।</string>
     <string name="password_requirement">कम से कम %1$d अक्षर, जिनमें एक अक्षर और एक अंक हो</string>
     <string name="terms_agree">मैं सेवा शर्तों और गोपनीयता नीति से सहमत हूँ</string>
     <string name="terms_required">आगे बढ़ने के लिए सेवा शर्तें और गोपनीयता नीति स्वीकार करें</string>
@@ -115,6 +119,8 @@
     <string name="action_skip">छोड़ें</string>
     <string name="action_dont_ask_again">दोबारा न पूछें</string>
     <string name="perm_location_title">स्थान</string>
+    <string name="perm_title">अनुमति दें</string>
+    <string name="perm_subtitle">इन्हें चालू करने पर FixoraX सबसे अच्छा काम करता है। अगले चरण में आप तय करें।</string>
     <string name="perm_location_body">आपके आस-पास के कार्य और सहायक दिखाने के लिए, और आपके कार्य का पता भरने के लिए।</string>
     <string name="perm_notifications_title">सूचनाएँ</string>
     <string name="perm_notifications_body">जब कोई आपका कार्य स्वीकार करे या संदेश भेजे, तब आपको बताने के लिए।</string>

@@ -53,6 +53,15 @@ private fun FixColors.toMaterialScheme(isDark: Boolean) =
       onError = onPrimary,
       errorContainer = dangerSurface,
       onErrorContainer = danger,
+      inverseSurface = textPrimary,
+      inverseOnSurface = surface,
+      surfaceDim = surfaceAlt,
+      surfaceBright = surface,
+      surfaceContainerLowest = surface,
+      surfaceContainerLow = surface,
+      surfaceContainer = surface,
+      surfaceContainerHigh = surface,
+      surfaceContainerHighest = surfaceAlt,
     )
   } else {
     lightColorScheme(
@@ -76,8 +85,32 @@ private fun FixColors.toMaterialScheme(isDark: Boolean) =
       onError = onPrimary,
       errorContainer = dangerSurface,
       onErrorContainer = danger,
+      inverseSurface = textPrimary,
+      inverseOnSurface = surface,
+      surfaceDim = surfaceAlt,
+      surfaceBright = surface,
+      surfaceContainerLowest = surface,
+      surfaceContainerLow = surface,
+      surfaceContainer = surface,
+      surfaceContainerHigh = surface,
+      surfaceContainerHighest = surfaceAlt,
     )
   }
+
+/** Whether this preference resolves to the dark theme right now. */
+@Composable
+fun ThemePreference.isDarkTheme(): Boolean =
+  when (this) {
+    ThemePreference.SYSTEM -> isSystemInDarkTheme()
+    ThemePreference.LIGHT -> false
+    ThemePreference.DARK -> true
+  }
+
+/*
+ * The surfaceContainer roles are set explicitly in both schemes. Material 3 draws dialogs, bottom
+ * sheets, menus, the date picker and the default Card from them, and left unset they fall back to
+ * Material's own lavender-grey baseline — off-brand in light mode and purple-tinted in dark.
+ */
 
 /**
  * Applies the Fixhora theme.
@@ -96,12 +129,7 @@ fun MyApplicationTheme(
   themePreference: ThemePreference = ThemePreference.SYSTEM,
   content: @Composable () -> Unit,
 ) {
-  val isDark =
-    when (themePreference) {
-      ThemePreference.SYSTEM -> isSystemInDarkTheme()
-      ThemePreference.LIGHT -> false
-      ThemePreference.DARK -> true
-    }
+  val isDark = themePreference.isDarkTheme()
   val fixColors = if (isDark) DarkFixColors else LightFixColors
 
   CompositionLocalProvider(LocalFixColors provides fixColors) {

@@ -22,7 +22,7 @@
     <string name="cd_logo">FixoraX logo</string>
     <string name="cd_welcome_illustration">Welcome illustration</string>
     <string name="splash_tagline">Connecting skilled workers with people who need help.</string>
-    <string name="welcome_title_prefix">Welcome to </string>
+    <string name="welcome_headline">Get help. Give help.</string>
     <string name="welcome_subtitle">Find trusted local workers or offer your skills to people nearby.</string>
     <string name="action_sign_in">Sign In</string>
     <string name="action_create_account">Create Account</string>
@@ -63,6 +63,9 @@
     <string name="field_state">State</string>
     <string name="field_gender_optional">Gender (Optional)</string>
     <string name="field_birth_year_optional">Birth Year (Optional)</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_other">Other</string>
     <string name="field_pin_code_optional">PIN Code (Optional)</string>
 
     <!-- Short names for the same fields, as they read inside an error sentence. -->
@@ -86,6 +89,7 @@
 
     <!-- Sign up -->
     <string name="signup_title">Create Your Account</string>
+    <string name="signup_subtitle">It only takes a minute to get started.</string>
     <string name="password_requirement">At least %1$d characters, with a letter and a number</string>
     <string name="terms_agree">I agree to the Terms &amp; Privacy Policy</string>
     <string name="terms_required">Please accept the Terms &amp; Privacy Policy to continue</string>
@@ -128,6 +132,8 @@
     <string name="action_skip">Skip</string>
     <string name="action_dont_ask_again">Don\'t ask again</string>
     <string name="perm_location_title">Location</string>
+    <string name="perm_title">Allow access</string>
+    <string name="perm_subtitle">FixoraX works best with these turned on. You choose in the next step.</string>
     <string name="perm_location_body">Used to show tasks and helpers near you, and to fill in your task address.</string>
     <string name="perm_notifications_title">Notifications</string>
     <string name="perm_notifications_body">Used to tell you when someone accepts your task or sends a message.</string>

@@ -152,6 +152,7 @@ private fun AppNavHost(
         onMobileLoginClick = { navController.navigate(Screen.MobileLogin.route) },
         onCreateAccountClick = { navController.navigate(Screen.CreateAccount.createRoute()) },
         onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
+        onBack = { navController.popBackStack() },
       )
     }
 
