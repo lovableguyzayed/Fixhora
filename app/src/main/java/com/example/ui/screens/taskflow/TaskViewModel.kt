@@ -84,6 +84,8 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     fun submitTask() {
         val currentState = _uiState.value
+        // A pending debounced save must not resurrect the draft after it is submitted.
+        saveJob?.cancel()
         viewModelScope.launch {
             try {
                 repository.submitTask(

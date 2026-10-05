@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "tasks")
 data class TaskEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val status: String, // "draft" or "submitted"
+    val status: String, // "draft", "submitted", "accepted", "completed" or "rejected"
     val categoryId: String?,
     val locationQuery: String,
     val useCurrentLocation: Boolean,
@@ -15,5 +15,6 @@ data class TaskEntity(
     val descriptionDetails: String,
     val minBudget: String,
     val maxBudget: String,
-    val photoUris: String // Stored as comma-separated string for simplicity
+    val photoUris: String, // Stored as comma-separated string for simplicity
+    val createdAt: Long = System.currentTimeMillis()
 )

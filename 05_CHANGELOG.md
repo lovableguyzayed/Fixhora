@@ -63,3 +63,17 @@
 **Description:** Complete UI revamp for the Onboarding / Role Selection Screen using Material 3 and custom Compose Canvas graphics.
 **Files Modified:** `RoleSelectionScreen.kt`, `Color.kt`
 **Outcome:** Replaced default styling with the specified flat vector aesthetics, updated primary color palettes, added skyline and cloud background canvases, and introduced the custom split-color Fixhora App Logo rendering logic.
+
+## [WP-012] UI/UX Consistency & Polish Pass
+**Status:** Completed
+**Description:** App-wide pass to remove unprofessional, inconsistent and incomplete UI: a real design system, shared components, fixed alignment/inset bugs, and working versions of controls that previously did nothing.
+**Files Modified:** `ui/theme/*`, `ui/components/*` (new), every screen under `ui/screens/`, `MainActivity.kt`, `TaskEntity.kt`, `TaskDao.kt`, `AppDatabase.kt`, `TaskRepository.kt`, `AndroidManifest.xml`, `res/values/*`, `res/drawable-nodpi/*`.
+**Outcome:**
+- **Design system:** complete Material 3 colour scheme (no baseline purple leaking into cards, chips, sheets, switches), 8pt spacing tokens, typography scale from the design spec, shared shapes. `onSurface` is now navy, so body text is no longer grey by default.
+- **Shared components:** `PrimaryButton`, `SecondaryButton`, `FixhoraTextField` (errors, helper text, counters), `BackButton`, `StepHeader`, `EmptyState`, `StatusChip`, `InfoCard`, `BottomActionBar`, brand logo/wordmark, Google sign-in mark.
+- **Assets:** logo and persona art cropped (they were ~60% transparent padding, which forced `offset(-28.dp)` hacks) and moved to `drawable-nodpi` (5.6 MB → 0.7 MB; avoids 40 MB+ density-scaled bitmaps).
+- **Insets & system bars:** auth screens no longer draw under the status/navigation bars; keyboard pushes forms and the chat composer up (`adjustResize` + `imePadding`); dark system-bar icons forced so the status bar is never white-on-white; helper tabs no longer get a double status-bar gap; floating bottom nav sits above the gesture bar.
+- **Auth:** validation and error states, password visibility, `+91` prefix instead of a misaligned second field, proper 6-box OTP input with auto-advance, Forgot Password steps 2–3 now accept input, chips + date picker for profile, profile photo picker, permissions actually requested.
+- **Role selection:** rebuilt to the design spec (two equal-height cards, 48dp circular CTA, 48dp language selector, spacing per spec).
+- **Task flow:** step labels centred under their circles, centred title, sticky bottom action bar, working distance selector, removed the "Skip" that bypassed the required title and the visible "testing sample photos" button, budget validation, leave-confirmation dialog, richer success screen.
+- **Helper flow:** stats computed from real data, Place Bid/Chat/Mark complete wired up, map filters and search work, attached map markers, chat back handling and empty states, real timestamps, India-localised sample data (DB version bumped to 3, so existing local data is reset once).

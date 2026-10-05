@@ -3,8 +3,10 @@ package com.example.ui.screens
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,7 +29,9 @@ sealed class Screen(val route: String) {
 @Composable
 fun FixhoraApp() {
     val navController = rememberNavController()
-    
+    // Number entered on the mobile login screen, shown again on the OTP screen.
+    var pendingPhoneNumber by rememberSaveable { mutableStateOf("") }
+
     NavHost(navController = navController, startDestination = Screen.Splash.route, modifier = Modifier.fillMaxSize()) {
         composable(Screen.Splash.route) {
             com.example.ui.screens.auth.SplashScreen(
@@ -48,17 +52,22 @@ fun FixhoraApp() {
                 onLoginSuccess = { navController.navigate(Screen.RoleSelection.route) },
                 onMobileLoginClick = { navController.navigate(Screen.MobileLogin.route) },
                 onCreateAccountClick = { navController.navigate(Screen.CreateAccount.route) },
-                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) }
+                onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) },
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.MobileLogin.route) {
             com.example.ui.screens.auth.MobileLoginScreen(
-                onSendOtp = { navController.navigate(Screen.OtpVerification.route) },
+                onSendOtp = { phone ->
+                    pendingPhoneNumber = phone
+                    navController.navigate(Screen.OtpVerification.route)
+                },
                 onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.OtpVerification.route) {
             com.example.ui.screens.auth.OtpVerificationScreen(
+                phoneNumber = pendingPhoneNumber,
                 onVerified = { navController.navigate(Screen.ProfileSetup.route) },
                 onBack = { navController.popBackStack() }
             )

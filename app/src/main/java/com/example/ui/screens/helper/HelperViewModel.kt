@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 
 import kotlinx.coroutines.launch
@@ -40,9 +42,28 @@ class HelperViewModel(
             initialValue = emptyList()
         )
 
+    // Conversation currently open in the Chat tab; shared so any tab can jump into a chat.
+    private val _openChatTaskId = MutableStateFlow<Int?>(null)
+    val openChatTaskId: StateFlow<Int?> = _openChatTaskId.asStateFlow()
+
+    fun openChat(taskId: Int) {
+        _openChatTaskId.value = taskId
+    }
+
+    fun closeChat() {
+        _openChatTaskId.value = null
+    }
+
     fun acceptTask(task: TaskEntity) {
         viewModelScope.launch {
             repository.updateTaskStatus(task, "accepted")
+        }
+    }
+
+    /** A bid keeps the job reserved for this helper until the customer responds. */
+    fun placeBid(task: TaskEntity) {
+        viewModelScope.launch {
+            repository.updateTaskStatus(task, "pending")
         }
     }
 
@@ -51,7 +72,13 @@ class HelperViewModel(
             repository.updateTaskStatus(task, "rejected")
         }
     }
-    
+
+    fun reopenTask(task: TaskEntity) {
+        viewModelScope.launch {
+            repository.updateTaskStatus(task, "submitted")
+        }
+    }
+
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
             repository.updateTaskStatus(task, "completed")

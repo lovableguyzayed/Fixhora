@@ -1,412 +1,337 @@
 package com.example.ui.screens.helper
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.ui.components.EmptyState
+import com.example.ui.components.FixhoraCard
+import com.example.ui.components.IconBadge
+import com.example.ui.components.InitialsAvatar
+import com.example.ui.components.MockPeople
+import com.example.ui.components.SectionTitle
+import com.example.ui.components.Spacing
+import com.example.ui.components.StatusChip
+import com.example.ui.components.greetingForNow
 import com.example.ui.theme.*
+import kotlinx.coroutines.launch
 
-import com.example.data.room.TaskEntity
-import com.example.ui.screens.taskflow.dummyCategories
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerHomeScreen(viewModel: HelperViewModel) {
+fun WorkerHomeScreen(
+    viewModel: HelperViewModel,
+    onSwitchRole: () -> Unit,
+    onOpenChat: (Int) -> Unit,
+    onSeeAllTasks: () -> Unit,
+) {
     val tasks by viewModel.availableTasks.collectAsState()
-    var isOnline by remember { mutableStateOf(true) }
+    val allTasks by viewModel.allTasks.collectAsState()
+    var isOnline by rememberSaveableBoolean(true)
     var isLoading by remember { mutableStateOf(true) }
+    var sheet by remember { mutableStateOf<JobSheet?>(null) }
+    var showProfileMenu by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1500)
+        kotlinx.coroutines.delay(800)
         isLoading = false
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            HelperTopBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(BorderGrey),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Person, contentDescription = "Profile", tint = SecondaryGrey)
+                        Box {
+                            Surface(onClick = { showProfileMenu = true }, shape = CircleShape, color = Color.Transparent) {
+                                InitialsAvatar(name = MockPeople.helperName, size = 40.dp)
+                            }
+                            DropdownMenu(
+                                expanded = showProfileMenu,
+                                onDismissRequest = { showProfileMenu = false },
+                                containerColor = Color.White
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Switch role") },
+                                    leadingIcon = { Icon(Icons.Default.SwapHoriz, contentDescription = null) },
+                                    onClick = {
+                                        showProfileMenu = false
+                                        onSwitchRole()
+                                    }
+                                )
+                            }
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Spacer(modifier = Modifier.width(Spacing.sm))
                         Column {
-                            Text(text = "Good Morning,", fontSize = 12.sp, color = SecondaryGrey)
-                            Text(text = "Alex Worker", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+                            Text(
+                                text = "${greetingForNow()},",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = SecondaryGrey
+                            )
+                            Text(
+                                text = MockPeople.helperName,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = DarkNavy
+                            )
                         }
                     }
                 },
                 actions = {
-                    Surface(
-                        color = if (isOnline) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.clickable { isOnline = !isOnline }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(if (isOnline) Color(0xFF2E7D32) else Color(0xFFD32F2F)))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(if (isOnline) "Online" else "Offline", color = if (isOnline) Color(0xFF2E7D32) else Color(0xFFD32F2F), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
+                    OnlineToggle(isOnline = isOnline, onToggle = { isOnline = !isOnline })
+                    IconButton(onClick = {
+                        scope.launch { snackbarHostState.showSnackbar("You're all caught up — no new notifications") }
+                    }) {
+                        Icon(Icons.Default.NotificationsNone, contentDescription = "Notifications", tint = DarkNavy)
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    IconButton(onClick = { /* Notifications */ }) {
-                        BadgedBox(badge = { Badge { Text("2") } }) {
-                            Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = DarkNavy)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                }
             )
         },
-        containerColor = Color(0xFFF8F9FA)
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MutedBackground
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            contentPadding = PaddingValues(Spacing.md),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
-            item {
-                PerformanceOverviewCard()
-            }
+            item { PerformanceOverviewCard() }
 
             item {
-                Text(
-                    text = "Today's Summary",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkNavy
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    item { SummaryCard("Today's Tasks", "3", Icons.Default.Assignment, Color(0xFFE3F2FD), BluePrimary) }
-                    item { SummaryCard("Completed", "1", Icons.Default.CheckCircle, Color(0xFFE8F5E9), Color(0xFF2E7D32)) }
-                    item { SummaryCard("Pending", "2", Icons.Default.PendingActions, Color(0xFFFFF3E0), OrangeSecondary) }
-                    item { SummaryCard("Proposed", "5", Icons.Default.LocalOffer, Color(0xFFF3E5F5), Color(0xFF8E24AA)) }
-                    item { SummaryCard("Missed", "0", Icons.Default.Cancel, Color(0xFFFFEBEE), Color(0xFFD32F2F)) }
-                }
-            }
-
-            item {
-                Text(
-                    text = "Available Nearby Jobs",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkNavy
-                )
-            }
-
-            if (isLoading) {
-                items(3) {
-                    JobCardSkeleton()
-                }
-            } else if (tasks.isEmpty()) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SearchOff,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = SecondaryGrey.copy(alpha = 0.3f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "No nearby jobs available at the moment.",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = SecondaryGrey
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedButton(
-                            onClick = { /* Refresh */ },
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Refresh", fontWeight = FontWeight.Bold)
-                        }
+                SectionTitle("Today's summary")
+                Spacer(modifier = Modifier.height(Spacing.sm))
+                // 2 x 2 grid: every card fully visible, equal widths, no clipped carousel edge.
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                        SummaryCard("New requests", allTasks.count { it.status == "submitted" }, Icons.Default.NewReleases, SuccessGreen, Modifier.weight(1f))
+                        SummaryCard("Bids sent", allTasks.count { it.status == "pending" }, Icons.Default.LocalOffer, WarningAmber, Modifier.weight(1f))
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                        SummaryCard("Active jobs", allTasks.count { it.status == "accepted" }, Icons.AutoMirrored.Filled.Assignment, BluePrimary, Modifier.weight(1f))
+                        SummaryCard("Completed", allTasks.count { it.status == "completed" }, Icons.Default.CheckCircle, SecondaryGrey, Modifier.weight(1f))
                     }
                 }
-            } else {
-                items(tasks) { task ->
+            }
+
+            item {
+                SectionTitle(
+                    text = "Nearby jobs",
+                    modifier = Modifier.padding(top = Spacing.xs),
+                    trailing = {
+                        TextButton(onClick = onSeeAllTasks, contentPadding = PaddingValues(horizontal = Spacing.xs)) {
+                            Text("See all", style = MaterialTheme.typography.titleSmall, color = BluePrimary)
+                        }
+                    }
+                )
+            }
+
+            when {
+                !isOnline -> item {
+                    EmptyState(
+                        icon = Icons.Default.PowerSettingsNew,
+                        title = "You're offline",
+                        message = "Go online to start receiving job requests near you.",
+                        actionLabel = "Go online",
+                        onAction = { isOnline = true }
+                    )
+                }
+                isLoading -> items(3) { JobCardSkeleton() }
+                tasks.isEmpty() -> item {
+                    EmptyState(
+                        icon = Icons.Default.SearchOff,
+                        title = "No jobs nearby right now",
+                        message = "New requests will show up here as soon as customers post them."
+                    )
+                }
+                else -> items(tasks, key = { it.id }) { task ->
                     WorkerJobCard(
-                        task = task, 
-                        onSubmitProposalClick = { /* Handle Proposal */ },
+                        task = task,
+                        onClick = { sheet = JobSheet.Details(task) },
+                        onPlaceBidClick = { sheet = JobSheet.Bid(task) },
                         onAccept = { viewModel.acceptTask(task) }
                     )
                 }
             }
         }
     }
+
+    JobSheetHost(sheet = sheet, onSheetChange = { sheet = it }, viewModel = viewModel, onOpenChat = onOpenChat)
 }
 
 @Composable
-fun SummaryCard(title: String, count: String, icon: ImageVector, bgColor: Color, iconColor: Color) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.width(120.dp)
+private fun rememberSaveableBoolean(initial: Boolean) =
+    androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(initial) }
+
+@Composable
+private fun OnlineToggle(isOnline: Boolean, onToggle: () -> Unit) {
+    val color = if (isOnline) SuccessGreen else SecondaryGrey
+    Surface(
+        onClick = onToggle,
+        color = color.copy(alpha = 0.1f),
+        shape = RoundedCornerShape(50)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = count, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = title, fontSize = 12.sp, color = DarkNavy.copy(alpha = 0.7f))
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.sm, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                if (isOnline) "Online" else "Offline",
+                color = color,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
+fun SummaryCard(title: String, count: Int, icon: ImageVector, tint: Color, modifier: Modifier = Modifier) {
+    FixhoraCard(modifier = modifier) {
+        Row(modifier = Modifier.padding(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
+            IconBadge(icon = icon, tint = tint, size = 40.dp, iconSize = 22.dp)
+            Spacer(modifier = Modifier.width(Spacing.sm))
+            Column {
+                Text(text = count.toString(), style = MaterialTheme.typography.titleLarge, color = DarkNavy)
+                Text(text = title, style = MaterialTheme.typography.bodySmall, color = SecondaryGrey, maxLines = 1)
+            }
         }
     }
 }
 
 @Composable
 fun PerformanceOverviewCard() {
-    Card(
+    Surface(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkNavy),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        color = Color.Transparent,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(
+            modifier = Modifier
+                .background(Brush.linearGradient(listOf(DarkNavy, Color(0xFF16326B))))
+                .padding(Spacing.lg)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Performance Overview", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("4.9", color = Color.White, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("This week", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.65f))
+                    Text("Performance overview", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                }
+                Surface(color = Color.White.copy(alpha = 0.12f), shape = RoundedCornerShape(50)) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Star, contentDescription = null, tint = RatingGold, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("4.9", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                PerformanceStat("Today's Earnings", "₹1,250")
-                PerformanceStat("Jobs Completed", "142")
-                PerformanceStat("Response Time", "< 5m")
+            Spacer(modifier = Modifier.height(Spacing.lg))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                PerformanceStat("Earnings", "₹8,450", Modifier.weight(1f))
+                PerformanceStat("Jobs done", "142", Modifier.weight(1f))
+                PerformanceStat("Avg. response", "< 5 min", Modifier.weight(1f))
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            Divider(color = Color.White.copy(alpha = 0.1f))
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                ProgressStat("Acceptance", 0.95f, "95%")
-                ProgressStat("Completion", 0.98f, "98%")
-                ProgressStat("Satisfaction", 0.96f, "96%")
+            HorizontalDivider(color = Color.White.copy(alpha = 0.12f), modifier = Modifier.padding(vertical = Spacing.md))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                ProgressStat("Acceptance", 0.95f, Modifier.weight(1f))
+                ProgressStat("Completion", 0.98f, Modifier.weight(1f))
+                ProgressStat("Satisfaction", 0.96f, Modifier.weight(1f))
             }
         }
     }
 }
 
 @Composable
-fun PerformanceStat(label: String, value: String) {
-    Column {
-        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, fontSize = 12.sp, color = Color.White.copy(alpha = 0.6f))
+private fun PerformanceStat(label: String, value: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = value, style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 1)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.65f), maxLines = 1)
     }
 }
 
 @Composable
-fun ProgressStat(label: String, progress: Float, percentage: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun ProgressStat(label: String, progress: Float, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Box(contentAlignment = Alignment.Center) {
             CircularProgressIndicator(
-                progress = { 1f },
-                color = Color.White.copy(alpha = 0.1f),
-                modifier = Modifier.size(48.dp),
-                strokeWidth = 4.dp
-            )
-            CircularProgressIndicator(
                 progress = { progress },
-                color = BluePrimary,
-                modifier = Modifier.size(48.dp),
-                strokeWidth = 4.dp
+                color = Color(0xFF6EA0FF),
+                trackColor = Color.White.copy(alpha = 0.12f),
+                strokeWidth = 4.dp,
+                modifier = Modifier.size(52.dp)
             )
-            Text(text = percentage, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "${(progress * 100).toInt()}%",
+                color = Color.White,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = label, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+        Spacer(modifier = Modifier.height(Spacing.xs))
+        Text(text = label, color = Color.White.copy(alpha = 0.65f), style = MaterialTheme.typography.bodySmall)
     }
 }
 
 @Composable
 fun JobCardSkeleton() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.LightGray.copy(alpha = 0.5f)))
-                Spacer(modifier = Modifier.width(12.dp))
+    val shimmer = BorderGrey.copy(alpha = 0.7f)
+    FixhoraCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(shimmer))
+                Spacer(modifier = Modifier.width(Spacing.sm))
                 Column {
-                    Box(modifier = Modifier.height(16.dp).width(120.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.height(12.dp).width(80.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
+                    SkeletonLine(width = 120.dp, height = 14.dp, color = shimmer)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    SkeletonLine(width = 80.dp, height = 10.dp, color = shimmer)
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = Modifier.height(20.dp).fillMaxWidth(0.8f).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(modifier = Modifier.height(14.dp).fillMaxWidth().background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
+            Spacer(modifier = Modifier.height(Spacing.md))
+            SkeletonLine(fraction = 0.75f, height = 16.dp, color = shimmer)
+            Spacer(modifier = Modifier.height(Spacing.xs))
+            SkeletonLine(fraction = 1f, height = 12.dp, color = shimmer)
             Spacer(modifier = Modifier.height(4.dp))
-            Box(modifier = Modifier.height(14.dp).fillMaxWidth(0.6f).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Box(modifier = Modifier.height(14.dp).width(100.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-                Box(modifier = Modifier.height(14.dp).width(60.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderGrey)
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(modifier = Modifier.weight(1f).height(48.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp)))
-                Box(modifier = Modifier.weight(1f).height(48.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp)))
+            SkeletonLine(fraction = 0.6f, height = 12.dp, color = shimmer)
+            HorizontalDivider(color = DividerGrey, modifier = Modifier.padding(vertical = Spacing.sm))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                SkeletonLine(width = 96.dp, height = 18.dp, color = shimmer)
+                Spacer(modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.size(64.dp, 40.dp).clip(RoundedCornerShape(10.dp)).background(shimmer))
+                Spacer(modifier = Modifier.width(Spacing.xs))
+                Box(modifier = Modifier.size(80.dp, 40.dp).clip(RoundedCornerShape(10.dp)).background(shimmer))
             }
         }
     }
 }
 
 @Composable
-fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept: () -> Unit) {
-    val category = dummyCategories.find { it.id == task.categoryId } ?: dummyCategories.first()
-    
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape).background(BorderGrey),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(24.dp))
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer Name", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(Icons.Default.Verified, contentDescription = "Verified", tint = BluePrimary, modifier = Modifier.size(14.dp))
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("4.8", fontSize = 12.sp, color = SecondaryGrey)
-                            Text(" • 10 mins ago", fontSize = 12.sp, color = SecondaryGrey)
-                        }
-                    }
-                }
-                Surface(
-                    color = Color(0xFFE3F2FD),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Available", color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = task.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = DarkNavy
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task." },
-                color = SecondaryGrey,
-                fontSize = 14.sp,
-                maxLines = 2
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (task.useCurrentLocation) "2.5 km away" else task.locationQuery.ifEmpty { "Not specified" }, color = SecondaryGrey, fontSize = 13.sp)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.AccessTime, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Urgent", color = OrangeSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            val budgetText = if (task.minBudget.isNotBlank() && task.maxBudget.isNotBlank()) "₹${task.minBudget} - ₹${task.maxBudget}" else if (task.minBudget.isNotBlank()) "Min ₹${task.minBudget}" else if (task.maxBudget.isNotBlank()) "Max ₹${task.maxBudget}" else "Budget Negotiable"
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = DarkNavy, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(budgetText, color = DarkNavy, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderGrey)
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = onSubmitProposalClick,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary)
-                ) {
-                    Text("Place Bid", fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                ) {
-                    Text("Accept Job", fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
+private fun SkeletonLine(color: Color, height: androidx.compose.ui.unit.Dp, width: androidx.compose.ui.unit.Dp? = null, fraction: Float = 1f) {
+    Box(
+        modifier = (if (width != null) Modifier.width(width) else Modifier.fillMaxWidth(fraction))
+            .height(height)
+            .clip(RoundedCornerShape(4.dp))
+            .background(color)
+    )
 }
