@@ -15,4 +15,15 @@
 .cxx
 local.properties
 .env
+
+# Signing keys never belong in the repository. The release key lives in GitHub Secrets; losing or
+# leaking it means the app can never be updated again under this application id.
+*.jks
+*.keystore
 debug.keystore
+
+# The one exception: the debug key is deliberately committed. A debug key is not a secret —
+# Android's own default debug key is public with the password "android" — and Play Store will not
+# accept anything signed with it. Committing it is what makes debug APKs update each other across
+# machines and CI runs instead of each build refusing to replace the last.
+!keystore/fixhora-debug.jks

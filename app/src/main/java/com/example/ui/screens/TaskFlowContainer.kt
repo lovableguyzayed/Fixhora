@@ -1,83 +1,158 @@
 package com.example.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.FixhoraApplication
-import com.example.ui.components.BackButton
-import com.example.ui.components.PrimaryButton
-import com.example.ui.components.SecondaryButton
-import com.example.ui.components.Spacing
+import com.example.R
 import com.example.ui.screens.taskflow.*
-import com.example.ui.theme.*
+import com.example.ui.theme.FixTheme
 
-sealed class TaskScreen(val route: String, val index: Int, val title: String) {
-    object Category : TaskScreen("category", 1, "Category")
-    object Location : TaskScreen("location", 2, "Location")
-    object Details : TaskScreen("details", 3, "Details")
-    object Review : TaskScreen("review", 4, "Review")
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ui.screens.taskflow.TaskViewModel
+import com.example.FixhoraApplication
+
+sealed class TaskScreen(val route: String, val index: Int, @StringRes val titleRes: Int) {
+    object Category : TaskScreen("category", 1, R.string.step_details)
+    object Location : TaskScreen("location", 2, R.string.step_location)
+    object Photos : TaskScreen("photos", 3, R.string.step_photos)
+    object Review : TaskScreen("review", 4, R.string.step_review)
 }
 
-val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Details, TaskScreen.Review)
-
-private const val SuccessRoute = "success"
+val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Photos, TaskScreen.Review)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskFlowContainer(onBackToRoles: () -> Unit) {
+fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentScreen = taskScreens.find { it.route == currentRoute } ?: TaskScreen.Category
-    val isSuccess = currentRoute == SuccessRoute
-
+    
     val application = LocalContext.current.applicationContext as FixhoraApplication
     val viewModel: TaskViewModel = viewModel(
-        factory = TaskViewModel.Factory(application.taskRepository)
+        factory = TaskViewModel.Factory(
+            application.taskRepository,
+            application.sessionManager,
+            application.taskPhotoStore,
+            application.locationProvider
+        )
     )
-    val draft by viewModel.uiState.collectAsState()
-    var showLeaveDialog by remember { mutableStateOf(false) }
 
-    // Leaving from the first step: confirm if the user has already started a task.
-    val leaveFlow = {
-        if (draft.categoryId != null || draft.descriptionTitle.isNotBlank()) showLeaveDialog = true else onBackToRoles()
+    var showDiscardDialog by remember { mutableStateOf(false) }
+
+    // Leaving the flow with work in progress is the one place a user can silently lose everything
+    // they typed, so it asks first. With an empty form there is nothing to warn about.
+    fun attemptLeaveFlow() {
+        if (currentRoute == "success") {
+            onBackToRoles()
+        } else if (viewModel.hasUnsavedContent()) {
+            showDiscardDialog = true
+        } else {
+            onBackToRoles()
+        }
     }
-    val onBack: () -> Unit = {
-        if (navController.previousBackStackEntry != null) navController.popBackStack() else leaveFlow()
+
+    fun goBack() {
+        if (navController.previousBackStackEntry != null) {
+            navController.popBackStack()
+        } else {
+            attemptLeaveFlow()
+        }
     }
-    BackHandler(enabled = !isSuccess && currentScreen == TaskScreen.Category) { leaveFlow() }
+
+    BackHandler(enabled = currentRoute != "success") { goBack() }
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text(stringResource(R.string.discard_title)) },
+            text = {
+                Text(stringResource(R.string.discard_body))
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDiscardDialog = false
+                    viewModel.discardDraft()
+                    onBackToRoles()
+                }) {
+                    Text(stringResource(R.string.action_discard), color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text(stringResource(R.string.action_keep_editing), color = FixTheme.colors.primary)
+                }
+            }
+        )
+    }
 
     Scaffold(
-        containerColor = Color.White,
         topBar = {
-            if (!isSuccess) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text("Post a Task", style = MaterialTheme.typography.titleMedium, color = DarkNavy)
+            if (currentRoute != "success") {
+                TopAppBar(
+                    title = { 
+                        Text(
+                            stringResource(R.string.flow_i_need_help), 
+                            modifier = Modifier.fillMaxWidth(), 
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            fontWeight = FontWeight.SemiBold
+                        ) 
                     },
-                    navigationIcon = { BackButton(onClick = onBack, modifier = Modifier.padding(start = Spacing.xxs)) },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
+                    navigationIcon = {
+                        IconButton(onClick = { goBack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                contentDescription = stringResource(R.string.cd_back),
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(8.dp)
+                            )
+                        }
+                    },
+                    actions = {
+                        // The stringResource(R.string.action_skip) action that used to sit on the Photos step is gone: that
+                        // screen also holds the task title, which is required, so skipping it
+                        // walked straight past the validation and posted an untitled task.
+                        if (currentScreen == TaskScreen.Review) {
+                            TextButton(onClick = {
+                                // Return to the first step, keeping the steps in between so the
+                                // user can walk forward again. The previous version popped the
+                                // whole flow inclusively and rebuilt it from scratch.
+                                navController.popBackStack(TaskScreen.Category.route, inclusive = false)
+                            }) {
+                                Text(
+                                    text = stringResource(R.string.action_edit),
+                                    color = FixTheme.colors.primary,
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 16.sp
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
                 )
             }
         }
@@ -86,239 +161,138 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .consumeWindowInsets(innerPadding)
-                .imePadding()
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            if (!isSuccess) {
+            // Progress Bar indicator
+            if (currentRoute != "success") {
                 StepProgressBar(currentStep = currentScreen.index)
             }
-
+            
             Box(modifier = Modifier.weight(1f)) {
                 NavHost(navController = navController, startDestination = TaskScreen.Category.route) {
                     composable(TaskScreen.Category.route) {
                         TaskCategoryScreen(onNext = { navController.navigate(TaskScreen.Location.route) }, viewModel)
                     }
                     composable(TaskScreen.Location.route) {
-                        TaskLocationScreen(onNext = { navController.navigate(TaskScreen.Details.route) }, viewModel)
+                        TaskLocationScreen(onNext = { navController.navigate(TaskScreen.Photos.route) }, viewModel)
                     }
-                    composable(TaskScreen.Details.route) {
+                    composable(TaskScreen.Photos.route) {
                         TaskPhotosScreen(onNext = { navController.navigate(TaskScreen.Review.route) }, viewModel)
                     }
                     composable(TaskScreen.Review.route) {
                         TaskReviewScreen(
-                            onSubmit = {
-                                navController.navigate(SuccessRoute) { popUpTo(TaskScreen.Category.route) { inclusive = true } }
+                            onSubmit = { 
+                                navController.navigate("success") { popUpTo(TaskScreen.Category.route) { inclusive = true } }
                             },
-                            // Jump back to an earlier step; the steps after it are re-entered with Continue.
-                            onNavigateToStep = { route -> navController.popBackStack(route, inclusive = false) },
+                            onNavigateToStep = { route ->
+                                navController.navigate(route) {
+                                    popUpTo(route) { inclusive = true }
+                                }
+                            },
                             viewModel = viewModel
                         )
                     }
-                    composable(SuccessRoute) {
-                        TaskPostedScreen(
-                            onDone = onBackToRoles,
-                            onPostAnother = {
-                                navController.navigate(TaskScreen.Category.route) {
-                                    popUpTo(SuccessRoute) { inclusive = true }
-                                }
+                    composable("success") {
+                        Column(
+                            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier.size(80.dp).clip(CircleShape).background(FixTheme.colors.successSurface),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.success, modifier = Modifier.size(40.dp))
                             }
-                        )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(stringResource(R.string.success_title), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            // The old copy promised "you will be notified once someone accepts your
+                            // task". There are no notifications in this app, so that was a promise
+                            // it could not keep. Checking back is what actually works.
+                            Text(
+                                stringResource(R.string.success_body),
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(48.dp))
+                            Button(
+                                onClick = onTaskPosted,
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
+                            ) {
+                                Text(stringResource(R.string.success_view_tasks), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            TextButton(onClick = onBackToRoles, modifier = Modifier.fillMaxWidth()) {
+                                Text(stringResource(R.string.success_back_home), color = FixTheme.colors.textSecondary)
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
-    if (showLeaveDialog) {
-        AlertDialog(
-            onDismissRequest = { showLeaveDialog = false },
-            containerColor = Color.White,
-            title = { Text("Leave task posting?", style = MaterialTheme.typography.titleLarge, color = DarkNavy) },
-            text = {
-                Text(
-                    "Your draft is saved. You can pick up where you left off next time.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = SecondaryGrey
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showLeaveDialog = false
-                    onBackToRoles()
-                }) { Text("Leave", color = BluePrimary, fontWeight = FontWeight.SemiBold) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLeaveDialog = false }) { Text("Keep editing", color = SecondaryGrey) }
-            }
-        )
-    }
 }
 
-/**
- * Four evenly spaced steps. Each step owns an equal slice of the width, so the circle and
- * its label are always centred on the same axis and the connector runs through the circles.
- */
 @Composable
-fun StepProgressBar(currentStep: Int, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = Spacing.xs, vertical = Spacing.sm)
-    ) {
-        taskScreens.forEachIndexed { index, screen ->
-            val step = index + 1
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    StepConnector(
-                        visible = index > 0,
-                        active = step <= currentStep,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StepCircle(step = step, currentStep = currentStep)
-                    StepConnector(
-                        visible = index < taskScreens.lastIndex,
-                        active = step < currentStep,
-                        modifier = Modifier.weight(1f)
+fun StepProgressBar(currentStep: Int) {
+    val totalSteps = 4
+    
+    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            for (i in 1..totalSteps) {
+                // Step Circle
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(if (i <= currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (i < currentStep) {
+                        Icon(Icons.Default.Check, contentDescription = null, tint = FixTheme.colors.onPrimary, modifier = Modifier.size(18.dp))
+                    } else {
+                        Text(
+                            text = i.toString(),
+                            color = if (i == currentStep) FixTheme.colors.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                
+                // Line
+                if (i < totalSteps) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(2.dp)
+                            .background(if (i < currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = screen.title,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (step == currentStep) FontWeight.SemiBold else FontWeight.Medium,
-                    color = when {
-                        step == currentStep -> BluePrimary
-                        step < currentStep -> DarkNavy
-                        else -> HintGrey
-                    },
-                    textAlign = TextAlign.Center,
-                    maxLines = 1
-                )
             }
         }
-    }
-}
-
-@Composable
-private fun StepConnector(visible: Boolean, active: Boolean, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(2.dp)
-            .background(
-                when {
-                    !visible -> Color.Transparent
-                    active -> BluePrimary
-                    else -> BorderGrey
-                }
-            )
-    )
-}
-
-@Composable
-private fun StepCircle(step: Int, currentStep: Int) {
-    val isDone = step < currentStep
-    val isCurrent = step == currentStep
-    Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(if (isCurrent) BlueContainer else Color.Transparent),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(26.dp)
-                .clip(CircleShape)
-                .background(if (isDone || isCurrent) BluePrimary else Color.White)
-                .border(1.dp, if (isDone || isCurrent) BluePrimary else BorderGrey, CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            if (isDone) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-            } else {
-                Text(
-                    text = step.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCurrent) Color.White else HintGrey
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun TaskPostedScreen(onDone: () -> Unit, onPostAnother: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.screen, vertical = Spacing.lg),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(Spacing.xxl))
-        Box(
-            modifier = Modifier
-                .size(112.dp)
-                .clip(CircleShape)
-                .background(SuccessContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(SuccessGreen),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(Spacing.lg))
-        Text("Task posted!", style = MaterialTheme.typography.headlineSmall, color = DarkNavy)
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        Text(
-            "We're notifying helpers near you. You'll be alerted as soon as someone sends an offer.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = SecondaryGrey,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(Spacing.xl))
-        Surface(
-            shape = MaterialTheme.shapes.large,
-            color = MutedBackground,
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Labels
+        Row(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(Spacing.md), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                Text("What happens next", style = MaterialTheme.typography.titleSmall, color = DarkNavy)
-                NextStepRow(1, "Nearby helpers review your task")
-                NextStepRow(2, "Compare offers and chat with helpers")
-                NextStepRow(3, "Pick the best helper and get it done")
+            taskScreens.forEachIndexed { index, screen ->
+                Text(
+                    text = stringResource(screen.titleRes),
+                    fontSize = 12.sp,
+                    color = if (index + 1 <= currentStep) FixTheme.colors.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
-
-        Spacer(modifier = Modifier.height(Spacing.xl))
-        PrimaryButton(text = "Back to Home", onClick = onDone)
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        SecondaryButton(text = "Post Another Task", onClick = onPostAnother)
-    }
-}
-
-@Composable
-private fun NextStepRow(number: Int, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(24.dp)
-                .clip(CircleShape)
-                .background(BluePrimary.copy(alpha = 0.1f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(number.toString(), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = BluePrimary)
-        }
-        Spacer(modifier = Modifier.width(Spacing.sm))
-        Text(text, style = MaterialTheme.typography.bodyMedium, color = DarkNavy)
     }
 }

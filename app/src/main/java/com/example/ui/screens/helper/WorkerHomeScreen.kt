@@ -3,335 +3,406 @@ package com.example.ui.screens.helper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.R
+import com.example.ui.format.budgetText
+import com.example.ui.format.taskLocationText
+import com.example.ui.format.posterText
+import com.example.ui.format.relativeTimeText
+import com.example.data.room.TaskEntity
 import com.example.ui.components.EmptyState
-import com.example.ui.components.FixhoraCard
-import com.example.ui.components.IconBadge
-import com.example.ui.components.InitialsAvatar
-import com.example.ui.components.MockPeople
-import com.example.ui.components.SectionTitle
-import com.example.ui.components.Spacing
-import com.example.ui.components.StatusChip
-import com.example.ui.components.greetingForNow
+import com.example.ui.components.SectionHeader
+import com.example.ui.components.SkeletonBox
+import com.example.ui.components.StatusBadge
+import com.example.ui.components.StatusTone
+import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
-import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerHomeScreen(
-    viewModel: HelperViewModel,
-    onSwitchRole: () -> Unit,
-    onOpenChat: (Int) -> Unit,
-    onSeeAllTasks: () -> Unit,
-) {
+fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     val tasks by viewModel.availableTasks.collectAsState()
-    val allTasks by viewModel.allTasks.collectAsState()
-    var isOnline by rememberSaveableBoolean(true)
+    val stats by viewModel.stats.collectAsState()
+    val ownerNames by viewModel.ownerNames.collectAsState()
     var isLoading by remember { mutableStateOf(true) }
-    var sheet by remember { mutableStateOf<JobSheet?>(null) }
-    var showProfileMenu by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(800)
+        kotlinx.coroutines.delay(600)
         isLoading = false
     }
 
     Scaffold(
         topBar = {
-            HelperTopBar(
+            TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box {
-                            Surface(onClick = { showProfileMenu = true }, shape = CircleShape, color = Color.Transparent) {
-                                InitialsAvatar(name = MockPeople.helperName, size = 40.dp)
-                            }
-                            DropdownMenu(
-                                expanded = showProfileMenu,
-                                onDismissRequest = { showProfileMenu = false },
-                                containerColor = Color.White
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Switch role") },
-                                    leadingIcon = { Icon(Icons.Default.SwapHoriz, contentDescription = null) },
-                                    onClick = {
-                                        showProfileMenu = false
-                                        onSwitchRole()
-                                    }
+                    Column {
+                        Text(
+                            text = stringResource(R.string.worker_home_title),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = FixTheme.colors.textPrimary
+                        )
+                        Text(
+                            text = if (stats.activeNow > 0) {
+                                pluralStringResource(
+                                    R.plurals.jobs_in_progress,
+                                    stats.activeNow,
+                                    stats.activeNow
                                 )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(Spacing.sm))
-                        Column {
-                            Text(
-                                text = "${greetingForNow()},",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = SecondaryGrey
-                            )
-                            Text(
-                                text = MockPeople.helperName,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = DarkNavy
-                            )
-                        }
+                            } else {
+                                stringResource(R.string.worker_no_jobs_in_progress)
+                            },
+                            fontSize = 12.sp,
+                            color = FixTheme.colors.textSecondary
+                        )
                     }
                 },
-                actions = {
-                    OnlineToggle(isOnline = isOnline, onToggle = { isOnline = !isOnline })
-                    IconButton(onClick = {
-                        scope.launch { snackbarHostState.showSnackbar("You're all caught up — no new notifications") }
-                    }) {
-                        Icon(Icons.Default.NotificationsNone, contentDescription = "Notifications", tint = DarkNavy)
-                    }
-                }
+                // The greeting with a hardcoded "Alex Worker", the online/offline pill that changed
+                // nothing, and the notification bell with a "2" badge are all gone: none of them
+                // was connected to anything.
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MutedBackground
+        containerColor = FixTheme.colors.surfaceAlt
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(Spacing.md),
-            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            item { PerformanceOverviewCard() }
+            item { WorkSummaryCard(stats) }
 
             item {
-                SectionTitle("Today's summary")
-                Spacer(modifier = Modifier.height(Spacing.sm))
-                // 2 x 2 grid: every card fully visible, equal widths, no clipped carousel edge.
-                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                        SummaryCard("New requests", allTasks.count { it.status == "submitted" }, Icons.Default.NewReleases, SuccessGreen, Modifier.weight(1f))
-                        SummaryCard("Bids sent", allTasks.count { it.status == "pending" }, Icons.Default.LocalOffer, WarningAmber, Modifier.weight(1f))
+                SectionHeader(title = stringResource(R.string.worker_pipeline))
+                Spacer(modifier = Modifier.height(12.dp))
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    item {
+                        SummaryCard(stringResource(R.string.worker_stat_open_nearby), stats.availableNow, Icons.Default.Search,
+                            FixTheme.colors.infoSurface, FixTheme.colors.info)
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                        SummaryCard("Active jobs", allTasks.count { it.status == "accepted" }, Icons.AutoMirrored.Filled.Assignment, BluePrimary, Modifier.weight(1f))
-                        SummaryCard("Completed", allTasks.count { it.status == "completed" }, Icons.Default.CheckCircle, SecondaryGrey, Modifier.weight(1f))
+                    item {
+                        SummaryCard(stringResource(R.string.worker_stat_accepted), stats.accepted, Icons.AutoMirrored.Filled.Assignment,
+                            FixTheme.colors.warningSurface, FixTheme.colors.warning)
+                    }
+                    item {
+                        SummaryCard(stringResource(R.string.worker_stat_in_progress), stats.inProgress, Icons.Default.PendingActions,
+                            FixTheme.colors.warningSurface, FixTheme.colors.warning)
+                    }
+                    item {
+                        SummaryCard(stringResource(R.string.worker_stat_completed), stats.completed, Icons.Default.CheckCircle,
+                            FixTheme.colors.successSurface, FixTheme.colors.success)
+                    }
+                    item {
+                        SummaryCard(stringResource(R.string.worker_stat_declined), stats.declined, Icons.Default.Cancel,
+                            FixTheme.colors.dangerSurface, FixTheme.colors.danger)
                     }
                 }
             }
 
-            item {
-                SectionTitle(
-                    text = "Nearby jobs",
-                    modifier = Modifier.padding(top = Spacing.xs),
-                    trailing = {
-                        TextButton(onClick = onSeeAllTasks, contentPadding = PaddingValues(horizontal = Spacing.xs)) {
-                            Text("See all", style = MaterialTheme.typography.titleSmall, color = BluePrimary)
-                        }
-                    }
-                )
-            }
+            item { SectionHeader(title = stringResource(R.string.worker_available_jobs)) }
 
-            when {
-                !isOnline -> item {
-                    EmptyState(
-                        icon = Icons.Default.PowerSettingsNew,
-                        title = "You're offline",
-                        message = "Go online to start receiving job requests near you.",
-                        actionLabel = "Go online",
-                        onAction = { isOnline = true }
-                    )
-                }
-                isLoading -> items(3) { JobCardSkeleton() }
-                tasks.isEmpty() -> item {
+            if (isLoading) {
+                items(3) { JobCardSkeleton() }
+            } else if (tasks.isEmpty()) {
+                item {
                     EmptyState(
                         icon = Icons.Default.SearchOff,
-                        title = "No jobs nearby right now",
-                        message = "New requests will show up here as soon as customers post them."
+                        title = stringResource(R.string.worker_empty_title),
+                        description = stringResource(R.string.worker_empty_body),
+                        modifier = Modifier.padding(top = 24.dp)
                     )
                 }
-                else -> items(tasks, key = { it.id }) { task ->
+            } else {
+                items(tasks, key = { it.id }) { task ->
                     WorkerJobCard(
                         task = task,
-                        onClick = { sheet = JobSheet.Details(task) },
-                        onPlaceBidClick = { sheet = JobSheet.Bid(task) },
-                        onAccept = { viewModel.acceptTask(task) }
+                        posterName = posterText(task.ownerId, ownerNames),
+                        onAccept = { viewModel.acceptTask(task) },
+                        onDecline = { viewModel.rejectTask(task) },
+                        onMessage = { onOpenChat(task.id) }
                     )
                 }
             }
         }
     }
-
-    JobSheetHost(sheet = sheet, onSheetChange = { sheet = it }, viewModel = viewModel, onOpenChat = onOpenChat)
 }
 
+/**
+ * The three numbers the app can actually prove.
+ *
+ * This replaces a "Performance Overview" card of earnings, a star rating, a response time and
+ * three percentage rings, none of which had any data behind them. Payments, ratings and response
+ * times are not tracked, so they are not shown.
+ */
 @Composable
-private fun rememberSaveableBoolean(initial: Boolean) =
-    androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(initial) }
-
-@Composable
-private fun OnlineToggle(isOnline: Boolean, onToggle: () -> Unit) {
-    val color = if (isOnline) SuccessGreen else SecondaryGrey
-    Surface(
-        onClick = onToggle,
-        color = color.copy(alpha = 0.1f),
-        shape = RoundedCornerShape(50)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = Spacing.sm, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                if (isOnline) "Online" else "Offline",
-                color = color,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
-
-@Composable
-fun SummaryCard(title: String, count: Int, icon: ImageVector, tint: Color, modifier: Modifier = Modifier) {
-    FixhoraCard(modifier = modifier) {
-        Row(modifier = Modifier.padding(Spacing.sm), verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(icon = icon, tint = tint, size = 40.dp, iconSize = 22.dp)
-            Spacer(modifier = Modifier.width(Spacing.sm))
-            Column {
-                Text(text = count.toString(), style = MaterialTheme.typography.titleLarge, color = DarkNavy)
-                Text(text = title, style = MaterialTheme.typography.bodySmall, color = SecondaryGrey, maxLines = 1)
-            }
-        }
-    }
-}
-
-@Composable
-fun PerformanceOverviewCard() {
-    Surface(
+fun WorkSummaryCard(stats: HelperStats) {
+    Card(
         shape = RoundedCornerShape(20.dp),
-        color = Color.Transparent,
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .background(Brush.linearGradient(listOf(DarkNavy, Color(0xFF16326B))))
-                .padding(Spacing.lg)
-        ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                stringResource(R.string.worker_your_work),
+                color = FixTheme.colors.onPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("This week", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.65f))
-                    Text("Performance overview", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                }
-                Surface(color = Color.White.copy(alpha = 0.12f), shape = RoundedCornerShape(50)) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.Star, contentDescription = null, tint = RatingGold, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("4.9", color = Color.White, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(Spacing.lg))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                PerformanceStat("Earnings", "₹8,450", Modifier.weight(1f))
-                PerformanceStat("Jobs done", "142", Modifier.weight(1f))
-                PerformanceStat("Avg. response", "< 5 min", Modifier.weight(1f))
-            }
-            HorizontalDivider(color = Color.White.copy(alpha = 0.12f), modifier = Modifier.padding(vertical = Spacing.md))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                ProgressStat("Acceptance", 0.95f, Modifier.weight(1f))
-                ProgressStat("Completion", 0.98f, Modifier.weight(1f))
-                ProgressStat("Satisfaction", 0.96f, Modifier.weight(1f))
+                HeadlineStat(stringResource(R.string.worker_stat_open_nearby), stats.availableNow)
+                HeadlineStat(stringResource(R.string.worker_stat_active), stats.activeNow)
+                HeadlineStat(stringResource(R.string.worker_stat_completed), stats.completed)
             }
         }
     }
 }
 
 @Composable
-private fun PerformanceStat(label: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = value, style = MaterialTheme.typography.titleLarge, color = Color.White, maxLines = 1)
-        Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.65f), maxLines = 1)
+private fun HeadlineStat(label: String, value: Int) {
+    Column {
+        Text(
+            text = value.toString(),
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = FixTheme.colors.onPrimary
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = FixTheme.colors.onPrimary.copy(alpha = 0.75f)
+        )
     }
 }
 
 @Composable
-private fun ProgressStat(label: String, progress: Float, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                progress = { progress },
-                color = Color(0xFF6EA0FF),
-                trackColor = Color.White.copy(alpha = 0.12f),
-                strokeWidth = 4.dp,
-                modifier = Modifier.size(52.dp)
-            )
+fun SummaryCard(title: String, count: Int, icon: ImageVector, bgColor: Color, iconColor: Color) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = bgColor),
+        modifier = Modifier.width(120.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "${(progress * 100).toInt()}%",
-                color = Color.White,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold
+                text = count.toString(),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = FixTheme.colors.textPrimary
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = title, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
         }
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        Text(text = label, color = Color.White.copy(alpha = 0.65f), style = MaterialTheme.typography.bodySmall)
     }
 }
 
 @Composable
 fun JobCardSkeleton() {
-    val shimmer = BorderGrey.copy(alpha = 0.7f)
-    FixhoraCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(Spacing.md)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(shimmer))
-                Spacer(modifier = Modifier.width(Spacing.sm))
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                SkeletonBox(modifier = Modifier.size(40.dp), height = 40.dp, cornerRadius = 20.dp)
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    SkeletonLine(width = 120.dp, height = 14.dp, color = shimmer)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    SkeletonLine(width = 80.dp, height = 10.dp, color = shimmer)
+                    SkeletonBox(modifier = Modifier.width(120.dp), height = 16.dp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SkeletonBox(modifier = Modifier.width(80.dp), height = 12.dp)
                 }
             }
-            Spacer(modifier = Modifier.height(Spacing.md))
-            SkeletonLine(fraction = 0.75f, height = 16.dp, color = shimmer)
-            Spacer(modifier = Modifier.height(Spacing.xs))
-            SkeletonLine(fraction = 1f, height = 12.dp, color = shimmer)
-            Spacer(modifier = Modifier.height(4.dp))
-            SkeletonLine(fraction = 0.6f, height = 12.dp, color = shimmer)
-            HorizontalDivider(color = DividerGrey, modifier = Modifier.padding(vertical = Spacing.sm))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                SkeletonLine(width = 96.dp, height = 18.dp, color = shimmer)
-                Spacer(modifier = Modifier.weight(1f))
-                Box(modifier = Modifier.size(64.dp, 40.dp).clip(RoundedCornerShape(10.dp)).background(shimmer))
-                Spacer(modifier = Modifier.width(Spacing.xs))
-                Box(modifier = Modifier.size(80.dp, 40.dp).clip(RoundedCornerShape(10.dp)).background(shimmer))
+            Spacer(modifier = Modifier.height(16.dp))
+            SkeletonBox(modifier = Modifier.fillMaxWidth(0.8f), height = 20.dp)
+            Spacer(modifier = Modifier.height(8.dp))
+            SkeletonBox(modifier = Modifier.fillMaxWidth(), height = 14.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                SkeletonBox(modifier = Modifier.weight(1f), height = 48.dp, cornerRadius = 12.dp)
+                SkeletonBox(modifier = Modifier.weight(1f), height = 48.dp, cornerRadius = 12.dp)
             }
         }
     }
 }
 
 @Composable
-private fun SkeletonLine(color: Color, height: androidx.compose.ui.unit.Dp, width: androidx.compose.ui.unit.Dp? = null, fraction: Float = 1f) {
-    Box(
-        modifier = (if (width != null) Modifier.width(width) else Modifier.fillMaxWidth(fraction))
-            .height(height)
-            .clip(RoundedCornerShape(4.dp))
-            .background(color)
-    )
+fun WorkerJobCard(
+    task: TaskEntity,
+    posterName: String,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit,
+    onMessage: () -> Unit
+) {
+    val category = dummyCategories.find { it.id == task.categoryId }
+    // Recomputed per composition rather than captured once, so the age does not freeze on screen.
+    val postedAgo = relativeTimeText(task.createdAt)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier.size(40.dp).clip(CircleShape)
+                            .background(FixTheme.colors.surfaceAlt),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            tint = FixTheme.colors.textSecondary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        // Was "Customer Name" with a verified tick and a 4.8 rating. Nothing
+                        // verifies anyone and there is no rating system, so neither is shown.
+                        Text(
+                            posterName,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = FixTheme.colors.textPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(postedAgo, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
+                    }
+                }
+                StatusBadge(text = stringResource(R.string.job_status_open), tone = StatusTone.INFO)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_untitled) },
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = FixTheme.colors.textPrimary
+            )
+            if (task.descriptionDetails.isNotBlank()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = task.descriptionDetails,
+                    color = FixTheme.colors.textSecondary,
+                    fontSize = 14.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            JobMetaRow(
+                Icons.Default.LocationOn,
+                taskLocationText(task.locationQuery, task.latitude != null)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            JobMetaRow(Icons.Default.MyLocation, stringResource(R.string.loc_within_km, task.selectedDistance))
+            Spacer(modifier = Modifier.height(6.dp))
+            JobMetaRow(
+                Icons.Default.AccountBalanceWallet,
+                budgetText(task.minBudget, task.maxBudget),
+                emphasise = true
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = FixTheme.colors.border)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // "Place Bid" is gone: there is no bidding system for it to submit anything to.
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(
+                    onClick = onDecline,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border)
+                ) {
+                    Text(stringResource(R.string.action_not_for_me), fontWeight = FontWeight.SemiBold)
+                }
+                Button(
+                    onClick = onAccept,
+                    modifier = Modifier.weight(1f).height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = FixTheme.colors.primary,
+                        contentColor = FixTheme.colors.onPrimary
+                    )
+                ) {
+                    Text(stringResource(R.string.action_accept_job), fontWeight = FontWeight.Bold)
+                }
+            }
+            TextButton(
+                onClick = onMessage,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = FixTheme.colors.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(stringResource(R.string.action_ask_question), color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun JobMetaRow(icon: ImageVector, text: String, emphasise: Boolean = false) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = if (emphasise) FixTheme.colors.textPrimary else FixTheme.colors.textSecondary,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            fontWeight = if (emphasise) FontWeight.Bold else FontWeight.Normal,
+            color = if (emphasise) FixTheme.colors.textPrimary else FixTheme.colors.textSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }

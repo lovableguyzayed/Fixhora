@@ -2,8 +2,8 @@ package com.example.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -12,268 +12,425 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.Handyman
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.automirrored.rounded.Message
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
-import com.example.ui.components.BrandLogo
-import com.example.ui.components.BrandWordmark
-import com.example.ui.components.CustomerArtAspect
-import com.example.ui.components.PopOutCircleShape
-import com.example.ui.components.Spacing
-import com.example.ui.components.WorkerArtAspect
+import androidx.compose.ui.text.font.FontStyle
+import com.example.BuildConfig
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
+import com.example.data.session.AppLanguage
+import com.example.data.session.UserRole
 import com.example.ui.theme.*
 
-private const val English = "English"
-private const val Hindi = "हिंदी"
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.example.R
 
 @Composable
-fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
-    var selectedLanguage by rememberSaveable { mutableStateOf(English) }
-    val isHindi = selectedLanguage == Hindi
+fun RoleSelectionScreen(
+    signedInName: String?,
+    onRoleSelected: (UserRole) -> Unit,
+    onSignOut: () -> Unit,
+    onCheckForUpdates: () -> Unit = {},
+    language: AppLanguage = AppLanguage.ENGLISH,
+    onLanguageChange: (AppLanguage) -> Unit = {}
+) {
 
-    Scaffold(containerColor = Color.White) { innerPadding ->
-        Column(
+    Scaffold(
+        containerColor = FixTheme.colors.background
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(FixTheme.colors.background)
         ) {
-            // Header: brand + question, drawn over a faint skyline
-            Box(modifier = Modifier.fillMaxWidth()) {
-                SkylineBackground(modifier = Modifier.matchParentSize())
+            // Decorative Elements: Clouds and Skyline
+            DecorativeBackground()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Branding Area
+                Image(
+                    painter = painterResource(id = R.drawable.img_logo),
+                    contentDescription = stringResource(R.string.cd_logo),
+                    modifier = Modifier.size(120.dp),
+                    contentScale = ContentScale.Fit
+                )
+
+                val appName = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = FixTheme.colors.primary, fontStyle = FontStyle.Italic)) {
+                        append(stringResource(R.string.brand_fixora))
+                    }
+                    withStyle(style = SpanStyle(color = FixTheme.colors.accentGraphic, fontStyle = FontStyle.Italic, fontSize = 56.sp)) {
+                        append(stringResource(R.string.brand_x))
+                    }
+                }
+                Text(
+                    text = appName,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = FixTheme.colors.textPrimary,
+                    modifier = Modifier.offset(y = (-28).dp)
+                )
+
+                // Devanagari sets taller than Latin at the same point size, so the heading gets a
+                // slightly smaller size and tighter leading in Hindi. That is typography, not
+                // translation, which is why it stays in code while the words move to resources.
+                val isHindi = language == AppLanguage.HINDI
+                Text(
+                    text = stringResource(R.string.role_heading),
+                    fontSize = if (isHindi) 28.sp else 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = FixTheme.colors.textPrimary,
+                    textAlign = TextAlign.Center,
+                    lineHeight = if (isHindi) 36.sp else 38.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = stringResource(R.string.role_subheading),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = FixTheme.colors.textSecondary,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Role Selection Cards
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Spacing.screen),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(Spacing.xl))
-                    BrandLogo(height = 64.dp)
-                    Spacer(modifier = Modifier.height(Spacing.xs))
-                    BrandWordmark(fontSize = 30.sp)
-                    Spacer(modifier = Modifier.height(Spacing.lg))
-                    Text(
-                        text = if (isHindi) "आप कैसे शुरुआत\nकरना चाहेंगे?" else "How would you\nlike to get started?",
-                        fontSize = 30.sp,
-                        lineHeight = 38.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = (-0.5).sp,
-                        color = DarkNavy,
-                        textAlign = TextAlign.Center
+                    WideRoleSelectionCard(
+                        title = stringResource(R.string.role_customer_title),
+                        description = stringResource(R.string.role_customer_description),
+                        borderColor = LightBlueBorder,
+                        buttonColor = FixTheme.colors.primary,
+                        illustrationId = R.drawable.img_customer,
+                        onClick = { onRoleSelected(UserRole.CUSTOMER) }
                     )
-                    Spacer(modifier = Modifier.height(Spacing.xs))
+
+                    WideRoleSelectionCard(
+                        title = stringResource(R.string.role_worker_title),
+                        description = stringResource(R.string.role_worker_description),
+                        borderColor = LightOrangeBorder,
+                        buttonColor = FixTheme.colors.accentGraphic,
+                        illustrationId = R.drawable.img_worker,
+                        onClick = { onRoleSelected(UserRole.HELPER) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Makes the session visible. Without this there was no way to tell whether the app
+                // considered you signed in, and no way to sign out.
+                if (signedInName != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.signed_in_as, signedInName),
+                            fontSize = 14.sp,
+                            color = FixTheme.colors.textSecondary
+                        )
+                        TextButton(onClick = onSignOut) {
+                            Text(
+                                text = stringResource(R.string.action_sign_out),
+                                fontSize = 14.sp,
+                                color = FixTheme.colors.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Language Selection Section
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                ) {
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
                     Text(
-                        text = if (isHindi) "जारी रखने के लिए एक भूमिका चुनें" else "Choose a role to continue",
-                        style = MaterialTheme.typography.bodyLarge,
+                        text = stringResource(R.string.language_heading),
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = SecondaryGrey,
-                        textAlign = TextAlign.Center
+                        color = FixTheme.colors.textPrimary
                     )
-                    Spacer(modifier = Modifier.height(Spacing.xl))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = FixTheme.colors.border)
                 }
-            }
 
-            // Role cards: equal width and equal height, whatever the text length
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Spacing.screen)
-                    .height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-            ) {
-                RoleCard(
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    title = if (isHindi) "मुझे मदद चाहिए" else "I need help",
-                    description = if (isHindi) "कार्य पोस्ट करें और पास के भरोसेमंद सहायक पाएं।" else "Post a task and find trusted helpers nearby.",
-                    accentColor = BluePrimary,
-                    borderColor = LightBlueBorder,
-                    illustrationId = R.drawable.img_customer,
-                    illustrationAspect = CustomerArtAspect,
-                    onClick = { onRoleSelected("user") }
-                )
-                RoleCard(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    title = if (isHindi) "मैं मदद करना चाहता हूँ" else "I want to help",
-                    description = if (isHindi) "पास के कार्य खोजें और मदद करके कमाएं।" else "Find tasks nearby and earn by helping others.",
-                    accentColor = OrangeSecondary,
-                    borderColor = LightOrangeBorder,
-                    illustrationId = R.drawable.img_worker,
-                    illustrationAspect = WorkerArtAspect,
-                    onClick = { onRoleSelected("helper") }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(Spacing.xl))
-
-            // Language selection
-            Column(modifier = Modifier.padding(horizontal = Spacing.screen)) {
-                SectionDividerTitle(text = if (isHindi) "भाषा चुनें" else "Choose Language")
-                Spacer(modifier = Modifier.height(Spacing.md))
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                    LanguageOption(
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    LanguagePill(
                         modifier = Modifier.weight(1f),
-                        text = English,
-                        isSelected = selectedLanguage == English,
-                        onClick = { selectedLanguage = English }
+                        text = stringResource(R.string.language_english),
+                        isSelected = language == AppLanguage.ENGLISH,
+                        onClick = { onLanguageChange(AppLanguage.ENGLISH) }
                     )
-                    LanguageOption(
+                    LanguagePill(
                         modifier = Modifier.weight(1f),
-                        text = Hindi,
-                        isSelected = selectedLanguage == Hindi,
-                        onClick = { selectedLanguage = Hindi }
+                        text = stringResource(R.string.language_hindi),
+                        isSelected = language == AppLanguage.HINDI,
+                        onClick = { onLanguageChange(AppLanguage.HINDI) }
                     )
                 }
-                Spacer(modifier = Modifier.height(Spacing.md))
+
+                Spacer(modifier = Modifier.height(24.dp))
+
                 Text(
-                    text = if (isHindi) "आप बाद में सेटिंग्स में भाषा बदल सकते हैं" else "You can change the language later in settings",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = HintGrey,
+                    text = stringResource(R.string.language_change_later),
+                    fontSize = 14.sp,
+                    color = FixTheme.colors.textMuted,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Which build is actually on the device. Without this there is no way to tell
+                // whether an update landed, short of reading the system app info screen.
+                // Tapping it forces an update check: the automatic one only runs every six hours,
+                // so this is how you ask right after a new build is published.
+                Text(
+                    text =
+                        stringResource(
+                            R.string.version_footer_tap_to_check,
+                            BuildConfig.VERSION_NAME,
+                            BuildConfig.VERSION_CODE
+                        ),
+                    fontSize = 12.sp,
+                    color = FixTheme.colors.textMuted,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    // The bottom spacing sits *before* the clickable so it stays spacing; the
+                    // symmetric padding after it is what grows the 12sp line into a 48dp target.
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                        .clip(RoundedCornerShape(Radius.sm))
+                        .clickable(role = Role.Button, onClick = onCheckForUpdates)
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(Spacing.lg))
         }
     }
 }
 
 @Composable
-private fun RoleCard(
+fun DecorativeBackground() {
+    // Read outside the Canvas: a DrawScope lambda is not composable and cannot reach the theme.
+    val skylineColor = FixTheme.colors.primary.copy(alpha = 0.06f)
+    val cloudColor = FixTheme.colors.primary.copy(alpha = 0.10f)
+
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val width = size.width
+        val height = size.height
+        
+        // City Skyline placeholder
+        val buildings = listOf(
+            0.1f to 0.3f, 0.2f to 0.5f, 0.3f to 0.4f, 0.4f to 0.6f,
+            0.5f to 0.3f, 0.6f to 0.7f, 0.7f to 0.4f, 0.8f to 0.5f, 0.9f to 0.2f
+        )
+        val baseY = height * 0.55f // Below the heading, behind cards
+        for ((xProp, hProp) in buildings) {
+            drawRect(
+                color = skylineColor,
+                topLeft = Offset(width * xProp, baseY - (200f * hProp)),
+                size = Size(width * 0.08f, 200f * hProp + height * 0.45f) // Extend down to bottom to be safe
+            )
+        }
+
+        // Floating clouds placeholder
+        fun drawCloud(x: Float, y: Float, scale: Float) {
+            drawCircle(cloudColor, 30f * scale, Offset(x, y))
+            drawCircle(cloudColor, 40f * scale, Offset(x + 40f * scale, y - 10f * scale))
+            drawCircle(cloudColor, 35f * scale, Offset(x + 80f * scale, y))
+            drawRect(cloudColor, topLeft = Offset(x, y - 10f * scale), size = Size(80f * scale, 45f * scale))
+        }
+
+        drawCloud(width * 0.1f, height * 0.25f, 0.8f) // Left
+        drawCloud(width * 0.8f, height * 0.15f, 1.2f) // Top right
+    }
+}
+
+@Composable
+fun CustomLocationLogo(modifier: Modifier = Modifier) {
+    val arcColor = FixTheme.colors.accentGraphic
+    val pinColor = FixTheme.colors.primary
+
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val strokeW = w * 0.25f // 25% of width
+        
+        // Custom location pin
+        // Orange Upper arc
+        drawArc(
+            color = arcColor,
+            startAngle = 160f,
+            sweepAngle = 220f,
+            useCenter = false,
+            topLeft = Offset(strokeW/2, strokeW/2),
+            size = Size(w - strokeW, h * 0.8f - strokeW),
+            style = Stroke(width = strokeW, cap = StrokeCap.Round)
+        )
+        
+        // Blue lower pin
+        val path = Path().apply {
+            moveTo(w * 0.2f, h * 0.55f)
+            lineTo(w * 0.5f, h - strokeW/2)
+            lineTo(w * 0.85f, h * 0.4f)
+        }
+        drawPath(
+            path = path,
+            color = pinColor,
+            style = Stroke(width = strokeW, join = StrokeJoin.Round, cap = StrokeCap.Round)
+        )
+    }
+}
+
+@Composable
+fun WideRoleSelectionCard(
+    modifier: Modifier = Modifier,
     title: String,
     description: String,
-    accentColor: Color,
     borderColor: Color,
+    buttonColor: Color,
     illustrationId: Int,
-    illustrationAspect: Float,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(24.dp)
     Card(
-        onClick = onClick,
-        modifier = modifier.shadow(
-            elevation = 16.dp,
-            shape = shape,
-            ambientColor = DarkNavy.copy(alpha = 0.06f),
-            spotColor = DarkNavy.copy(alpha = 0.10f)
-        ),
-        shape = shape,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = BorderStroke(1.dp, borderColor)
+        modifier = modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .shadow(
+                elevation = 12.dp,
+                shape = RoundedCornerShape(24.dp),
+                spotColor = Color.Black.copy(alpha = 0.04f),
+                ambientColor = Color.Black.copy(alpha = 0.04f)
+            ),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
+        border = BorderStroke(1.5.dp, borderColor),
+        onClick = onClick
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = Spacing.sm, vertical = Spacing.lg),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(width = 112.dp, height = 128.dp)
-                    .clip(PopOutCircleShape),
-                contentAlignment = Alignment.BottomCenter
+                    .weight(1.3f)
+                    .padding(end = 8.dp),
+                verticalArrangement = Arrangement.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(112.dp)
-                        .clip(CircleShape)
-                        .background(accentColor.copy(alpha = 0.08f))
+                Text(
+                    text = title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = FixTheme.colors.textPrimary
                 )
-                Image(
-                    painter = painterResource(id = illustrationId),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(illustrationAspect)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = description,
+                    fontSize = 13.sp,
+                    color = FixTheme.colors.textSecondary,
+                    lineHeight = 18.sp
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.role_get_started),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = buttonColor
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = buttonColor,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(Spacing.md))
-            Text(
-                text = title,
-                fontSize = 18.sp,
-                lineHeight = 24.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = DarkNavy,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(Spacing.xxs))
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = SecondaryGrey,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(Spacing.md))
-            Box(
+            
+            Image(
+                painter = painterResource(id = illustrationId),
+                contentDescription = title,
                 modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(accentColor),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                    .weight(0.9f)
+                    .fillMaxHeight(),
+                contentScale = ContentScale.Fit
+            )
         }
     }
 }
 
 @Composable
-private fun SectionDividerTitle(text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-        Box(modifier = Modifier.padding(start = Spacing.sm).size(4.dp).clip(CircleShape).background(BluePrimary))
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = Spacing.sm),
-            style = MaterialTheme.typography.titleMedium,
-            color = DarkNavy
-        )
-        Box(modifier = Modifier.padding(end = Spacing.sm).size(4.dp).clip(CircleShape).background(BluePrimary))
-        HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-    }
-}
-
-@Composable
-private fun LanguageOption(
+fun LanguagePill(
+    modifier: Modifier = Modifier,
     text: String,
     isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Surface(
-        onClick = onClick,
-        modifier = modifier.height(48.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, if (isSelected) BluePrimary else BorderGrey)
+        modifier = modifier
+            .height(56.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = FixTheme.colors.surface,
+        border = BorderStroke(
+            width = if (isSelected) 2.dp else 1.dp,
+            color = if (isSelected) FixTheme.colors.primary else FixTheme.colors.border
+        )
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),
@@ -282,71 +439,28 @@ private fun LanguageOption(
         ) {
             Text(
                 text = text,
-                fontSize = 17.sp,
-                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-                color = if (isSelected) BluePrimary else DarkNavy
+                fontSize = 16.sp,
+                color = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textPrimary,
+                fontWeight = FontWeight.Medium
             )
+            
             if (isSelected) {
-                Spacer(modifier = Modifier.width(Spacing.xs))
+                Spacer(modifier = Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(BluePrimary),
+                        .background(FixTheme.colors.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
-                        tint = Color.White,
-                        modifier = Modifier.size(14.dp)
+                        contentDescription = stringResource(R.string.cd_selected),
+                        tint = FixTheme.colors.onPrimary,
+                        modifier = Modifier.size(12.dp)
                     )
                 }
             }
         }
     }
-}
-
-/** Faint city skyline and clouds behind the header, fading into the white page. */
-@Composable
-private fun SkylineBackground(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        drawRect(Brush.verticalGradient(listOf(MutedBackground, Color.White)))
-
-        val baseline = size.height * 0.92f
-        val building = BluePrimary.copy(alpha = 0.045f)
-        val unit = 1.dp.toPx()
-        // (x position as fraction of width, width dp, height dp)
-        val towers = listOf(
-            Triple(0.02f, 34f, 110f), Triple(0.10f, 26f, 160f), Triple(0.16f, 38f, 90f),
-            Triple(0.25f, 30f, 135f), Triple(0.70f, 32f, 120f), Triple(0.77f, 24f, 175f),
-            Triple(0.83f, 36f, 100f), Triple(0.91f, 28f, 145f)
-        )
-        towers.forEach { (x, w, h) ->
-            drawRect(
-                color = building,
-                topLeft = Offset(size.width * x, baseline - h * unit),
-                size = Size(w * unit, h * unit)
-            )
-        }
-        drawRect(
-            Brush.verticalGradient(
-                0f to Color.Transparent,
-                1f to Color.White,
-                startY = baseline - 80 * unit,
-                endY = size.height
-            )
-        )
-
-        drawCloud(Offset(size.width * 0.80f, 56 * unit), unit * 0.9f)
-        drawCloud(Offset(size.width * 0.06f, 170 * unit), unit * 0.7f)
-    }
-}
-
-private fun DrawScope.drawCloud(origin: Offset, unit: Float) {
-    val color = LightBlueBorder.copy(alpha = 0.55f)
-    drawCircle(color, 14 * unit, origin + Offset(14 * unit, 0f))
-    drawCircle(color, 20 * unit, origin + Offset(34 * unit, -8 * unit))
-    drawCircle(color, 14 * unit, origin + Offset(54 * unit, 0f))
-    drawRect(color, topLeft = origin + Offset(14 * unit, -2 * unit), size = Size(40 * unit, 16 * unit))
 }

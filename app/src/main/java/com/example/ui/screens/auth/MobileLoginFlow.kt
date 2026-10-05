@@ -1,323 +1,495 @@
 package com.example.ui.screens.auth
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.res.stringResource
+import com.example.R
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.components.FixhoraTextField
-import com.example.ui.components.PasswordTextField
-import com.example.ui.components.PrimaryButton
-import com.example.ui.components.ScreenHeader
-import com.example.ui.components.Spacing
+import androidx.compose.ui.semantics.Role
 import com.example.ui.theme.*
+import com.example.util.FieldError
+import com.example.util.Validators
+import com.example.util.formatIndianMobile
+import com.example.util.normalizeMobile
+import kotlin.random.Random
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-private const val OtpLength = 6
-private const val ResendSeconds = 45
+private const val RESEND_COOLDOWN_SECONDS = 60
 
 @Composable
-fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
-    var mobile by remember { mutableStateOf("") }
-    var submitted by remember { mutableStateOf(false) }
-    val isValid = isValidIndianMobile(mobile)
+fun MobileLoginScreen(onSendOtp: (mobile: String) -> Unit, onBack: () -> Unit) {
+  var mobile by remember { mutableStateOf("") }
+  var error by remember { mutableStateOf<FieldError?>(null) }
+  val focusManager = LocalFocusManager.current
+  // Localized by LocalizedContent, so messages resolved here honour the chosen language.
+  val context = LocalContext.current
 
-    fun send() {
-        submitted = true
-        if (isValid) onSendOtp(mobile)
+  fun submit() {
+    val validation = Validators.validateMobile(mobile)
+    error = validation
+    if (validation == null) {
+      focusManager.clearFocus()
+      onSendOtp(normalizeMobile(mobile))
+    }
+  }
+
+  Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    BackButton(onBack)
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(
+      stringResource(R.string.mobile_login_title),
+      fontSize = 28.sp,
+      fontWeight = FontWeight.Bold,
+      color = FixTheme.colors.textPrimary,
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+      stringResource(R.string.mobile_login_subtitle),
+      fontSize = 16.sp,
+      color = FixTheme.colors.textSecondary,
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+
+    DemoModeNotice(stringResource(R.string.demo_no_sms))
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+      OutlinedTextField(
+        value = "+91",
+        onValueChange = {},
+        readOnly = true,
+        singleLine = true,
+        modifier = Modifier.width(84.dp),
+        shape = RoundedCornerShape(12.dp),
+      )
+      Spacer(modifier = Modifier.width(12.dp))
+      Box(modifier = Modifier.weight(1f)) {
+        AuthTextField(
+          value = mobile,
+          onValueChange = {
+            mobile = it
+            error = null
+          },
+          label = stringResource(R.string.field_phone_number),
+          leadingIcon = Icons.Default.Phone,
+          error = error?.message(context, R.string.label_mobile_number),
+          keyboardType = KeyboardType.Phone,
+          imeAction = ImeAction.Done,
+          onImeAction = { submit() },
+        )
+      }
     }
 
-    AuthScreenLayout(
-        onBack = onBack,
-        footer = {
-            PrimaryButton(text = "Send OTP", onClick = { send() }, enabled = mobile.length == 10)
-        }
-    ) {
-        ScreenHeader(
-            title = "Log in with mobile",
-            subtitle = "We'll send a 6-digit verification code to this number."
-        )
-        Spacer(modifier = Modifier.height(Spacing.xl))
-        FixhoraTextField(
-            value = mobile,
-            onValueChange = { mobile = it.digitsOnly(10) },
-            label = "Mobile number",
-            leadingIcon = Icons.Default.Phone,
-            prefix = "+91 ",
-            errorText = if (submitted && !isValid) "Enter a valid 10-digit mobile number" else null,
-            helperText = "Standard SMS charges may apply",
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { send() })
-        )
-    }
+    Spacer(modifier = Modifier.height(32.dp))
+    SubmitButton(text = stringResource(R.string.action_send_otp), isSubmitting = false, onClick = { submit() })
+  }
 }
 
 @Composable
-fun OtpVerificationScreen(phoneNumber: String, onVerified: () -> Unit, onBack: () -> Unit) {
-    var otp by remember { mutableStateOf("") }
+fun OtpVerificationScreen(
+  viewModel: AuthViewModel,
+  mobile: String,
+  onVerifiedExistingAccount: () -> Unit,
+  onNoAccountForMobile: (mobile: String) -> Unit,
+  onBack: () -> Unit,
+) {
+  // Regenerated on stringResource(R.string.action_resend), so a stale code stops working the moment a new one is issued.
+  var generation by remember { mutableIntStateOf(0) }
+  val expectedCode = remember(generation) { generateDemoOtp() }
+  var digits by remember { mutableStateOf(List(Validators.OTP_LENGTH) { "" }) }
+  var error by remember { mutableStateOf<String?>(null) }
+  var isSubmitting by remember { mutableStateOf(false) }
+  var secondsRemaining by remember(generation) { mutableIntStateOf(RESEND_COOLDOWN_SECONDS) }
 
-    AuthScreenLayout(
-        onBack = onBack,
-        footer = {
-            PrimaryButton(text = "Verify", onClick = onVerified, enabled = otp.length == OtpLength)
-        }
-    ) {
-        ScreenHeader(title = "Verify your number")
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        Text(
-            text = buildAnnotatedString {
-                append("Enter the 6-digit code sent to ")
-                withStyle(SpanStyle(color = DarkNavy, fontWeight = FontWeight.SemiBold)) {
-                    append(formatPhoneForDisplay(phoneNumber))
+  val focusRequesters = remember { List(Validators.OTP_LENGTH) { FocusRequester() } }
+  val focusManager = LocalFocusManager.current
+  // Localized by LocalizedContent, so messages resolved here honour the chosen language.
+  val context = LocalContext.current
+  val scope = rememberCoroutineScope()
+
+  LaunchedEffect(generation) {
+    while (secondsRemaining > 0) {
+      delay(1000)
+      secondsRemaining--
+    }
+  }
+
+  fun verify() {
+    if (isSubmitting) return
+    val entered = digits.joinToString("")
+    val validation = Validators.validateOtp(entered)
+    if (validation != null) {
+      error = validation.message(context, R.string.label_code)
+      return
+    }
+    if (entered != expectedCode) {
+      error = FormError.OTP_MISMATCH.message(context)
+      return
+    }
+    error = null
+    isSubmitting = true
+    focusManager.clearFocus()
+    scope.launch {
+      if (viewModel.signInWithVerifiedMobile(mobile)) {
+        onVerifiedExistingAccount()
+      } else {
+        // Verifying a number proves it is theirs; it does not conjure an account. They still need
+        // to give a name and a password, so send them to sign-up with the number carried over.
+        onNoAccountForMobile(mobile)
+      }
+      isSubmitting = false
+    }
+  }
+
+  Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    BackButton(onBack)
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(stringResource(R.string.otp_title), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+      stringResource(R.string.otp_subtitle, Validators.OTP_LENGTH, formatIndianMobile(mobile)),
+      fontSize = 16.sp,
+      color = FixTheme.colors.textSecondary,
+    )
+
+    Spacer(modifier = Modifier.height(24.dp))
+    DemoModeNotice(stringResource(R.string.demo_your_code, expectedCode))
+
+    Spacer(modifier = Modifier.height(32.dp))
+
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+      digits.forEachIndexed { index, value ->
+        OutlinedTextField(
+          value = value,
+          onValueChange = { raw ->
+            error = null
+            val entered = raw.filter { it.isDigit() }
+            when {
+              // Pasting the whole code into any one box fills the row rather than being truncated.
+              entered.length > 1 -> {
+                val spread = entered.take(Validators.OTP_LENGTH)
+                digits = List(Validators.OTP_LENGTH) { i -> spread.getOrNull(i)?.toString() ?: "" }
+                focusManager.clearFocus()
+              }
+              entered.isEmpty() -> {
+                digits = digits.toMutableList().also { it[index] = "" }
+              }
+              else -> {
+                digits = digits.toMutableList().also { it[index] = entered }
+                if (index < Validators.OTP_LENGTH - 1) {
+                  focusRequesters[index + 1].requestFocus()
+                } else {
+                  focusManager.clearFocus()
                 }
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            color = SecondaryGrey
+              }
+            }
+          },
+          modifier = Modifier.weight(1f).height(60.dp).focusRequester(focusRequesters[index]),
+          enabled = !isSubmitting,
+          singleLine = true,
+          keyboardOptions =
+            KeyboardOptions(
+              keyboardType = KeyboardType.NumberPassword,
+              imeAction =
+                if (index == Validators.OTP_LENGTH - 1) ImeAction.Done else ImeAction.Next,
+            ),
+          textStyle =
+            LocalTextStyle.current.copy(
+              textAlign = TextAlign.Center,
+              fontSize = 20.sp,
+              fontWeight = FontWeight.Bold,
+            ),
+          isError = error != null,
+          shape = RoundedCornerShape(8.dp),
+          colors =
+            OutlinedTextFieldDefaults.colors(
+              focusedBorderColor = FixTheme.colors.primary,
+              unfocusedBorderColor = FixTheme.colors.border,
+            ),
         )
-        TextButton(onClick = onBack, contentPadding = PaddingValues(0.dp)) {
-            Text("Change number", style = MaterialTheme.typography.titleSmall, color = BluePrimary)
-        }
-
-        Spacer(modifier = Modifier.height(Spacing.lg))
-        OtpInput(value = otp, onValueChange = { otp = it })
-        Spacer(modifier = Modifier.height(Spacing.lg))
-        ResendCodeRow(modifier = Modifier.align(Alignment.CenterHorizontally))
+      }
     }
-}
 
-@Composable
-fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
-    var step by remember { mutableIntStateOf(1) } // 1 = Request, 2 = Verify, 3 = Reset
-    var account by remember { mutableStateOf("") }
-    var otp by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var submitted by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
-
-    val goBack: () -> Unit = {
-        submitted = false
-        if (step > 1) step -= 1 else onBack()
+    if (error != null) {
+      Spacer(modifier = Modifier.height(8.dp))
+      Text(error!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
     }
-    BackHandler(enabled = step > 1) { goBack() }
 
-    val accountValid = isValidIndianMobile(account) || isValidEmail(account)
-    val passwordError = if (submitted && newPassword.length < 8) "Use at least 8 characters" else null
-    val confirmError = if (submitted && confirmPassword != newPassword) "Passwords do not match" else null
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(
+      text =
+        if (secondsRemaining > 0) stringResource(R.string.otp_resend_in, secondsRemaining) else stringResource(R.string.otp_resend),
+      color = if (secondsRemaining > 0) FixTheme.colors.textSecondary else FixTheme.colors.primary,
+      fontWeight = FontWeight.SemiBold,
+      // Padding inside the clickable, so the tappable area reaches 48dp instead of the ~20dp
+      // the bare text occupied.
+      modifier =
+        Modifier.clip(RoundedCornerShape(Radius.sm))
+          .clickable(enabled = secondsRemaining == 0 && !isSubmitting, role = Role.Button) {
+            digits = List(Validators.OTP_LENGTH) { "" }
+            error = null
+            generation++
+          }
+          .padding(horizontal = Spacing.sm, vertical = 14.dp),
+    )
 
-    AuthScreenLayout(
-        onBack = goBack,
-        footer = {
-            when (step) {
-                1 -> PrimaryButton(
-                    text = "Send OTP",
-                    enabled = account.isNotBlank(),
-                    onClick = {
-                        submitted = true
-                        if (accountValid) {
-                            submitted = false
-                            focusManager.clearFocus()
-                            step = 2
-                        }
-                    }
-                )
-                2 -> PrimaryButton(
-                    text = "Verify",
-                    enabled = otp.length == OtpLength,
-                    onClick = { step = 3 }
-                )
-                else -> PrimaryButton(
-                    text = "Reset Password",
-                    enabled = newPassword.isNotEmpty() && confirmPassword.isNotEmpty(),
-                    onClick = {
-                        submitted = true
-                        if (newPassword.length >= 8 && newPassword == confirmPassword) onPasswordReset()
-                    }
-                )
-            }
-        }
-    ) {
-        Text(
-            text = "Step $step of 3",
-            style = MaterialTheme.typography.labelMedium,
-            color = BluePrimary
-        )
-        Spacer(modifier = Modifier.height(Spacing.xxs))
-        when (step) {
-            1 -> {
-                ScreenHeader(
-                    title = "Forgot password",
-                    subtitle = "Enter your registered mobile number or email and we'll send you a code."
-                )
-                Spacer(modifier = Modifier.height(Spacing.xl))
-                FixhoraTextField(
-                    value = account,
-                    onValueChange = { account = it.trim() },
-                    label = "Mobile number or email",
-                    leadingIcon = Icons.Default.Person,
-                    errorText = if (submitted && !accountValid) "Enter a valid mobile number or email" else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done)
-                )
-            }
-            2 -> {
-                ScreenHeader(title = "Enter verification code")
-                Spacer(modifier = Modifier.height(Spacing.xs))
-                Text(
-                    text = buildAnnotatedString {
-                        append("We sent a 6-digit code to ")
-                        withStyle(SpanStyle(color = DarkNavy, fontWeight = FontWeight.SemiBold)) {
-                            append(if (account.all { it.isDigit() }) formatPhoneForDisplay(account) else account)
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = SecondaryGrey
-                )
-                Spacer(modifier = Modifier.height(Spacing.xl))
-                OtpInput(value = otp, onValueChange = { otp = it })
-                Spacer(modifier = Modifier.height(Spacing.lg))
-                ResendCodeRow(modifier = Modifier.align(Alignment.CenterHorizontally))
-            }
-            else -> {
-                ScreenHeader(
-                    title = "Create new password",
-                    subtitle = "Your new password must be different from the previous one."
-                )
-                Spacer(modifier = Modifier.height(Spacing.xl))
-                PasswordTextField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = "New password",
-                    leadingIcon = Icons.Default.Lock,
-                    errorText = passwordError,
-                    helperText = "At least 8 characters",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next)
-                )
-                Spacer(modifier = Modifier.height(Spacing.xs))
-                PasswordTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = "Confirm password",
-                    leadingIcon = Icons.Default.Lock,
-                    errorText = confirmError,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
-                )
-            }
-        }
+    Spacer(modifier = Modifier.height(32.dp))
+    SubmitButton(text = stringResource(R.string.action_verify), isSubmitting = isSubmitting, onClick = { verify() })
+
+    Spacer(modifier = Modifier.height(16.dp))
+    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+      TextButton(onClick = onBack, enabled = !isSubmitting) {
+        Text(stringResource(R.string.action_edit_mobile), color = FixTheme.colors.textSecondary, fontWeight = FontWeight.Medium)
+      }
     }
+  }
+
+  LaunchedEffect(Unit) { focusRequesters.first().requestFocus() }
 }
 
 /**
- * One hidden text field rendered as [length] boxes, so typing, pasting and backspace move
- * between digits naturally.
+ * Password reset in three real steps. Previously steps 2 and 3 rendered fields hard-wired to
+ * `value = ""` with an empty `onValueChange`, so nothing could be typed and no password was ever
+ * actually changed.
  */
 @Composable
-fun OtpInput(
-    value: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    length: Int = OtpLength,
+fun ForgotPasswordScreen(
+  viewModel: AuthViewModel,
+  onPasswordReset: () -> Unit,
+  onBack: () -> Unit,
 ) {
-    val focusRequester = remember { FocusRequester() }
-    var focused by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+  var step by remember { mutableIntStateOf(1) }
+  var mobile by remember { mutableStateOf("") }
+  var mobileError by remember { mutableStateOf<String?>(null) }
 
-    BasicTextField(
-        value = TextFieldValue(value, selection = TextRange(value.length)),
-        onValueChange = { onValueChange(it.text.filter { c -> c.isDigit() }.take(length)) },
-        modifier = modifier
-            .fillMaxWidth()
-            .focusRequester(focusRequester)
-            .onFocusChanged { focused = it.isFocused },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
-        singleLine = true,
-        decorationBox = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
-            ) {
-                repeat(length) { index ->
-                    val char = value.getOrNull(index)?.toString() ?: ""
-                    val isActive = focused && (index == value.length || (index == length - 1 && value.length == length))
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                            .border(
-                                width = if (isActive) 2.dp else 1.dp,
-                                color = when {
-                                    isActive -> BluePrimary
-                                    char.isNotEmpty() -> DarkNavy.copy(alpha = 0.35f)
-                                    else -> BorderGrey
-                                },
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = char,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = DarkNavy,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-            }
-        }
-    )
+  var generation by remember { mutableIntStateOf(0) }
+  val expectedCode = remember(generation) { generateDemoOtp() }
+  var otp by remember { mutableStateOf("") }
+  var otpError by remember { mutableStateOf<String?>(null) }
+
+  var newPassword by remember { mutableStateOf("") }
+  var confirmPassword by remember { mutableStateOf("") }
+  var newPasswordError by remember { mutableStateOf<String?>(null) }
+  var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+
+  var isSubmitting by remember { mutableStateOf(false) }
+  val focusManager = LocalFocusManager.current
+  // Localized by LocalizedContent, so messages resolved here honour the chosen language.
+  val context = LocalContext.current
+  val scope = rememberCoroutineScope()
+
+  fun submitMobile() {
+    val validation = Validators.validateMobile(mobile)
+    if (validation != null) {
+      mobileError = validation.message(context, R.string.label_mobile_number)
+      return
+    }
+    isSubmitting = true
+    scope.launch {
+      if (viewModel.accountExists(mobile)) {
+        mobileError = null
+        generation++
+        step = 2
+      } else {
+        mobileError = FormError.NO_ACCOUNT_FOR_MOBILE.message(context)
+      }
+      isSubmitting = false
+    }
+  }
+
+  fun submitOtp() {
+    val validation = Validators.validateOtp(otp)
+    otpError =
+      when {
+        validation != null -> validation.message(context, R.string.label_code)
+        otp.filter { it.isDigit() } != expectedCode -> FormError.OTP_MISMATCH.message(context)
+        else -> null
+      }
+    if (otpError == null) step = 3
+  }
+
+  fun submitNewPassword() {
+    val passwordValidation = Validators.validatePassword(newPassword)
+    val confirmValidation =
+      Validators.validatePasswordConfirmation(newPassword, confirmPassword)
+    newPasswordError = passwordValidation?.message(context, R.string.label_password)
+    confirmPasswordError = confirmValidation?.message(context, R.string.label_confirmation)
+    if (passwordValidation != null || confirmValidation != null) return
+
+    isSubmitting = true
+    focusManager.clearFocus()
+    scope.launch {
+      val reset = viewModel.resetPassword(mobile, newPassword)
+      isSubmitting = false
+      if (reset) onPasswordReset() else newPasswordError = FormError.UNEXPECTED.message(context)
+    }
+  }
+
+  Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    BackButton(onBack)
+    Spacer(modifier = Modifier.height(24.dp))
+
+    when (step) {
+      1 -> {
+        Text(stringResource(R.string.forgot_title), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+          stringResource(R.string.forgot_subtitle),
+          fontSize = 16.sp,
+          color = FixTheme.colors.textSecondary,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        AuthTextField(
+          value = mobile,
+          onValueChange = {
+            mobile = it
+            mobileError = null
+          },
+          label = stringResource(R.string.field_mobile_number),
+          leadingIcon = Icons.Default.Phone,
+          error = mobileError,
+          keyboardType = KeyboardType.Phone,
+          imeAction = ImeAction.Done,
+          onImeAction = { submitMobile() },
+          enabled = !isSubmitting,
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        SubmitButton(text = stringResource(R.string.action_send_otp), isSubmitting = isSubmitting, onClick = { submitMobile() })
+      }
+      2 -> {
+        Text(stringResource(R.string.action_verify_otp), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(stringResource(R.string.code_sent_to, formatIndianMobile(normalizeMobile(mobile))), fontSize = 16.sp, color = FixTheme.colors.textSecondary)
+        Spacer(modifier = Modifier.height(24.dp))
+        DemoModeNotice(stringResource(R.string.demo_your_code, expectedCode))
+        Spacer(modifier = Modifier.height(24.dp))
+        AuthTextField(
+          value = otp,
+          onValueChange = {
+            otp = it.filter { c -> c.isDigit() }.take(Validators.OTP_LENGTH)
+            otpError = null
+          },
+          label = stringResource(R.string.enter_otp),
+          leadingIcon = Icons.Default.Lock,
+          error = otpError,
+          keyboardType = KeyboardType.NumberPassword,
+          imeAction = ImeAction.Done,
+          onImeAction = { submitOtp() },
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        SubmitButton(text = stringResource(R.string.action_verify), isSubmitting = false, onClick = { submitOtp() })
+      }
+      else -> {
+        Text(stringResource(R.string.reset_title), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(stringResource(R.string.reset_subtitle), fontSize = 16.sp, color = FixTheme.colors.textSecondary)
+        Spacer(modifier = Modifier.height(32.dp))
+        AuthTextField(
+          value = newPassword,
+          onValueChange = {
+            newPassword = it
+            newPasswordError = null
+          },
+          label = stringResource(R.string.field_new_password),
+          leadingIcon = Icons.Default.Lock,
+          error = newPasswordError,
+          supportingText =
+            stringResource(R.string.password_requirement, Validators.MIN_PASSWORD_LENGTH),
+          keyboardType = KeyboardType.Password,
+          imeAction = ImeAction.Next,
+          onImeAction = { focusManager.moveFocus(FocusDirection.Down) },
+          enabled = !isSubmitting,
+          visualTransformation = PasswordVisualTransformation(),
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        AuthTextField(
+          value = confirmPassword,
+          onValueChange = {
+            confirmPassword = it
+            confirmPasswordError = null
+          },
+          label = stringResource(R.string.field_confirm_password),
+          leadingIcon = Icons.Default.Lock,
+          error = confirmPasswordError,
+          keyboardType = KeyboardType.Password,
+          imeAction = ImeAction.Done,
+          onImeAction = { submitNewPassword() },
+          enabled = !isSubmitting,
+          visualTransformation = PasswordVisualTransformation(),
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        SubmitButton(
+          text = stringResource(R.string.action_save_new_password),
+          isSubmitting = isSubmitting,
+          onClick = { submitNewPassword() },
+        )
+      }
+    }
+  }
 }
+
+// -------------------------------------------------------------------- shared pieces
 
 @Composable
-private fun ResendCodeRow(modifier: Modifier = Modifier) {
-    var secondsLeft by remember { mutableIntStateOf(ResendSeconds) }
-    LaunchedEffect(secondsLeft) {
-        if (secondsLeft > 0) {
-            delay(1000)
-            secondsLeft--
-        }
-    }
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text("Didn't receive the code?", style = MaterialTheme.typography.bodyMedium, color = SecondaryGrey)
-        if (secondsLeft > 0) {
-            Text(
-                text = "  Resend in 0:%02d".format(secondsLeft),
-                style = MaterialTheme.typography.titleSmall,
-                color = HintGrey,
-                modifier = Modifier.padding(vertical = 14.dp)
-            )
-        } else {
-            TextButton(onClick = { secondsLeft = ResendSeconds }, contentPadding = PaddingValues(horizontal = Spacing.xs)) {
-                Text("Resend code", style = MaterialTheme.typography.titleSmall, color = BluePrimary)
-            }
-        }
-    }
+private fun BackButton(onBack: () -> Unit) {
+  IconButton(onClick = onBack, modifier = Modifier.padding(top = 8.dp)) {
+    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_go_back))
+  }
 }
 
-private fun formatPhoneForDisplay(number: String): String =
-    // Non-breaking spaces keep the number on one line.
-    if (number.length == 10) "+91\u00A0${number.take(5)}\u00A0${number.drop(5)}" else "your mobile number"
+/**
+ * States plainly that this build has no SMS gateway.
+ *
+ * Showing stringResource(R.string.otp_sent_toast) when nothing was sent would leave the user waiting for a
+ * message that is never coming.
+ */
+@Composable
+private fun DemoModeNotice(message: String) {
+  Surface(
+    color = FixTheme.colors.primary.copy(alpha = 0.08f),
+    shape = RoundedCornerShape(12.dp),
+    modifier = Modifier.fillMaxWidth(),
+  ) {
+    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+      Icon(
+        Icons.Outlined.Info,
+        contentDescription = null,
+        tint = FixTheme.colors.primary,
+        modifier = Modifier.size(20.dp),
+      )
+      Spacer(modifier = Modifier.width(12.dp))
+      Column {
+        Text(stringResource(R.string.demo_mode), fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = FixTheme.colors.textPrimary)
+        Text(message, fontSize = 13.sp, color = FixTheme.colors.textSecondary)
+      }
+    }
+  }
+}
+
+private fun generateDemoOtp(): String =
+  (1..Validators.OTP_LENGTH).map { Random.nextInt(0, 10) }.joinToString("")

@@ -1,334 +1,320 @@
 package com.example.ui.screens.auth
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Pin
+import androidx.compose.material.icons.filled.Wc
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.example.R
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.example.ui.components.FixhoraCard
-import com.example.ui.components.FixhoraTextField
-import com.example.ui.components.IconBadge
-import com.example.ui.components.PrimaryButton
-import com.example.ui.components.ScreenHeader
-import com.example.ui.components.Spacing
+import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
-    var fullName by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var dobMillis by remember { mutableStateOf<Long?>(null) }
-    var city by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf("") }
-    var pinCode by remember { mutableStateOf("") }
-    var language by remember { mutableStateOf("English") }
-    var photoUri by remember { mutableStateOf<String?>(null) }
-    var showDatePicker by remember { mutableStateOf(false) }
-    var submitted by remember { mutableStateOf(false) }
+fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) {
+  val state by viewModel.profile.collectAsState()
+  // Localized by LocalizedContent, so validation messages honour the chosen language.
+  val context = LocalContext.current
 
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) photoUri = uri.toString()
-    }
-    val pickPhoto = { photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+  LaunchedEffect(Unit) { viewModel.loadProfileFromSession() }
 
-    val nameError = if (submitted && fullName.isBlank()) "Enter your full name" else null
-    val pinError = if (submitted && pinCode.isNotEmpty() && pinCode.length != 6) "PIN code must be 6 digits" else null
+  LaunchedEffect(state.saved) {
+    if (state.saved) onProfileComplete()
+  }
 
-    AuthScreenLayout(
-        onBack = null,
-        footer = {
-            PrimaryButton(
-                text = "Continue",
-                onClick = {
-                    submitted = true
-                    if (fullName.isNotBlank() && (pinCode.isEmpty() || pinCode.length == 6)) onProfileComplete()
-                }
-            )
-        }
-    ) {
-        ScreenHeader(title = "Set up your profile", subtitle = "Help people nearby get to know you.")
-        Spacer(modifier = Modifier.height(Spacing.lg))
+  Column(
+    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
+  ) {
+    Spacer(modifier = Modifier.height(24.dp))
+    Text(stringResource(R.string.profile_title), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(
+      stringResource(R.string.profile_subtitle),
+      fontSize = 16.sp,
+      color = FixTheme.colors.textSecondary,
+    )
+    Spacer(modifier = Modifier.height(32.dp))
 
-        // Avatar picker
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(modifier = Modifier.size(104.dp)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape)
-                        .background(MutedSurface)
-                        .border(1.dp, BorderGrey, CircleShape)
-                        .clickable(onClick = pickPhoto),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (photoUri != null) {
-                        AsyncImage(
-                            model = photoUri,
-                            contentDescription = "Profile photo",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = HintGrey, modifier = Modifier.size(48.dp))
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(34.dp)
-                        .clip(CircleShape)
-                        .background(BluePrimary)
-                        .border(3.dp, Color.White, CircleShape)
-                        .clickable(onClick = pickPhoto),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = "Choose profile photo", tint = Color.White, modifier = Modifier.size(16.dp))
-                }
-            }
-            TextButton(onClick = pickPhoto) {
-                Text(
-                    if (photoUri == null) "Add profile photo (optional)" else "Change photo",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = BluePrimary
-                )
-            }
-        }
+    AuthTextField(
+      value = state.fullName,
+      onValueChange = { viewModel.onProfileFieldChange(fullName = it) },
+      label = stringResource(R.string.field_full_name),
+      leadingIcon = Icons.Default.Person,
+      error = state.fullNameError?.message(context, R.string.label_full_name),
+      keyboardType = KeyboardType.Text,
+      imeAction = ImeAction.Next,
+      onImeAction = {},
+      enabled = !state.isSubmitting,
+    )
+    Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(Spacing.md))
-        FixhoraTextField(
-            value = fullName,
-            onValueChange = { fullName = it },
-            label = "Full name",
-            leadingIcon = Icons.Default.Person,
-            errorText = nameError,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+      Box(modifier = Modifier.weight(1f)) {
+        AuthTextField(
+          value = state.gender,
+          onValueChange = { viewModel.onProfileFieldChange(gender = it) },
+          label = stringResource(R.string.field_gender_optional),
+          leadingIcon = Icons.Default.Wc,
+          error = null,
+          keyboardType = KeyboardType.Text,
+          imeAction = ImeAction.Next,
+          onImeAction = {},
+          enabled = !state.isSubmitting,
         )
-
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        FieldLabel("Gender")
-        ChoiceChipsRow(options = listOf("Male", "Female", "Other"), selected = gender, onSelect = { gender = it })
-
-        Spacer(modifier = Modifier.height(Spacing.md))
-        Box {
-            FixhoraTextField(
-                value = dobMillis?.let { formatDate(it) } ?: "",
-                onValueChange = {},
-                label = "Date of birth",
-                placeholder = "DD MMM YYYY",
-                leadingIcon = Icons.Default.CalendarMonth,
-                readOnly = true
-            )
-            // Read-only fields swallow taps, so an overlay opens the picker instead.
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .padding(top = 8.dp)
-                    .clip(RoundedCornerShapeMedium)
-                    .clickable { showDatePicker = true }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-            FixhoraTextField(
-                value = city,
-                onValueChange = { city = it },
-                label = "City",
-                modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
-            FixhoraTextField(
-                value = state,
-                onValueChange = { state = it },
-                label = "State",
-                modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            )
-        }
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        FixhoraTextField(
-            value = pinCode,
-            onValueChange = { pinCode = it.digitsOnly(6) },
-            label = "PIN code",
-            errorText = pinError,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done)
+      }
+      Box(modifier = Modifier.weight(1f)) {
+        AuthTextField(
+          value = state.dateOfBirth,
+          onValueChange = { viewModel.onProfileFieldChange(dateOfBirth = it) },
+          label = stringResource(R.string.field_birth_year_optional),
+          leadingIcon = Icons.Default.Cake,
+          error = null,
+          keyboardType = KeyboardType.Number,
+          imeAction = ImeAction.Next,
+          onImeAction = {},
+          enabled = !state.isSubmitting,
         )
-
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        FieldLabel("Preferred language")
-        ChoiceChipsRow(options = listOf("English", "हिंदी"), selected = language, onSelect = { language = it })
+      }
     }
+    Spacer(modifier = Modifier.height(16.dp))
 
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = dobMillis,
-            yearRange = 1940..2012
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+      Box(modifier = Modifier.weight(1f)) {
+        AuthTextField(
+          value = state.city,
+          onValueChange = { viewModel.onProfileFieldChange(city = it) },
+          label = stringResource(R.string.field_city),
+          leadingIcon = Icons.Default.LocationCity,
+          error = null,
+          keyboardType = KeyboardType.Text,
+          imeAction = ImeAction.Next,
+          onImeAction = {},
+          enabled = !state.isSubmitting,
         )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    dobMillis = datePickerState.selectedDateMillis
-                    showDatePicker = false
-                }) { Text("OK") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel", color = SecondaryGrey) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
+      }
+      Box(modifier = Modifier.weight(1f)) {
+        AuthTextField(
+          value = state.state,
+          onValueChange = { viewModel.onProfileFieldChange(state = it) },
+          label = stringResource(R.string.field_state),
+          leadingIcon = Icons.Default.Map,
+          error = null,
+          keyboardType = KeyboardType.Text,
+          imeAction = ImeAction.Next,
+          onImeAction = {},
+          enabled = !state.isSubmitting,
+        )
+      }
     }
+    Spacer(modifier = Modifier.height(16.dp))
+
+    AuthTextField(
+      value = state.pinCode,
+      onValueChange = { viewModel.onProfileFieldChange(pinCode = it) },
+      label = stringResource(R.string.field_pin_code_optional),
+      leadingIcon = Icons.Default.Pin,
+      error = state.pinCodeError?.message(context, R.string.label_pin_code),
+      keyboardType = KeyboardType.Number,
+      imeAction = ImeAction.Done,
+      onImeAction = { viewModel.submitProfile() },
+      enabled = !state.isSubmitting,
+    )
+
+    Spacer(modifier = Modifier.height(32.dp))
+    SubmitButton(
+      text = stringResource(R.string.action_continue),
+      isSubmitting = state.isSubmitting,
+      onClick = { viewModel.submitProfile() },
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+  }
 }
 
+/**
+ * Asks for the permissions the app genuinely uses, through the real system dialogs.
+ *
+ * This screen used to describe permissions and then request nothing at all, so stringResource(R.string.action_allow) and stringResource(R.string.action_skip)
+ * did exactly the same thing and location never worked.
+ */
 @Composable
 fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
-    val permissions = buildList {
-        add(Manifest.permission.ACCESS_FINE_LOCATION)
-        add(Manifest.permission.ACCESS_COARSE_LOCATION)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) add(Manifest.permission.POST_NOTIFICATIONS)
-    }.toTypedArray()
-    // Whatever the user decides, onboarding continues; features degrade gracefully.
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        onPermissionsHandled()
+  val context = LocalContext.current
+  var locationGranted by remember { mutableStateOf(context.hasLocationPermission()) }
+  var notificationsGranted by remember { mutableStateOf(context.hasNotificationPermission()) }
+  var deniedPermanently by remember { mutableStateOf(false) }
+
+  val launcher =
+    rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+      results ->
+      locationGranted = context.hasLocationPermission()
+      notificationsGranted = context.hasNotificationPermission()
+      // Android reports an immediate denial without showing a dialog once the user has chosen
+      // stringResource(R.string.action_dont_ask_again), which is the only case where Settings is the honest next step.
+      deniedPermanently = results.isNotEmpty() && results.values.none { it } && !locationGranted
     }
 
-    AuthScreenLayout(
-        onBack = null,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        footer = {
-            PrimaryButton(text = "Allow Permissions", onClick = { launcher.launch(permissions) })
-            Spacer(modifier = Modifier.height(Spacing.xxs))
-            TextButton(onClick = onPermissionsHandled, modifier = Modifier.heightIn(min = 48.dp)) {
-                Text("Not now", style = MaterialTheme.typography.labelLarge, color = SecondaryGrey)
-            }
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(BlueContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(Color.White),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Shield, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(36.dp))
-            }
-        }
-        Spacer(modifier = Modifier.height(Spacing.lg))
-        ScreenHeader(
-            title = "A couple of permissions",
-            subtitle = "FixoraX works best with these turned on. You can change them anytime in Settings.",
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(Spacing.xl))
+  val allHandled = locationGranted && notificationsGranted
 
-        PermissionCard(
-            icon = Icons.Default.LocationOn,
-            tint = BluePrimary,
-            title = "Location",
-            message = "Show tasks and helpers near you and fill in your address faster."
-        )
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        PermissionCard(
-            icon = Icons.Default.NotificationsActive,
-            tint = OrangeSecondary,
-            title = "Notifications",
-            message = "Get instant updates about your tasks, messages and offers."
-        )
-    }
-}
+  Column(
+    modifier = Modifier.fillMaxSize().padding(24.dp),
+    horizontalAlignment = Alignment.CenterHorizontally,
+  ) {
+    Spacer(modifier = Modifier.height(48.dp))
 
-@Composable
-private fun PermissionCard(icon: ImageVector, tint: Color, title: String, message: String) {
-    FixhoraCard(modifier = Modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(icon = icon, tint = tint, size = 44.dp, iconSize = 24.dp)
-            Spacer(modifier = Modifier.width(Spacing.md))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = DarkNavy)
-                Text(message, style = MaterialTheme.typography.bodySmall, color = SecondaryGrey)
-            }
-        }
-    }
-}
-
-@Composable
-private fun FieldLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = DarkNavy,
-        modifier = Modifier.padding(bottom = Spacing.xs)
+    PermissionRow(
+      icon = Icons.Default.LocationOn,
+      iconTint = FixTheme.colors.primary,
+      background = LightBlueBorder,
+      title = stringResource(R.string.perm_location_title),
+      description = stringResource(R.string.perm_location_body),
+      granted = locationGranted,
     )
-}
 
-/** Single-select pills that share the row width equally. */
-@Composable
-fun ChoiceChipsRow(options: List<String>, selected: String, onSelect: (String) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.xs)) {
-        options.forEach { option ->
-            val isSelected = option == selected
-            Surface(
-                onClick = { onSelect(option) },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp),
-                shape = RoundedCornerShapeMedium,
-                color = if (isSelected) BlueContainer else Color.White,
-                border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, if (isSelected) BluePrimary else BorderGrey)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = option,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = if (isSelected) BluePrimary else DarkNavy
-                    )
-                }
-            }
-        }
+    Spacer(modifier = Modifier.height(32.dp))
+
+    PermissionRow(
+      icon = Icons.Default.NotificationsActive,
+      iconTint = FixTheme.colors.accentGraphic,
+      background = LightOrangeBorder,
+      title = stringResource(R.string.perm_notifications_title),
+      description = stringResource(R.string.perm_notifications_body),
+      granted = notificationsGranted,
+    )
+
+    if (deniedPermanently) {
+      Spacer(modifier = Modifier.height(24.dp))
+      FormErrorBanner(
+        stringResource(R.string.perm_denied_notice)
+      )
     }
+
+    Spacer(modifier = Modifier.weight(1f))
+
+    if (allHandled) {
+      SubmitButton(text = stringResource(R.string.action_continue), isSubmitting = false, onClick = onPermissionsHandled)
+    } else if (deniedPermanently) {
+      SubmitButton(
+        text = stringResource(R.string.action_open_settings),
+        isSubmitting = false,
+        onClick = { context.openAppSettings() },
+      )
+    } else {
+      SubmitButton(
+        text = stringResource(R.string.action_allow_permissions),
+        isSubmitting = false,
+        onClick = { launcher.launch(requiredPermissions()) },
+      )
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+    TextButton(onClick = onPermissionsHandled) {
+      Text(
+        if (allHandled) stringResource(R.string.action_skip) else stringResource(R.string.action_continue_without),
+        color = FixTheme.colors.textSecondary,
+        fontWeight = FontWeight.Medium,
+      )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    Text(
+      stringResource(R.string.perm_change_later),
+      fontSize = 12.sp,
+      color = FixTheme.colors.textSecondary,
+      textAlign = TextAlign.Center,
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+  }
 }
 
-private val RoundedCornerShapeMedium = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
+@Composable
+private fun PermissionRow(
+  icon: androidx.compose.ui.graphics.vector.ImageVector,
+  iconTint: androidx.compose.ui.graphics.Color,
+  background: androidx.compose.ui.graphics.Color,
+  title: String,
+  description: String,
+  granted: Boolean,
+) {
+  Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Box(
+      modifier = Modifier.size(72.dp).clip(CircleShape).background(background),
+      contentAlignment = Alignment.Center,
+    ) {
+      Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(36.dp))
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary)
+      if (granted) {
+        Spacer(modifier = Modifier.width(8.dp))
+        Icon(
+          Icons.Default.CheckCircle,
+          contentDescription = stringResource(R.string.perm_granted),
+          tint = FixTheme.colors.success,
+          modifier = Modifier.size(18.dp),
+        )
+      }
+    }
+    Spacer(modifier = Modifier.height(6.dp))
+    Text(description, fontSize = 14.sp, color = FixTheme.colors.textSecondary, textAlign = TextAlign.Center)
+  }
+}
 
-private fun formatDate(millis: Long): String =
-    SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date(millis))
+private fun requiredPermissions(): Array<String> =
+  buildList {
+      add(Manifest.permission.ACCESS_COARSE_LOCATION)
+      add(Manifest.permission.ACCESS_FINE_LOCATION)
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        add(Manifest.permission.POST_NOTIFICATIONS)
+      }
+    }
+    .toTypedArray()
+
+private fun Context.hasLocationPermission(): Boolean =
+  checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ||
+    checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+
+/** Below Android 13 notifications need no runtime grant, so there is nothing to ask for. */
+private fun Context.hasNotificationPermission(): Boolean =
+  Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+    checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+
+private fun checkSelfPermission(context: Context, permission: String): Boolean =
+  context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+
+private fun Context.openAppSettings() {
+  startActivity(
+    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", packageName, null))
+      .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+  )
+}

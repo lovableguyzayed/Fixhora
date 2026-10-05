@@ -5,15 +5,16 @@ import com.example.data.room.ChatMessageEntity
 import kotlinx.coroutines.flow.Flow
 
 class ChatRepository(private val chatDao: ChatDao) {
-    fun getMessagesForTask(taskId: Int): Flow<List<ChatMessageEntity>> = chatDao.getMessagesForTask(taskId)
 
-    suspend fun sendMessage(taskId: Int, senderId: String, text: String) {
-        chatDao.insertMessage(
-            ChatMessageEntity(
-                taskId = taskId,
-                senderId = senderId,
-                text = text
-            )
-        )
-    }
+  fun getMessagesForTask(taskId: Int): Flow<List<ChatMessageEntity>> =
+    chatDao.getMessagesForTask(taskId)
+
+  suspend fun sendMessage(taskId: Int, senderId: String, text: String) {
+    chatDao.insertMessage(ChatMessageEntity(taskId = taskId, senderId = senderId, text = text))
+  }
+
+  companion object {
+    const val SENDER_WORKER = "worker"
+    const val SENDER_CUSTOMER = "customer"
+  }
 }

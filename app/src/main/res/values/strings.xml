@@ -1,3 +1,489 @@
 <resources>
-    <string name="app_name">FixoraX</string>
+    <!--
+      app_name is deliberately NOT declared here. It is supplied per build type by resValue in
+      app/build.gradle.kts, so the debug channel can label itself "FixoraX (Debug)" and sit on the
+      device alongside the release build. Declaring it here as well would be a duplicate resource.
+
+      Everything else the user reads belongs in this file. Strings were previously written inline
+      in the Compose sources, and the role screen carried thirteen hand-written `if (isHindi)`
+      ternaries - a pattern that cannot scale past one screen and left the rest of the app
+      English-only whatever the user picked.
+
+      Any string not translated in values-hi/ falls back to the value here. That is Android's own
+      resource resolution, not a bug: a partly translated app shows English for the rest rather
+      than crashing or showing a key.
+    -->
+
+    <!-- Brand. Not translated: it is a name. -->
+    <string name="brand_fixora" translatable="false">Fixora</string>
+    <string name="brand_x" translatable="false">X</string>
+
+    <!-- Splash and welcome -->
+    <string name="cd_logo">FixoraX logo</string>
+    <string name="cd_welcome_illustration">Welcome illustration</string>
+    <string name="splash_tagline">Connecting skilled workers with people who need help.</string>
+    <string name="welcome_title_prefix">Welcome to </string>
+    <string name="welcome_subtitle">Find trusted local workers or offer your skills to people nearby.</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_create_account">Create Account</string>
+    <string name="action_continue_as_guest">Continue as Guest</string>
+    <string name="welcome_terms_notice">By continuing, you agree to our Terms of Service and Privacy Policy.</string>
+
+    <!-- Role selection -->
+    <string name="role_heading">How would you\nlike to get started?</string>
+    <string name="role_subheading">Choose a role to continue</string>
+    <string name="role_customer_title">I need help</string>
+    <string name="role_customer_description">Post a task and find trusted helpers nearby.</string>
+    <string name="role_worker_title">I want to help</string>
+    <string name="role_worker_description">Find tasks nearby and earn by helping others.</string>
+    <string name="role_get_started">Get Started</string>
+    <string name="cd_selected">Selected</string>
+    <string name="signed_in_as">Signed in as %1$s</string>
+    <string name="action_sign_out">Sign out</string>
+
+    <!-- Language -->
+    <string name="language_heading">Choose language</string>
+    <string name="language_change_later">You can change the language later in settings</string>
+    <!-- Each language is named in its own language, so it is readable whichever one is active. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_hindi" translatable="false">हिंदी</string>
+
+    <!-- Build version footer. The version itself is never translated. -->
+    <string name="version_footer_tap_to_check">v%1$s (%2$d) · tap to check for updates</string>
+
+    <!-- Field labels. Used both on the input itself and inside "X is required". -->
+    <string name="field_mobile_number">Mobile Number</string>
+    <string name="field_phone_number">Phone Number</string>
+    <string name="field_password">Password</string>
+    <string name="field_new_password">New Password</string>
+    <string name="field_confirm_password">Confirm Password</string>
+    <string name="field_full_name">Full Name</string>
+    <string name="field_email_optional">Email Address (Optional)</string>
+    <string name="field_city">City</string>
+    <string name="field_state">State</string>
+    <string name="field_gender_optional">Gender (Optional)</string>
+    <string name="field_birth_year_optional">Birth Year (Optional)</string>
+    <string name="field_pin_code_optional">PIN Code (Optional)</string>
+
+    <!-- Short names for the same fields, as they read inside an error sentence. -->
+    <string name="label_mobile_number">Mobile number</string>
+    <string name="label_password">Password</string>
+    <string name="label_confirmation">Confirmation</string>
+    <string name="label_full_name">Full name</string>
+    <string name="label_email">Email</string>
+    <string name="label_code">Code</string>
+    <string name="label_pin_code">PIN code</string>
+
+    <!-- Sign in -->
+    <string name="signin_title">Welcome Back</string>
+    <string name="signin_subtitle">Sign in to continue</string>
+    <string name="action_forgot_password">Forgot Password?</string>
+    <string name="action_continue_with_mobile_otp">Continue with Mobile OTP</string>
+    <string name="signin_no_account">Don\'t have an account? </string>
+    <string name="action_create_new_account">Create New Account</string>
+    <string name="cd_show_password">Show password</string>
+    <string name="cd_hide_password">Hide password</string>
+
+    <!-- Sign up -->
+    <string name="signup_title">Create Your Account</string>
+    <string name="password_requirement">At least %1$d characters, with a letter and a number</string>
+    <string name="terms_agree">I agree to the Terms &amp; Privacy Policy</string>
+    <string name="terms_required">Please accept the Terms &amp; Privacy Policy to continue</string>
+    <string name="action_signup_with_otp">Sign Up with Mobile OTP</string>
+    <string name="signup_have_account">Already have an account? </string>
+    <string name="divider_or"> OR </string>
+
+    <!-- Mobile OTP. There is no SMS gateway, and the copy says so rather than pretending. -->
+    <string name="mobile_login_title">Login with Mobile Number</string>
+    <string name="mobile_login_subtitle">Enter your mobile number to receive a verification code.</string>
+    <string name="demo_no_sms">No SMS is sent in this build. The code appears on the next screen.</string>
+    <string name="demo_your_code">No SMS is sent in this build. Your code is %1$s.</string>
+    <string name="demo_mode">Demo mode</string>
+    <string name="action_send_otp">Send OTP</string>
+    <string name="action_resend">Resend</string>
+    <string name="otp_title">Verify Your Mobile Number</string>
+    <string name="otp_subtitle">Enter the %1$d-digit code for %2$s.</string>
+    <string name="otp_resend_in">Resend code in %1$ds</string>
+    <string name="otp_resend">Resend code</string>
+    <string name="action_verify">Verify</string>
+    <string name="action_edit_mobile">Edit mobile number</string>
+    <string name="otp_sent_toast">OTP sent to your mobile</string>
+    <string name="cd_go_back">Go back</string>
+
+    <!-- Forgot and reset password -->
+    <string name="forgot_title">Forgot Password</string>
+    <string name="forgot_subtitle">Enter your registered mobile number and we\'ll send a verification code.</string>
+    <string name="action_verify_otp">Verify OTP</string>
+    <string name="code_sent_to">Code sent to %1$s.</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="reset_title">Reset Password</string>
+    <string name="reset_subtitle">Choose a new password for your account.</string>
+    <string name="action_save_new_password">Save New Password</string>
+
+    <!-- Profile and permissions -->
+    <string name="profile_title">Profile Setup</string>
+    <string name="profile_subtitle">This helps helpers nearby know who they are working with.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_allow">Allow</string>
+    <string name="action_skip">Skip</string>
+    <string name="action_dont_ask_again">Don\'t ask again</string>
+    <string name="perm_location_title">Location</string>
+    <string name="perm_location_body">Used to show tasks and helpers near you, and to fill in your task address.</string>
+    <string name="perm_notifications_title">Notifications</string>
+    <string name="perm_notifications_body">Used to tell you when someone accepts your task or sends a message.</string>
+    <string name="perm_denied_notice">Permissions were turned off for this app. You can enable them in Settings, or continue without them.</string>
+    <string name="action_open_settings">Open Settings</string>
+    <string name="action_allow_permissions">Allow Permissions</string>
+    <string name="action_continue_without">Continue without these</string>
+    <string name="perm_change_later">You can change this later in your device settings.</string>
+    <string name="perm_granted">Granted</string>
+
+    <!-- Validation. Every message says what is wrong and what to do about it. -->
+    <string name="error_required">%1$s is required</string>
+    <string name="error_name_too_short">Enter your full name</string>
+    <string name="error_mobile_incomplete">Enter a 10-digit mobile number</string>
+    <string name="error_mobile_invalid_prefix">An Indian mobile number starts with 6, 7, 8 or 9</string>
+    <string name="error_email_invalid">Enter a valid email, like name@example.com</string>
+    <string name="error_password_too_short">Use at least %1$d characters</string>
+    <string name="error_password_needs_letter_and_digit">Mix at least one letter and one number</string>
+    <string name="error_password_mismatch">Both passwords must match</string>
+    <string name="error_otp_incomplete">Enter all %1$d digits</string>
+    <string name="error_pin_code_invalid">Enter a valid 6-digit PIN code</string>
+    <string name="error_invalid_credentials">That mobile number and password do not match. Please try again.</string>
+    <string name="error_mobile_taken">This number already has an account. Try signing in instead.</string>
+    <string name="error_no_account_for_mobile">No account found for this number. Create one to continue.</string>
+    <string name="error_otp_mismatch">That code is not correct. Check it and try again.</string>
+    <string name="error_unexpected">Something went wrong on this device. Please try again.</string>
+
+    <!-- Task categories. The ids are storage values and never change; only the words do. -->
+    <string name="cat_repairs_title">Home Repairs</string>
+    <string name="cat_repairs_sub">Plumbing, electrical, carpentry &amp; more</string>
+    <string name="cat_cleaning_title">Cleaning</string>
+    <string name="cat_cleaning_sub">Home, office, deep cleaning</string>
+    <string name="cat_moving_title">Moving Help</string>
+    <string name="cat_moving_sub">Packing, loading, transport &amp; more</string>
+    <string name="cat_tech_title">Tech Support</string>
+    <string name="cat_tech_sub">Device setup, software help</string>
+    <string name="cat_errands_title">Errands</string>
+    <string name="cat_errands_sub">Grocery, pickup, delivery &amp; more</string>
+    <string name="cat_painting_title">Painting</string>
+    <string name="cat_painting_sub">Home painting, touch ups &amp; more</string>
+    <string name="cat_car_title">Car Services</string>
+    <string name="cat_car_sub">Wash, minor repair, battery &amp; more</string>
+    <string name="cat_tutoring_title">Tutoring</string>
+    <string name="cat_tutoring_sub">Academic help, online or in-person</string>
+    <string name="cat_more_title">More</string>
+    <string name="cat_more_sub">Others not listed here</string>
+
+    <!-- Worker task tabs. The enum keeps the status mapping; only the labels live here. -->
+    <string name="tab_all">All</string>
+    <string name="tab_new">New</string>
+    <string name="tab_accepted">Accepted</string>
+    <string name="tab_in_progress">In Progress</string>
+    <string name="tab_completed">Completed</string>
+    <string name="tab_declined">Declined</string>
+
+    <!-- Task flow: category step -->
+    <string name="task_category_title">What do you need help with?</string>
+    <string name="task_category_subtitle">Choose a category that best fits your task</string>
+    <string name="task_category_search">Search category</string>
+    <string name="task_category_popular">Popular Categories</string>
+    <string name="task_category_required">Please select a category to continue</string>
+    <string name="cd_category_selected">selected</string>
+
+    <!-- Fallbacks when a task carries no title or no category. -->
+    <string name="task_untitled">Untitled request</string>
+    <string name="task_conversation">Conversation</string>
+    <string name="task_uncategorised">Uncategorised</string>
+    <string name="category_not_selected">Not selected</string>
+    <string name="category_tap_edit">Tap Edit to choose a category</string>
+
+    <!-- Task age. The counted ones are plurals so English and Hindi each get their own rules. -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_yesterday">Yesterday</string>
+    <string name="time_over_a_month">Over a month ago</string>
+
+    <!-- Who posted a task. There is no verification and no rating, so nothing implies either. -->
+    <string name="poster_demo">Demo request</string>
+    <string name="poster_guest">Guest request</string>
+    <string name="poster_customer">Customer</string>
+
+    <!-- Budget. The rupee sign stays outside the translation. -->
+    <string name="budget_range">₹%1$s – ₹%2$s</string>
+    <string name="budget_from">From ₹%1$s</string>
+    <string name="budget_up_to">Up to ₹%1$s</string>
+    <string name="budget_not_set">No budget set</string>
+
+    <!-- Location. Distance is not shown because the helper's own position is not tracked. -->
+    <string name="location_pinned">Location pinned on map</string>
+    <string name="location_not_given">No location given</string>
+
+    <!-- Task status, as the customer who posted it would describe it. -->
+    <string name="status_draft">Draft</string>
+    <string name="status_waiting">Waiting for a helper</string>
+    <string name="status_helper_assigned">Helper assigned</string>
+    <string name="status_in_progress">Work in progress</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_no_helper_yet">No helper yet</string>
+    <string name="status_detail_draft">Not posted yet. Finish the steps to publish it.</string>
+    <string name="status_detail_waiting">Your task is visible to helpers. Check back to see if it was picked up.</string>
+    <string name="status_detail_assigned">A helper has taken this on. You can message them below.</string>
+    <string name="status_detail_in_progress">The helper has started work.</string>
+    <string name="status_detail_completed">The helper marked this done.</string>
+    <string name="status_detail_cancelled">You cancelled this task.</string>
+    <string name="status_detail_rejected">A helper passed on this one. It is still open to everybody else.</string>
+
+    <plurals name="minutes_ago">
+        <item quantity="one">%d min ago</item>
+        <item quantity="other">%d mins ago</item>
+    </plurals>
+
+    <plurals name="hours_ago">
+        <item quantity="one">%d hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <!-- Task flow: location step -->
+    <string name="loc_title">Where do you need help?</string>
+    <string name="loc_subtitle">Set the location for your task</string>
+    <string name="loc_search">Search address or area</string>
+    <string name="loc_use_current">Use my current location</string>
+    <string name="loc_map_preview">Map preview — not an interactive map yet</string>
+    <string name="loc_finding_you">Finding you…</string>
+    <string name="loc_position_no_address">Position found, but no street address</string>
+    <string name="loc_switch_off">Off — enter an address above, or turn this on</string>
+    <string name="loc_service_area_title">Set your service area</string>
+    <string name="loc_within_km">Within %1$d km</string>
+    <string name="loc_tap_to_change">Tap to change how far helpers can be</string>
+    <string name="cd_change_service_area">Change service area</string>
+    <string name="loc_service_area">Service area</string>
+    <string name="loc_service_area_body">Helpers within this distance will see your task.</string>
+    <string name="action_done">Done</string>
+    <string name="loc_safe_title">Your location is safe with us</string>
+    <string name="loc_safe_body">We never share your exact address with anyone.</string>
+    <string name="loc_required">Enter an address, or turn on ‘Use my current location’</string>
+    <string name="loc_finding">Finding your location…</string>
+    <string name="loc_error_permission">Location access is off for this app. Allow it, or type the address above.</string>
+    <string name="loc_error_disabled">Location is switched off on this device. Turn it on, or type the address above.</string>
+    <string name="loc_error_no_fix">Couldn’t get a location fix. Move somewhere with a clearer signal, or type the address above.</string>
+    <string name="loc_error_no_address">Found your position, but not a street address. Please type it above.</string>
+
+    <!-- Task flow: photos and details step -->
+    <string name="photos_title">Add photos (optional)</string>
+    <string name="photos_subtitle">Add photos to help helpers understand the task better.</string>
+    <string name="photos_saving">Saving photos…</string>
+    <string name="photos_saving_body">Copying them into the app so they stay with your task.</string>
+    <string name="photos_upload">Upload photos</string>
+    <string name="photos_all_added">All %1$d photos added</string>
+    <string name="photos_tap_to_select">Tap to select up to %1$d more from your gallery</string>
+    <string name="photos_remove_one">Remove one to add a different photo</string>
+    <string name="photos_added">Added photos</string>
+    <string name="photos_count">%1$d/%2$d</string>
+    <string name="cd_photo_n_of_m">Photo %1$d of %2$d</string>
+    <string name="cd_remove_photo_n">Remove photo %1$d</string>
+    <string name="cd_add_another_photo">Add another photo</string>
+    <string name="photos_debug_sample">⚡ Debug: attach sample photos</string>
+    <string name="details_title">Task Details</string>
+    <string name="details_field_title">Task Title *</string>
+    <string name="details_title_hint">e.g. Clean my kitchen sink / fix wood drawer</string>
+    <string name="details_title_required">Title is required to post the task</string>
+    <string name="details_field_description">Detailed Description</string>
+    <string name="details_description_hint">Provide details like what tools are needed, special requests, size of work etc.</string>
+    <string name="budget_section_title">Set Budget Range (Optional)</string>
+    <string name="budget_field_min">Min Budget (₹)</string>
+    <string name="budget_hint_min">e.g. 500</string>
+    <string name="budget_field_max">Max Budget (₹)</string>
+    <string name="budget_hint_max">e.g. 1500</string>
+    <string name="tips_title">Tips for better responses</string>
+    <string name="tips_photos">• Add clear, well-lit photos</string>
+    <string name="tips_budget">• Provide an accurate budget range so helpers can bid effectively</string>
+    <string name="tips_tools">• Detail any special equipment/tools required</string>
+
+    <!-- Task flow: review step -->
+    <string name="review_title">Review your task</string>
+    <string name="review_subtitle">Please review all details before posting</string>
+    <string name="review_category">Category</string>
+    <string name="review_description">Task Description</string>
+    <string name="review_no_title">No title yet</string>
+    <string name="review_no_details">No details added</string>
+    <string name="review_location">Location</string>
+    <string name="review_location_no_address">Current location (no street address found)</string>
+    <string name="review_not_specified">Not specified</string>
+    <string name="review_from_current">From your current location</string>
+    <string name="review_photos">Photos</string>
+    <string name="review_no_photos">No photos added</string>
+    <string name="review_photos_added">%1$d photos added</string>
+    <string name="cd_review_image">Review image</string>
+    <string name="review_budget_range">₹%1$s - ₹%2$s</string>
+    <string name="review_budget_min">Min ₹%1$s</string>
+    <string name="review_budget_max">Max ₹%1$s</string>
+    <string name="review_no_budget">No budget specified</string>
+    <string name="review_your_budget">Your Budget</string>
+    <string name="review_budget_note">Helpers will submit their offers within this range</string>
+    <string name="review_control_title">You’re in control</string>
+    <string name="review_control_body">You’ll receive offers from nearby helpers and choose the best one for your task.</string>
+    <string name="review_submit_failed">Your task could not be saved on this device. Nothing was lost — tap Post Task to try again.</string>
+    <string name="review_posting">Posting…</string>
+    <string name="review_try_again">Try Again</string>
+    <string name="review_post_task">Post Task</string>
+    <string name="review_secure">Your details are safe and secure</string>
+    <string name="action_edit">Edit</string>
+
+    <!-- Task flow: steps and container -->
+    <string name="step_details">Task Details</string>
+    <string name="step_location">Location</string>
+    <string name="step_photos">Photos</string>
+    <string name="step_review">Review</string>
+    <string name="discard_title">Discard this task?</string>
+    <string name="discard_body">Your category, details and photos for this task will be removed. This cannot be undone.</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_keep_editing">Keep editing</string>
+    <string name="flow_i_need_help">I need help</string>
+    <string name="cd_back">Back</string>
+    <string name="success_title">Task posted</string>
+    <string name="success_body">Helpers can see it now. Check My tasks to see whether someone has taken it on.</string>
+    <string name="success_view_tasks">View my tasks</string>
+    <string name="success_back_home">Back to home</string>
+
+    <!-- Worker: bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_map">Map</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_tasks">Tasks</string>
+
+    <!-- Worker: browse jobs (map tab) -->
+    <string name="map_title">Browse jobs</string>
+    <string name="map_search_hint">Search open jobs</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="filter_all">All</string>
+    <string name="map_empty_filtered_title">No open jobs match</string>
+    <string name="map_empty_title">No open jobs right now</string>
+    <string name="map_empty_filtered_body">Try another category, or clear the filters.</string>
+    <string name="map_empty_body">New requests appear here as soon as customers post them.</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="map_preview_notice">Map view isn\'t available yet — jobs are listed by category for now.</string>
+
+    <!-- Worker: home -->
+    <string name="worker_home_title">Find work nearby</string>
+    <string name="worker_no_jobs_in_progress">No jobs in progress</string>
+    <plurals name="jobs_in_progress">
+        <item quantity="one">%1$d job in progress</item>
+        <item quantity="other">%1$d jobs in progress</item>
+    </plurals>
+    <string name="worker_pipeline">Your pipeline</string>
+    <string name="worker_stat_open_nearby">Open nearby</string>
+    <string name="worker_stat_accepted">Accepted</string>
+    <string name="worker_stat_in_progress">In progress</string>
+    <string name="worker_stat_completed">Completed</string>
+    <string name="worker_stat_declined">Declined</string>
+    <string name="worker_stat_active">Active</string>
+    <string name="worker_available_jobs">Available nearby jobs</string>
+    <string name="worker_empty_title">No jobs nearby right now</string>
+    <string name="worker_empty_body">New requests from customers appear here as soon as they are posted.</string>
+    <string name="worker_your_work">Your work</string>
+    <string name="job_status_open">Open</string>
+    <string name="action_not_for_me">Not for me</string>
+    <string name="action_accept_job">Accept job</string>
+    <string name="action_ask_question">Ask a question</string>
+
+    <!-- Worker: my tasks -->
+    <string name="worker_tasks_title">My tasks</string>
+    <string name="worker_tasks_search_hint">Search by title, address or category</string>
+    <string name="worker_tab_with_count">%1$s (%2$d)</string>
+    <string name="worker_tasks_empty_query_title">Nothing matches \"%1$s\"</string>
+    <string name="worker_tasks_empty_all_title">No tasks yet</string>
+    <string name="worker_tasks_empty_tab_title">Nothing in \"%1$s\"</string>
+    <string name="worker_tasks_empty_query_body">Try a different word, or clear the search.</string>
+    <string name="worker_tasks_empty_all_body">Customer requests appear here as soon as they are posted.</string>
+    <string name="worker_tasks_empty_tab_body">Tasks move here as their status changes.</string>
+    <string name="action_clear_search">Clear search</string>
+    <string name="map_query_fallback">Task location</string>
+    <string name="action_decline">Decline</string>
+    <string name="action_accept">Accept</string>
+    <string name="action_chat">Chat</string>
+    <string name="action_directions">Directions</string>
+    <string name="action_start">Start</string>
+    <string name="action_mark_done">Done</string>
+    <string name="worker_finished">Finished</string>
+    <string name="worker_no_actions">No actions available for this task.</string>
+
+    <!-- Worker: status badges (the worker\'s own vocabulary, not the customer\'s) -->
+    <string name="worker_status_draft">Draft</string>
+    <string name="worker_status_new">New</string>
+    <string name="worker_status_accepted">Accepted</string>
+    <string name="worker_status_in_progress">In progress</string>
+    <string name="worker_status_completed">Completed</string>
+    <string name="worker_status_cancelled">Cancelled</string>
+    <string name="worker_status_declined">Declined</string>
+
+    <!-- Worker: chat -->
+    <string name="chat_title">Chats</string>
+    <string name="chat_search_hint">Search your conversations</string>
+    <string name="chat_empty_query_title">Nothing matches \"%1$s\"</string>
+    <string name="chat_empty_title">No conversations yet</string>
+    <string name="chat_empty_query_body">Try a different word, or clear the search.</string>
+    <string name="chat_empty_body">Once you accept a job, your chat with that customer appears here.</string>
+    <string name="cd_back_to_chats">Back to chats</string>
+    <string name="chat_thread_empty_title">No messages yet</string>
+    <string name="chat_thread_empty_body">Send the first message about this job.</string>
+    <string name="chat_input_hint">Type a message…</string>
+    <string name="cd_send_message">Send message</string>
+
+    <!-- Customer: my tasks -->
+    <string name="mytasks_empty_title">No tasks yet</string>
+    <string name="mytasks_empty_body">Anything you post shows up here, with its status and a way to message the helper who takes it on.</string>
+    <string name="mytasks_post_a_task">Post a task</string>
+    <string name="mytasks_posted_ago">Posted %1$s</string>
+    <string name="mytasks_tap_to_message">Tap to message your helper</string>
+    <string name="mytasks_cancel_title">Cancel this task?</string>
+    <string name="mytasks_cancel_body">It stops being visible to helpers. This cannot be undone — you would have to post it again.</string>
+    <string name="mytasks_cancel_confirm">Cancel task</string>
+    <string name="mytasks_cancel_keep">Keep it</string>
+    <string name="cd_back_to_my_tasks">Back to my tasks</string>
+    <string name="mytasks_chat_locked">Messaging opens once a helper takes this task on.</string>
+    <string name="mytasks_chat_empty">No messages yet. Say hello to your helper.</string>
+    <string name="mytasks_chat_hint">Message your helper</string>
+    <string name="mytasks_cancel_action">Cancel this task</string>
+
+    <!-- In-app update -->
+    <string name="update_title_available">Update available</string>
+    <string name="update_title_permission">One permission needed</string>
+    <string name="update_title_downloading">Downloading update</string>
+    <string name="update_title_ready">Ready to install</string>
+    <string name="update_title_current">You are up to date</string>
+    <string name="update_title_failed">Update check failed</string>
+    <string name="update_body_available">Version %1$s is available. You are on %2$s.\n\nDownload size: %3$s. Your account and posted tasks stay as they are.</string>
+    <string name="update_body_permission">Android needs your permission before this app can install its own updates. Turn on \"Allow from this source\" on the next screen, then come back — the download will start on its own.</string>
+    <string name="update_body_starting">Starting download…</string>
+    <string name="update_body_progress">%1$d%% of %2$s</string>
+    <string name="update_body_ready">The installer should be open. If it is not, tap Install below and confirm the system prompt.</string>
+    <string name="update_body_current">%1$s is the newest build published.</string>
+    <string name="update_body_failed_generic">Something went wrong while checking for updates.</string>
+    <string name="update_body_failed_hint">You can always download the APK from the releases page instead.</string>
+    <string name="update_action_now">Update now</string>
+    <string name="update_action_settings">Open settings</string>
+    <string name="update_action_install">Install</string>
+    <string name="update_action_releases">Open releases</string>
+    <string name="update_action_ok">OK</string>
+    <string name="update_action_cancel">Cancel</string>
+    <string name="update_action_not_now">Not now</string>
+
+    <!-- In-app update: why a check could not answer the question -->
+    <string name="update_fail_no_network">No internet connection. Try again once you are back online.</string>
+    <string name="update_fail_rate_limited">GitHub is rate-limiting update checks right now. Try again in an hour.</string>
+    <string name="update_fail_server">Could not reach the update server.</string>
+    <string name="update_fail_malformed">The update server sent something unexpected.</string>
+    <string name="update_fail_no_asset">The latest release has no APK for this build.</string>
+    <string name="update_fail_download">The download did not finish. Check your connection and try again.</string>
+
+    <!-- Customer: bottom navigation, and the shared button loading label -->
+    <string name="customer_tab_post">Post a task</string>
+    <string name="customer_tab_my_tasks">My tasks</string>
+    <string name="action_please_wait">Please wait…</string>
 </resources>

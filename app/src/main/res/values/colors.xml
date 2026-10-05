@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_blue">#FF0B57FF</color>
-    <color name="brand_orange">#FFFF6B00</color>
-    <color name="dark_navy">#FF0B1F44</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!--
+      Only the launch window uses these; everything after the first frame is drawn by Compose from
+      Palette.kt. They exist so the window behind the app does not flash white before a dark-themed
+      first frame. Keep them in step with Palette.Light.background / Palette.Dark.background.
+    -->
+    <color name="fixhora_window_background">#FFFFFFFF</color>
 </resources>

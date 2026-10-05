@@ -3,9 +3,28 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Requested at runtime from PermissionRequestScreen. Coarse is enough to place a task in a
+         neighbourhood; fine is requested alongside it for map accuracy. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Runtime permission only from Android 13. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- The app is sideloaded from GitHub Releases, so it installs its own updates. Without this
+         the system refuses to open the installer at all, and from Android 8 the user must also
+         grant "Install unknown apps" to this app; ApkInstaller checks for that and offers to take
+         them to the switch rather than failing silently. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- The app works without GPS hardware; location is a convenience, not a requirement, so this
+         must not narrow Play Store eligibility. -->
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
 
     <application
         android:name="com.example.FixhoraApplication"
@@ -21,14 +40,27 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/Theme.MyApplication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Hands the downloaded update APK to the system installer as a content:// URI.
+             The authority is built from ${applicationId} so the debug channel
+             (com.fixhora.app.debug) and the release channel do not declare the same authority —
+             two apps claiming one authority cannot be installed on the same device. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

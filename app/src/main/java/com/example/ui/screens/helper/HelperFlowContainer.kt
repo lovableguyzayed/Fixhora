@@ -1,7 +1,8 @@
 package com.example.ui.screens.helper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -11,26 +12,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.ui.components.Spacing
-import com.example.ui.theme.BluePrimary
-import com.example.ui.theme.BlueContainer
-import com.example.ui.theme.DarkNavy
-import com.example.ui.theme.SecondaryGrey
+import androidx.compose.ui.semantics.Role
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
+import com.example.R
+import com.example.ui.screens.taskflow.categoryTitles
+import com.example.ui.theme.FixTheme
 
-sealed class HelperScreen(val route: String, val title: String, val icon: ImageVector) {
-    object Home : HelperScreen("helper_home", "Home", Icons.Default.Home)
-    object Map : HelperScreen("helper_map", "Map", Icons.Default.Map)
-    object Chat : HelperScreen("helper_chat", "Chats", Icons.AutoMirrored.Filled.Chat)
-    object Tasks : HelperScreen("helper_tasks", "Tasks", Icons.AutoMirrored.Filled.Assignment)
+sealed class HelperScreen(
+    val route: String,
+    @StringRes val titleRes: Int,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    object Home : HelperScreen("helper_home", R.string.nav_home, Icons.Default.Home)
+    object Map : HelperScreen("helper_map", R.string.nav_map, Icons.Default.Map)
+    object Chat : HelperScreen("helper_chat", R.string.nav_chat, Icons.AutoMirrored.Filled.Chat)
+    object Tasks : HelperScreen("helper_tasks", R.string.nav_tasks, Icons.AutoMirrored.Filled.Assignment)
 }
 
 val helperBottomNavItems = listOf(
@@ -45,155 +49,117 @@ fun HelperFlowContainer(
     onBackToRoles: () -> Unit,
     viewModel: HelperViewModel
 ) {
+    // Search matches the category names the user can actually see, so the ViewModel is told what
+    // they say in the active language. Recomposes when the language changes, because
+    // stringResource does.
+    val titles = categoryTitles()
+    LaunchedEffect(titles) { viewModel.onCategoryTitlesChanged(titles) }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val openChatTaskId by viewModel.openChatTaskId.collectAsState()
-    val allTasks by viewModel.allTasks.collectAsState()
-    val activeChats = allTasks.count { it.status == "accepted" }
-
-    val navigateToTab: (HelperScreen) -> Unit = { screen ->
-        navController.navigate(screen.route) {
-            popUpTo(navController.graph.startDestinationId) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
-    }
-    val openChat: (Int) -> Unit = { taskId ->
-        viewModel.openChat(taskId)
-        navigateToTab(HelperScreen.Chat)
-    }
-    val isInConversation = openChatTaskId != null &&
-        navBackStackEntry?.destination?.route == HelperScreen.Chat.route
+    val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
-        // Each tab draws its own top app bar, which already handles the status bar.
-        contentWindowInsets = WindowInsets(0),
-        containerColor = Color.White,
         bottomBar = {
-            if (!isInConversation) {
-                HelperBottomBar(
-                    currentRoute = { screen -> navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true },
-                    chatBadgeCount = activeChats,
-                    onSelect = navigateToTab
-                )
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 8.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    helperBottomNavItems.forEach { screen ->
+                        val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp)
+                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp))
+                                // selectable rather than clickable so the active tab is announced
+                                // as selected. Visually only the tint and label changed, which a
+                                // screen reader cannot see.
+                                .selectable(
+                                    selected = isSelected,
+                                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                                    indication = null,
+                                    role = Role.Tab
+                                ) {
+                                    navController.navigate(screen.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                                .background(if (isSelected) FixTheme.colors.primary.copy(alpha = 0.15f) else androidx.compose.ui.graphics.Color.Transparent),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                // The Chat tab carried a hardcoded "3" badge. Nothing records
+                                // whether a message has been read, so there is no unread count to
+                                // show and the number was pure decoration.
+                                Icon(
+                                    screen.icon,
+                                    contentDescription = stringResource(screen.titleRes),
+                                    tint = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textSecondary,
+                                    modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
+                                )
+                                if (isSelected) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = stringResource(screen.titleRes),
+                                        color = FixTheme.colors.primary,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = HelperScreen.Home.route,
-            modifier = Modifier
-                .padding(paddingValues)
-                .consumeWindowInsets(paddingValues)
+            modifier = Modifier.padding(paddingValues)
         ) {
-            composable(HelperScreen.Home.route) {
-                WorkerHomeScreen(
-                    viewModel = viewModel,
-                    onSwitchRole = onBackToRoles,
-                    onOpenChat = openChat,
-                    onSeeAllTasks = { navigateToTab(HelperScreen.Tasks) }
-                )
-            }
-            composable(HelperScreen.Map.route) {
-                WorkerMapScreen(viewModel = viewModel, onOpenChat = openChat)
-            }
-            composable(HelperScreen.Chat.route) {
-                WorkerChatScreen(viewModel = viewModel, onExploreJobs = { navigateToTab(HelperScreen.Home) })
-            }
-            composable(HelperScreen.Tasks.route) {
-                WorkerTasksScreen(
-                    viewModel = viewModel,
-                    onOpenChat = openChat,
-                    onExploreJobs = { navigateToTab(HelperScreen.Home) }
-                )
-            }
-        }
-    }
-}
-
-/** Floating pill navigation that sits above the gesture / navigation bar. */
-@Composable
-private fun HelperBottomBar(
-    currentRoute: (HelperScreen) -> Boolean,
-    chatBadgeCount: Int,
-    onSelect: (HelperScreen) -> Unit,
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = Spacing.md, vertical = Spacing.sm),
-        shape = RoundedCornerShape(32.dp),
-        color = Color.White,
-        shadowElevation = 12.dp,
-        tonalElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Spacing.xs),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xxs),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            helperBottomNavItems.forEach { screen ->
-                val isSelected = currentRoute(screen)
-                Surface(
-                    onClick = { onSelect(screen) },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    color = if (isSelected) BlueContainer else Color.Transparent
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val tint = if (isSelected) BluePrimary else SecondaryGrey
-                        if (screen == HelperScreen.Chat && chatBadgeCount > 0) {
-                            BadgedBox(badge = { Badge(containerColor = BluePrimary) { Text(chatBadgeCount.toString()) } }) {
-                                Icon(screen.icon, contentDescription = screen.title, tint = tint, modifier = Modifier.size(24.dp))
-                            }
-                        } else {
-                            Icon(screen.icon, contentDescription = screen.title, tint = tint, modifier = Modifier.size(24.dp))
-                        }
-                        if (isSelected) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = screen.title,
-                                color = BluePrimary,
-                                fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.labelMedium,
-                                maxLines = 1
-                            )
-                        }
-                    }
+            // Asking a question about a job jumps to the Chat tab with that conversation open,
+            // which is what makes the "Chat" action on a job card lead somewhere.
+            fun openChat(taskId: Int) {
+                viewModel.requestChat(taskId)
+                navController.navigate(HelperScreen.Chat.route) {
+                    popUpTo(navController.graph.startDestinationId) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
                 }
             }
+
+            composable(HelperScreen.Home.route) {
+                WorkerHomeScreen(viewModel = viewModel, onOpenChat = ::openChat)
+            }
+            composable(HelperScreen.Map.route) {
+                WorkerMapScreen(viewModel = viewModel, onOpenChat = ::openChat)
+            }
+            composable(HelperScreen.Chat.route) {
+                WorkerChatScreen(viewModel = viewModel)
+            }
+            composable(HelperScreen.Tasks.route) {
+                WorkerTasksScreen(viewModel = viewModel, onOpenChat = ::openChat)
+            }
         }
     }
-}
-
-/** Shared top-bar style for helper tabs: white, title on the left, no elevation tint. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HelperTopBar(
-    title: @Composable () -> Unit,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-) {
-    TopAppBar(
-        title = title,
-        navigationIcon = navigationIcon,
-        actions = actions,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.White,
-            scrolledContainerColor = Color.White,
-            titleContentColor = DarkNavy,
-            actionIconContentColor = DarkNavy,
-            navigationIconContentColor = DarkNavy
-        )
-    )
 }
