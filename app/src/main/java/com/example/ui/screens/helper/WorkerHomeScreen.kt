@@ -3,7 +3,6 @@ package com.example.ui.screens.helper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,7 +57,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                     Column {
                         Text(
                             text = stringResource(R.string.worker_home_title),
-                            fontSize = 18.sp,
+                            style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = FixTheme.colors.textPrimary
                         )
@@ -72,7 +71,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                             } else {
                                 stringResource(R.string.worker_no_jobs_in_progress)
                             },
-                            fontSize = 12.sp,
+                            style = MaterialTheme.typography.bodySmall,
                             color = FixTheme.colors.textSecondary
                         )
                     }
@@ -96,28 +95,20 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
 
             item {
                 SectionHeader(title = stringResource(R.string.worker_pipeline))
-                Spacer(modifier = Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    item {
-                        SummaryCard(stringResource(R.string.worker_stat_open_nearby), stats.availableNow, Icons.Default.Search,
-                            FixTheme.colors.infoSurface, FixTheme.colors.info)
-                    }
-                    item {
-                        SummaryCard(stringResource(R.string.worker_stat_accepted), stats.accepted, Icons.AutoMirrored.Filled.Assignment,
-                            FixTheme.colors.warningSurface, FixTheme.colors.warning)
-                    }
-                    item {
-                        SummaryCard(stringResource(R.string.worker_stat_in_progress), stats.inProgress, Icons.Default.PendingActions,
-                            FixTheme.colors.warningSurface, FixTheme.colors.warning)
-                    }
-                    item {
-                        SummaryCard(stringResource(R.string.worker_stat_completed), stats.completed, Icons.Default.CheckCircle,
-                            FixTheme.colors.successSurface, FixTheme.colors.success)
-                    }
-                    item {
-                        SummaryCard(stringResource(R.string.worker_stat_declined), stats.declined, Icons.Default.Cancel,
-                            FixTheme.colors.dangerSurface, FixTheme.colors.danger)
-                    }
+                Spacer(modifier = Modifier.height(Spacing.md))
+                // Three equal tiles that always fit. This was a sideways-scrolling row of five
+                // whose third tile was cut off at the screen edge, and two of the five repeated
+                // the numbers already shown in the card above.
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    SummaryCard(stringResource(R.string.worker_stat_accepted), stats.accepted, Icons.AutoMirrored.Filled.Assignment,
+                        FixTheme.colors.infoSurface, FixTheme.colors.info, Modifier.weight(1f).fillMaxHeight())
+                    SummaryCard(stringResource(R.string.worker_stat_in_progress), stats.inProgress, Icons.Default.PendingActions,
+                        FixTheme.colors.warningSurface, FixTheme.colors.warning, Modifier.weight(1f).fillMaxHeight())
+                    SummaryCard(stringResource(R.string.worker_stat_declined), stats.declined, Icons.Default.Cancel,
+                        FixTheme.colors.dangerSurface, FixTheme.colors.danger, Modifier.weight(1f).fillMaxHeight())
                 }
             }
 
@@ -159,68 +150,74 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
 @Composable
 fun WorkSummaryCard(stats: HelperStats) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(Radius.xl),
         colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(Spacing.xl)) {
             Text(
                 stringResource(R.string.worker_your_work),
                 color = FixTheme.colors.onPrimary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                HeadlineStat(stringResource(R.string.worker_stat_open_nearby), stats.availableNow)
-                HeadlineStat(stringResource(R.string.worker_stat_active), stats.activeNow)
-                HeadlineStat(stringResource(R.string.worker_stat_completed), stats.completed)
+            Spacer(modifier = Modifier.height(Spacing.lg))
+            // Equal columns, so the three numbers line up however long each label is.
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HeadlineStat(stringResource(R.string.worker_stat_open_nearby), stats.availableNow, Modifier.weight(1f))
+                HeadlineStat(stringResource(R.string.worker_stat_active), stats.activeNow, Modifier.weight(1f))
+                HeadlineStat(stringResource(R.string.worker_stat_completed), stats.completed, Modifier.weight(1f))
             }
         }
     }
 }
 
 @Composable
-private fun HeadlineStat(label: String, value: Int) {
-    Column {
+private fun HeadlineStat(label: String, value: Int, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         Text(
             text = value.toString(),
-            fontSize = 26.sp,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = FixTheme.colors.onPrimary
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(Spacing.xs))
         Text(
             text = label,
-            fontSize = 12.sp,
-            color = FixTheme.colors.onPrimary.copy(alpha = 0.75f)
+            style = MaterialTheme.typography.bodySmall,
+            color = FixTheme.colors.onPrimary.copy(alpha = 0.85f)
         )
     }
 }
 
 @Composable
-fun SummaryCard(title: String, count: Int, icon: ImageVector, bgColor: Color, iconColor: Color) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        modifier = Modifier.width(120.dp)
+fun SummaryCard(
+    title: String,
+    count: Int,
+    icon: ImageVector,
+    bgColor: Color,
+    iconColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(Radius.lg))
+            .background(bgColor)
+            .padding(Spacing.md)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = count.toString(),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = FixTheme.colors.textPrimary
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = title, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
-        }
+        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
+        Spacer(modifier = Modifier.height(Spacing.sm))
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = FixTheme.colors.textPrimary
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            color = FixTheme.colors.textSecondary,
+            maxLines = 2
+        )
     }
 }
 

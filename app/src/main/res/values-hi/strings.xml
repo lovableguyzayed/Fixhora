@@ -150,19 +150,19 @@
 
     <!-- Task categories. The ids are storage values and never change; only the words do. -->
     <string name="cat_repairs_title">घर की मरम्मत</string>
-    <string name="cat_repairs_sub">प्लंबिंग, बिजली, बढ़ईगीरी और बहुत कुछ</string>
+    <string name="cat_repairs_sub">प्लंबिंग, बिजली, बढ़ईगीरी</string>
     <string name="cat_cleaning_title">सफ़ाई</string>
     <string name="cat_cleaning_sub">घर, ऑफ़िस, गहरी सफ़ाई</string>
     <string name="cat_moving_title">सामान शिफ़्टिंग</string>
-    <string name="cat_moving_sub">पैकिंग, लोडिंग, ढुलाई और बहुत कुछ</string>
+    <string name="cat_moving_sub">पैकिंग, लोडिंग, ढुलाई</string>
     <string name="cat_tech_title">तकनीकी मदद</string>
     <string name="cat_tech_sub">डिवाइस सेटअप, सॉफ़्टवेयर मदद</string>
     <string name="cat_errands_title">छोटे काम</string>
-    <string name="cat_errands_sub">किराना, पिकअप, डिलीवरी और बहुत कुछ</string>
+    <string name="cat_errands_sub">किराना, पिकअप, डिलीवरी</string>
     <string name="cat_painting_title">पेंटिंग</string>
-    <string name="cat_painting_sub">घर की पेंटिंग, टच-अप और बहुत कुछ</string>
+    <string name="cat_painting_sub">घर की पेंटिंग, टच-अप</string>
     <string name="cat_car_title">गाड़ी की सेवाएँ</string>
-    <string name="cat_car_sub">धुलाई, छोटी मरम्मत, बैटरी और बहुत कुछ</string>
+    <string name="cat_car_sub">धुलाई, बैटरी, छोटी मरम्मत</string>
     <string name="cat_tutoring_title">ट्यूशन</string>
     <string name="cat_tutoring_sub">पढ़ाई में मदद, ऑनलाइन या घर पर</string>
     <string name="cat_more_title">अन्य</string>
@@ -182,6 +182,8 @@
     <string name="task_category_search">श्रेणी खोजें</string>
     <string name="task_category_popular">लोकप्रिय श्रेणियाँ</string>
     <string name="task_category_required">आगे बढ़ने के लिए एक श्रेणी चुनें</string>
+    <string name="task_category_empty_title">कोई श्रेणी नहीं मिली</string>
+    <string name="task_category_empty_body">कोई दूसरा शब्द आज़माएँ, या सूची में न होने वाले काम के लिए \"अन्य\" चुनें।</string>
     <string name="cd_category_selected">चुना गया</string>
 
     <!-- Fallbacks when a task carries no title or no category. -->
@@ -253,11 +255,8 @@
     <string name="loc_switch_off">बंद है — ऊपर पता डालें, या इसे चालू करें</string>
     <string name="loc_service_area_title">अपना सेवा क्षेत्र चुनें</string>
     <string name="loc_within_km">%1$d किमी के अंदर</string>
-    <string name="loc_tap_to_change">सहायक कितनी दूर तक हों, बदलने के लिए टैप करें</string>
-    <string name="cd_change_service_area">सेवा क्षेत्र बदलें</string>
-    <string name="loc_service_area">सेवा क्षेत्र</string>
+    <string name="loc_km_short">%1$d कि.मी.</string>
     <string name="loc_service_area_body">इस दूरी के अंदर के सहायकों को आपका कार्य दिखेगा।</string>
-    <string name="action_done">हो गया</string>
     <string name="loc_safe_title">आपकी जगह हमारे पास सुरक्षित है</string>
     <string name="loc_safe_body">हम आपका सटीक पता कभी किसी के साथ साझा नहीं करते।</string>
     <string name="loc_required">पता डालें, या ‘मेरी मौजूदा जगह इस्तेमाल करें’ चालू करें</string>
@@ -268,33 +267,34 @@
     <string name="loc_error_no_address">आपकी जगह मिल गई, पर गली का पता नहीं। कृपया ऊपर लिखें।</string>
 
     <!-- Task flow: photos and details step -->
-    <string name="photos_title">फ़ोटो जोड़ें (वैकल्पिक)</string>
+    <string name="photos_title">फ़ोटो (वैकल्पिक)</string>
     <string name="photos_subtitle">फ़ोटो से सहायकों को काम बेहतर समझ आता है।</string>
     <string name="photos_saving">फ़ोटो सहेजी जा रही हैं…</string>
     <string name="photos_saving_body">इन्हें ऐप में कॉपी किया जा रहा है ताकि ये आपके कार्य के साथ रहें।</string>
     <string name="photos_upload">फ़ोटो अपलोड करें</string>
     <string name="photos_all_added">सभी %1$d फ़ोटो जुड़ गईं</string>
-    <string name="photos_tap_to_select">गैलरी से %1$d और चुनने के लिए टैप करें</string>
+    <string name="photos_tap_to_select">गैलरी से %1$d तक फ़ोटो चुनें</string>
     <string name="photos_remove_one">दूसरी फ़ोटो जोड़ने के लिए एक हटाएँ</string>
-    <string name="photos_added">जोड़ी गई फ़ोटो</string>
     <string name="photos_count">%1$d/%2$d</string>
     <string name="cd_photo_n_of_m">फ़ोटो %1$d में से %2$d</string>
     <string name="cd_remove_photo_n">फ़ोटो %1$d हटाएँ</string>
     <string name="cd_add_another_photo">एक और फ़ोटो जोड़ें</string>
     <string name="details_title">कार्य का विवरण</string>
+    <string name="details_subtitle">सहायकों को बताएँ कि क्या काम है। सिर्फ़ शीर्षक ज़रूरी है।</string>
     <string name="details_field_title">कार्य का शीर्षक *</string>
     <string name="details_title_hint">जैसे: किचन सिंक साफ़ करना / लकड़ी की दराज ठीक करना</string>
     <string name="details_title_required">कार्य पोस्ट करने के लिए शीर्षक ज़रूरी है</string>
-    <string name="details_field_description">विस्तृत विवरण</string>
+    <string name="details_field_description">विवरण</string>
     <string name="details_description_hint">बताएँ कि कौन से औज़ार चाहिए, कोई खास बात, काम कितना बड़ा है वगैरह।</string>
-    <string name="budget_section_title">बजट तय करें (वैकल्पिक)</string>
-    <string name="budget_field_min">कम से कम बजट (₹)</string>
+    <string name="budget_section_title">बजट (वैकल्पिक)</string>
+    <string name="budget_field_min">न्यूनतम बजट</string>
     <string name="budget_hint_min">जैसे 500</string>
-    <string name="budget_field_max">ज़्यादा से ज़्यादा बजट (₹)</string>
+    <string name="budget_field_max">अधिकतम बजट</string>
     <string name="budget_hint_max">जैसे 1500</string>
+    <string name="budget_max_below_min">अधिकतम बजट न्यूनतम से कम नहीं हो सकता</string>
     <string name="tips_title">बेहतर जवाब पाने के तरीके</string>
     <string name="tips_photos">• साफ़, अच्छी रोशनी वाली फ़ोटो लगाएँ</string>
-    <string name="tips_budget">• सही बजट बताएँ ताकि सहायक ठीक से अंदाज़ा लगा सकें</string>
+    <string name="tips_budget">• सही बजट बताएँ ताकि सहायक जल्दी तय कर सकें</string>
     <string name="tips_tools">• कोई खास औज़ार चाहिए तो लिखें</string>
 
     <!-- Task flow: review step -->
@@ -308,29 +308,25 @@
     <string name="review_location_no_address">मौजूदा जगह (गली का पता नहीं मिला)</string>
     <string name="review_not_specified">नहीं बताया</string>
     <string name="review_from_current">आपकी मौजूदा जगह से</string>
-    <string name="review_photos">फ़ोटो</string>
     <string name="review_no_photos">कोई फ़ोटो नहीं जोड़ी</string>
-    <string name="review_photos_added">%1$d फ़ोटो जोड़ी गईं</string>
-    <string name="cd_review_image">जाँच की फ़ोटो</string>
-    <string name="review_budget_range">₹%1$s - ₹%2$s</string>
-    <string name="review_budget_min">कम से कम ₹%1$s</string>
-    <string name="review_budget_max">ज़्यादा से ज़्यादा ₹%1$s</string>
-    <string name="review_no_budget">बजट नहीं बताया</string>
-    <string name="review_your_budget">आपका बजट</string>
-    <string name="review_budget_note">सहायक इसी दायरे में अपने प्रस्ताव भेजेंगे</string>
+    <plurals name="review_photos_added">
+        <item quantity="one">%d फ़ोटो जोड़ी गई</item>
+        <item quantity="other">%d फ़ोटो जोड़ी गईं</item>
+    </plurals>
+    <string name="review_your_budget">बजट</string>
+    <string name="review_budget_note">सहायक कार्य स्वीकार करने से पहले इसे देखेंगे</string>
     <string name="review_control_title">नियंत्रण आपके पास है</string>
-    <string name="review_control_body">आस-पास के सहायकों से प्रस्ताव आएँगे, और आप अपने कार्य के लिए सबसे अच्छा चुनेंगे।</string>
-    <string name="review_submit_failed">आपका कार्य इस डिवाइस पर सहेजा नहीं जा सका। कुछ खोया नहीं — दोबारा कोशिश के लिए Post Task दबाएँ।</string>
+    <string name="review_control_body">किसी सहायक के स्वीकार करने से पहले आप इसे “मेरे काम” से कभी भी रद्द कर सकते हैं।</string>
+    <string name="review_submit_failed">आपका कार्य इस डिवाइस पर सहेजा नहीं जा सका। कुछ खोया नहीं — “दोबारा कोशिश करें” दबाएँ।</string>
     <string name="review_posting">पोस्ट हो रहा है…</string>
     <string name="review_try_again">दोबारा कोशिश करें</string>
     <string name="review_post_task">कार्य पोस्ट करें</string>
-    <string name="review_secure">आपकी जानकारी सुरक्षित है</string>
     <string name="action_edit">बदलें</string>
 
     <!-- Task flow: steps and container -->
-    <string name="step_details">कार्य विवरण</string>
+    <string name="step_details">विवरण</string>
     <string name="step_location">जगह</string>
-    <string name="step_photos">फ़ोटो</string>
+    <string name="step_category">श्रेणी</string>
     <string name="step_review">जाँच</string>
     <string name="discard_title">ये कार्य छोड़ दें?</string>
     <string name="discard_body">इस कार्य की श्रेणी, विवरण और फ़ोटो हट जाएँगी। ये वापस नहीं आएगा।</string>

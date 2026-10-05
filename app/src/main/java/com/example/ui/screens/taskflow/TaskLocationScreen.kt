@@ -33,7 +33,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
+import com.example.ui.components.BottomActionBar
+import com.example.ui.components.FixButton
+import com.example.ui.components.FixCard
+import com.example.ui.components.StylizedMap
 import com.example.ui.theme.FixTheme
+import com.example.ui.theme.MinTouchTarget
+import com.example.ui.theme.Radius
+import com.example.ui.theme.Spacing
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -65,374 +75,284 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.loc_title),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-        )
-        
-        Text(
-            text = stringResource(R.string.loc_subtitle),
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
-        )
-        
-        var showError by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
+    val colors = FixTheme.colors
 
-        OutlinedTextField(
-            value = uiState.locationQuery,
-            onValueChange = { viewModel.updateLocationQuery(it) },
-            placeholder = { Text(stringResource(R.string.loc_search)) },
-            singleLine = true,
-            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-            trailingIcon = {
-                IconButton(onClick = { requestCurrentLocation() }) {
-                    Icon(
-                        Icons.Default.MyLocation,
-                        contentDescription = stringResource(R.string.loc_use_current),
-                        tint = FixTheme.colors.primary
-                    )
+    // The draft starts with useCurrentLocation = true but no position, which showed the switch on
+    // beside a caption saying it was off. The switch reflects what actually happened instead.
+    val usingCurrentLocation = useCurrentLocation &&
+        (fetchState == LocationFetchState.RESOLVING || uiState.latitude != null || uiState.locationQuery.isNotBlank())
+
+    // A resolved fix without a readable address still locates the task, so coordinates alone
+    // are enough to continue.
+    val hasLocation = uiState.locationQuery.isNotBlank() || uiState.latitude != null
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.xl)
+        ) {
+            StepHeader(title = stringResource(R.string.loc_title), subtitle = stringResource(R.string.loc_subtitle))
+
+            StepTextField(
+                value = uiState.locationQuery,
+                onValueChange = {
+                    viewModel.updateLocationQuery(it)
+                    showError = false
+                },
+                placeholder = stringResource(R.string.loc_search),
+                leadingIcon = Icons.Default.LocationOn,
+                trailingIcon = {
+                    IconButton(onClick = { requestCurrentLocation() }) {
+                        Icon(
+                            Icons.Default.MyLocation,
+                            contentDescription = stringResource(R.string.loc_use_current),
+                            tint = colors.primary
+                        )
+                    }
                 }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
             )
-        )
 
-        // Real suggestions from the device geocoder. This used to be a hardcoded list of five
-        // Indian addresses filtered by substring, presented as though it were address lookup.
-        if (suggestions.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-            ) {
-                Column {
-                    suggestions.forEachIndexed { index, suggestion ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { viewModel.selectSuggestion(suggestion) }
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = suggestion.label,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        if (index != suggestions.lastIndex) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
+            // Real suggestions from the device geocoder. This used to be a hardcoded list of five
+            // Indian addresses filtered by substring, presented as though it were address lookup.
+            if (suggestions.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(Spacing.xs))
+                FixCard {
+                    Column {
+                        suggestions.forEachIndexed { index, suggestion ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.selectSuggestion(suggestion) }
+                                    .padding(horizontal = Spacing.lg, vertical = Spacing.md),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = colors.textSecondary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(Spacing.md))
+                                Text(
+                                    text = suggestion.label,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.textPrimary,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            if (index != suggestions.lastIndex) {
+                                HorizontalDivider(color = colors.border, modifier = Modifier.padding(start = 46.dp))
+                            }
                         }
                     }
                 }
             }
-        }
 
-        val locationMessage = fetchState.explain()
-        if (locationMessage != null) {
-            Spacer(modifier = Modifier.height(12.dp))
-            LocationNotice(
-                message = locationMessage,
-                isError = fetchState != LocationFetchState.RESOLVING,
-                actionLabel = if (fetchState == LocationFetchState.SERVICES_DISABLED) stringResource(R.string.action_open_settings) else null,
-                onAction = {
-                    context.startActivity(
-                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    )
-                }
-            )
-        }
+            val locationMessage = fetchState.explain()
+            if (locationMessage != null) {
+                Spacer(modifier = Modifier.height(Spacing.md))
+                LocationNotice(
+                    message = locationMessage,
+                    isError = fetchState != LocationFetchState.RESOLVING,
+                    actionLabel = if (fetchState == LocationFetchState.SERVICES_DISABLED) stringResource(R.string.action_open_settings) else null,
+                    onAction = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                    }
+                )
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Mock Map Area
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f).background(FixTheme.colors.primarySurface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Map Pin
+            Spacer(modifier = Modifier.height(Spacing.lg))
+
+            FixCard {
+                Column {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(FixTheme.colors.primary.copy(alpha = 0.2f)),
+                            .fillMaxWidth()
+                            .height(176.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
+                        StylizedMap(modifier = Modifier.matchParentSize())
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = if (usingCurrentLocation) colors.primary else colors.accentGraphic,
                             modifier = Modifier
-                                .size(16.dp)
-                                .clip(CircleShape)
-                                .background(FixTheme.colors.primary),
-                            contentAlignment = Alignment.Center
+                                .size(44.dp)
+                                .offset(y = (-14).dp)
+                        )
+
+                        // This graphic is not a map and never was. Saying so stops it from reading
+                        // as a real pin dropped at the user's address.
+                        Surface(
+                            color = colors.surface.copy(alpha = 0.92f),
+                            shape = RoundedCornerShape(Radius.sm),
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(Spacing.sm)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(FixTheme.colors.surface)
+                            Text(
+                                stringResource(R.string.loc_map_preview),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = colors.textSecondary,
+                                modifier = Modifier.padding(horizontal = Spacing.sm, vertical = Spacing.xs)
                             )
                         }
                     }
-
-                    // This graphic is not a map and never was. Saying so stops it from reading as
-                    // a real pin dropped at the user's address.
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
-                    ) {
-                        Text(
-                            stringResource(R.string.loc_map_preview),
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    HorizontalDivider(color = colors.border)
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(horizontal = Spacing.lg, vertical = Spacing.md),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (fetchState == LocationFetchState.RESOLVING) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp).padding(end = 4.dp),
-                                color = FixTheme.colors.primary,
+                                modifier = Modifier.size(22.dp),
+                                color = colors.primary,
                                 strokeWidth = 2.dp
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
                         } else {
                             Icon(
-                                imageVector = Icons.Default.LocationOn,
+                                imageVector = Icons.Default.MyLocation,
                                 contentDescription = null,
-                                tint = FixTheme.colors.primary,
-                                modifier = Modifier.padding(end = 12.dp)
+                                tint = colors.primary,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
+                        Spacer(modifier = Modifier.width(Spacing.md))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(stringResource(R.string.loc_use_current), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(
+                                stringResource(R.string.loc_use_current),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = colors.textPrimary
+                            )
                             Text(
                                 text = when {
                                     fetchState == LocationFetchState.RESOLVING -> stringResource(R.string.loc_finding_you)
-                                    useCurrentLocation && uiState.locationQuery.isNotBlank() ->
-                                        uiState.locationQuery
-                                    useCurrentLocation && uiState.latitude != null ->
+                                    usingCurrentLocation && uiState.locationQuery.isNotBlank() -> uiState.locationQuery
+                                    usingCurrentLocation && uiState.latitude != null ->
                                         stringResource(R.string.loc_position_no_address)
                                     else -> stringResource(R.string.loc_switch_off)
                                 },
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.textSecondary,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
+                        Spacer(modifier = Modifier.width(Spacing.sm))
                         Switch(
-                            checked = useCurrentLocation,
+                            checked = usingCurrentLocation,
                             enabled = fetchState != LocationFetchState.RESOLVING,
                             onCheckedChange = { enabled ->
+                                showError = false
                                 if (enabled) requestCurrentLocation()
                                 else viewModel.stopUsingCurrentLocation()
                             },
-                            colors = SwitchDefaults.colors(checkedTrackColor = FixTheme.colors.primary)
+                            colors = SwitchDefaults.colors(
+                                checkedTrackColor = colors.primary,
+                                checkedThumbColor = colors.onPrimary,
+                                uncheckedTrackColor = colors.surfaceAlt,
+                                uncheckedBorderColor = colors.border,
+                                uncheckedThumbColor = colors.textSecondary
+                            )
                         )
                     }
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Text(
-            text = stringResource(R.string.loc_service_area_title),
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        
-        // This card used to read a hardcoded "Within 5 km" and do nothing when tapped, while
-        // selectedDistance was never set from anywhere.
-        var showDistancePicker by remember { mutableStateOf(false) }
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDistancePicker = true },
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MyLocation,
-                    contentDescription = null,
-                    tint = FixTheme.colors.primary,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        stringResource(R.string.loc_within_km, uiState.selectedDistance),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp
-                    )
-                    Text(
-                        stringResource(R.string.loc_tap_to_change),
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Icon(
-                    Icons.Default.ChevronRight,
-                    contentDescription = stringResource(R.string.cd_change_service_area),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+            Spacer(modifier = Modifier.height(Spacing.xl))
 
-        if (showDistancePicker) {
-            AlertDialog(
-                onDismissRequest = { showDistancePicker = false },
-                title = { Text(stringResource(R.string.loc_service_area)) },
-                text = {
-                    Column {
-                        Text(
-                            stringResource(R.string.loc_service_area_body),
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        TaskViewModel.DISTANCE_OPTIONS_KM.forEach { km ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        viewModel.updateSelectedDistance(km)
-                                        showDistancePicker = false
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
-                                    selected = uiState.selectedDistance == km,
-                                    onClick = {
-                                        viewModel.updateSelectedDistance(km)
-                                        showDistancePicker = false
-                                    },
-                                    colors = RadioButtonDefaults.colors(selectedColor = FixTheme.colors.primary)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(stringResource(R.string.loc_within_km, km), fontSize = 16.sp)
-                            }
+            // Service area as direct choices. It used to be a card that read a hardcoded
+            // "Within 5 km" and did nothing; then a card with a chevron that opened a dialog of
+            // radio buttons. One tap is enough.
+            Text(
+                text = stringResource(R.string.loc_service_area_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = colors.textPrimary
+            )
+            Spacer(modifier = Modifier.height(Spacing.xs))
+            Text(
+                text = stringResource(R.string.loc_service_area_body),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(Spacing.md))
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                TaskViewModel.DISTANCE_OPTIONS_KM.forEach { km ->
+                    val selected = uiState.selectedDistance == km
+                    val shape = RoundedCornerShape(Radius.md)
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(MinTouchTarget)
+                            .clip(shape)
+                            .selectable(selected = selected, role = Role.RadioButton) {
+                                viewModel.updateSelectedDistance(km)
+                            },
+                        shape = shape,
+                        color = if (selected) colors.primarySurface else colors.surface,
+                        border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) colors.primary else colors.border)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                stringResource(R.string.loc_km_short, km),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = if (selected) colors.primary else colors.textPrimary
+                            )
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showDistancePicker = false }) {
-                        Text(stringResource(R.string.action_done), color = FixTheme.colors.primary)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(Spacing.xl))
+            Surface(
+                color = colors.primarySurface,
+                shape = RoundedCornerShape(Radius.md),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(modifier = Modifier.padding(Spacing.lg), verticalAlignment = Alignment.Top) {
+                    Icon(
+                        imageVector = Icons.Default.Shield,
+                        contentDescription = null,
+                        tint = colors.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(Spacing.md))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.loc_safe_title), style = MaterialTheme.typography.titleSmall, color = colors.textPrimary)
+                        Text(stringResource(R.string.loc_safe_body), style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(Spacing.xl))
+        }
+
+        BottomActionBar {
+            if (showError) {
+                Text(
+                    text = stringResource(R.string.loc_required),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = Spacing.sm)
+                )
+            }
+            FixButton(
+                text = stringResource(R.string.action_continue),
+                onClick = {
+                    if (hasLocation) {
+                        viewModel.dismissAddressSuggestions()
+                        onNext()
+                    } else {
+                        showError = true
                     }
                 }
             )
-        }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary.copy(alpha = 0.05f)),
-            border = BorderStroke(1.dp, FixTheme.colors.primary.copy(alpha = 0.1f))
-        ) {
-            Row(
-                modifier = Modifier.padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Shield,
-                    contentDescription = null,
-                    tint = FixTheme.colors.primary,
-                    modifier = Modifier.padding(end = 16.dp)
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.loc_safe_title), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(stringResource(R.string.loc_safe_body), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
-        
-        // A resolved fix without a readable address still locates the task, so coordinates alone
-        // are enough to continue.
-        val hasLocation = uiState.locationQuery.isNotBlank() || uiState.latitude != null
-
-        if (showError) {
-            Text(
-                text = stringResource(R.string.loc_required),
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-                if (hasLocation) {
-                    viewModel.dismissAddressSuggestions()
-                    onNext()
-                } else {
-                    showError = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp)
-                .height(56.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = FixTheme.colors.primary)
-        ) {
-            Text(
-                text = stringResource(R.string.action_continue),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
         }
     }
 }
@@ -472,16 +392,16 @@ private fun LocationNotice(
         } else {
             FixTheme.colors.primary.copy(alpha = 0.08f)
         },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(Radius.md),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(Spacing.md),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = message,
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.bodySmall,
                 color = if (isError) {
                     MaterialTheme.colorScheme.onErrorContainer
                 } else {

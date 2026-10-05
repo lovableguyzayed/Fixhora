@@ -1,5 +1,39 @@
 # Changelog
 
+## Batch 12 — UI/UX polish: alignment, insets and consistency
+
+A pass over every screen for the things that make an app look unfinished rather than broken:
+titles whose second line drew over the first, a trailing space that aapt trimmed ("Welcome
+toFixoraX"), a status-bar gap added twice, a stat row cut off at the screen edge, a placeholder
+wrapping onto two lines, and four steps of one flow each styled their own way. No feature was
+added and none was taken away; the remaining changes are in what the screens say.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Onboarding and auth share one frame (`AuthLayout.kt`): insets, back button, title scale | Each form placed its own back arrow, sized its own title, and ignored the status bar, navigation bar and keyboard under edge-to-edge. Titles set with a bare `fontSize` inherited body line height and overlapped when they wrapped. | Low. Screen signatures unchanged except `SignInScreen(onBack)`, which defaults to null. |
+| Theme sets every `surfaceContainer` role; system-bar icons follow the in-app theme | Dialogs, menus and the date picker fell back to Material's lavender baseline, and choosing Dark in the app left dark status-bar icons on a dark screen. | None. |
+| Post-a-task steps share `StepHeader`, `StepTextField` and `BottomActionBar` | Continue sat at the end of each scroll, so on a long step the user had to scroll to find out how to move on. Borders at 10–20% opacity all but vanished. | Low. |
+| Step indicator: equal columns, labels centred under their circles; step 3 is "Details" | Labels drifted from their circles at every width, and the step that holds the title, description and budget was labelled "Photos". The route is still `photos`. | None — routes are keys, not text. |
+| Details step puts the required title first; budget is digits-only, `₹`-prefixed, and max below min is blocked | The one field that blocks posting sat under an optional photo picker. A budget of "₹1500 – ₹900" could be posted. | Low. Stored budgets are still strings; nothing already saved is rewritten. |
+| Debug "attach sample photos" button and `TaskViewModel.attachPhotoDirectly` removed | A development shortcut, visible on every debug install — the channel the in-app updater ships. | None. |
+| Review: one card per step, so one Edit per step; budget text from `budgetText()` | Description, photos and budget were three cards whose Edit buttons all led to the same step, and the budget was worded differently here from everywhere else. | None. |
+| Review no longer promises offers | "Helpers will submit their offers within this range" and "You'll receive offers from nearby helpers" described a bidding system this app does not have — a helper accepts a task directly. It now says what does happen: helpers see the budget before accepting, and the task can be cancelled until one does. | None. |
+| Helper tabs use the same `NavigationBar` as the customer side; nested Scaffolds consume their insets | The floating pill ignored the system navigation bar, sat on a band of a different colour, and hid every label but the selected one. Each tab's top bar added the status bar a second time. | Low. Tab routes and back-stack behaviour unchanged. |
+| Helper home: three equal pipeline tiles instead of a sideways row of five | The third tile was cut off at the screen edge, and two of the five repeated numbers from the card above. | None — the same `HelperStats`. |
+| One `SearchField` for every list | Each list built its own; "Search by title, address or category" wrapped and made that field taller than the others. | None. |
+
+**Destructive operations: none.** No schema change, no migration, no stored value rewritten.
+Strings: 13 added, each in English and Hindi; 15 removed because nothing used them any more,
+including `photos_debug_sample`, so the only untranslated names left are the product name and the
+two language labels. `review_photos_added` became a plural so it no longer says "1 photos added".
+
+### Verification
+
+Every changed screen was compiled against desktop Compose 1.7.0 (the version the app's BOM
+resolves to) with stubs for the Android-only APIs, then rendered at 360dp wide in light, dark and
+Hindi and checked by eye. `check-strings.py` and `check-composable-strings.py` pass. This is not
+an Android build; CI's `./gradlew test assembleDebug` is the build of record.
+
 ## Batch 11 — Real i18n (English + Hindi)
 
 The sign-up screen offered a language choice, stored it, and then ignored it. Every screen in the

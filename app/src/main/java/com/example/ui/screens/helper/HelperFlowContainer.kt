@@ -1,8 +1,6 @@
 package com.example.ui.screens.helper
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -10,16 +8,12 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.clip
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.semantics.Role
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.example.R
@@ -60,74 +54,39 @@ fun HelperFlowContainer(
     val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
+        containerColor = FixTheme.colors.background,
+        // The same bar as the customer side. This used to be a floating pill that ignored the
+        // system navigation bar, sat on a band of a different colour from the screen above it,
+        // and hid every label except the selected one.
         bottomBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 16.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(32.dp),
-                color = MaterialTheme.colorScheme.surface,
-                shadowElevation = 8.dp
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    helperBottomNavItems.forEach { screen ->
-                        val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(48.dp)
-                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(24.dp))
-                                // selectable rather than clickable so the active tab is announced
-                                // as selected. Visually only the tint and label changed, which a
-                                // screen reader cannot see.
-                                .selectable(
-                                    selected = isSelected,
-                                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                    indication = null,
-                                    role = Role.Tab
-                                ) {
-                                    navController.navigate(screen.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+            NavigationBar(containerColor = FixTheme.colors.surface) {
+                helperBottomNavItems.forEach { screen ->
+                    val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+                    // NavigationBarItem is a selectable tab, so the active tab is announced as
+                    // selected — the reason this was hand-built with selectable() before.
+                    // The Chat tab carried a hardcoded "3" badge. Nothing records whether a
+                    // message has been read, so there is no unread count to show.
+                    NavigationBarItem(
+                        selected = isSelected,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
                                 }
-                                .background(if (isSelected) FixTheme.colors.primary.copy(alpha = 0.15f) else androidx.compose.ui.graphics.Color.Transparent),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                // The Chat tab carried a hardcoded "3" badge. Nothing records
-                                // whether a message has been read, so there is no unread count to
-                                // show and the number was pure decoration.
-                                Icon(
-                                    screen.icon,
-                                    contentDescription = stringResource(screen.titleRes),
-                                    tint = if (isSelected) FixTheme.colors.primary else FixTheme.colors.textSecondary,
-                                    modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                                )
-                                if (isSelected) {
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(screen.titleRes),
-                                        color = FixTheme.colors.primary,
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                        }
-                    }
+                        },
+                        icon = { Icon(screen.icon, contentDescription = null) },
+                        label = { Text(stringResource(screen.titleRes), maxLines = 1) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = FixTheme.colors.primary,
+                            selectedTextColor = FixTheme.colors.primary,
+                            unselectedIconColor = FixTheme.colors.textSecondary,
+                            unselectedTextColor = FixTheme.colors.textSecondary,
+                            indicatorColor = FixTheme.colors.primarySurface
+                        )
+                    )
                 }
             }
         }
@@ -135,7 +94,9 @@ fun HelperFlowContainer(
         NavHost(
             navController = navController,
             startDestination = HelperScreen.Home.route,
-            modifier = Modifier.padding(paddingValues)
+            // consumeWindowInsets: each tab draws its own top app bar, which would otherwise add
+            // the status bar a second time on top of this Scaffold's padding.
+            modifier = Modifier.padding(paddingValues).consumeWindowInsets(paddingValues)
         ) {
             // Asking a question about a job jumps to the Chat tab with that conversation open,
             // which is what makes the "Chat" action on a job card lead somewhere.

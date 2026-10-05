@@ -342,12 +342,6 @@ class TaskViewModel(
     viewModelScope.launch { photoStore.delete(uri) }
   }
 
-  /** Attaches an already-addressable image, used only by the debug sample-data shortcut. */
-  fun attachPhotoDirectly(uri: String) {
-    _uiState.update { if (uri in it.photoUris) it else it.copy(photoUris = it.photoUris + uri) }
-    saveDraft()
-  }
-
   fun updateDescription(title: String, details: String) {
     _uiState.update { it.copy(descriptionTitle = title, descriptionDetails = details) }
     saveDraft()

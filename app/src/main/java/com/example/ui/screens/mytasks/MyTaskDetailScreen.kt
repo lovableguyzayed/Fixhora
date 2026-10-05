@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.example.R
@@ -118,6 +120,7 @@ fun MyTaskDetailScreen(
             text = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) },
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
           )
         },
         navigationIcon = {
@@ -134,7 +137,9 @@ fun MyTaskDetailScreen(
       )
     },
   ) { padding ->
-    Column(modifier = Modifier.fillMaxSize().padding(padding).imePadding()) {
+    // consumeWindowInsets before imePadding: the keyboard's inset includes the navigation bar
+    // that padding already covers, so without it the input row floats a bar's height too high.
+    Column(modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding()) {
       TaskSummary(
         task = task,
         onRequestCancel = { confirmingCancel = true },

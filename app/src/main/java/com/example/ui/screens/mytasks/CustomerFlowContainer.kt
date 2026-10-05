@@ -2,6 +2,7 @@ package com.example.ui.screens.mytasks
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -91,7 +92,9 @@ fun CustomerFlowContainer(
       }
     },
   ) { padding ->
-    Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+    // consumeWindowInsets: the screens inside draw their own top app bars, which would otherwise add
+    // the status bar a second time on top of this Scaffold's padding.
+    Column(modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
       when (tab) {
         CustomerTab.POST ->
           TaskFlowContainer(

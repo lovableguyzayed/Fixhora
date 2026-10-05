@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.components.CircleBackButton
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
@@ -100,19 +101,12 @@ fun AuthScreen(
 /** Circular back button, the same on every auth screen. */
 @Composable
 fun AuthBackButton(onBack: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
-  IconButton(onClick = onBack, enabled = enabled, modifier = modifier) {
-    Box(
-      modifier = Modifier.size(40.dp).clip(CircleShape).background(FixTheme.colors.surfaceAlt),
-      contentAlignment = Alignment.Center,
-    ) {
-      Icon(
-        Icons.AutoMirrored.Filled.ArrowBack,
-        contentDescription = stringResource(R.string.cd_go_back),
-        tint = FixTheme.colors.textPrimary,
-        modifier = Modifier.size(20.dp),
-      )
-    }
-  }
+  CircleBackButton(
+    onClick = onBack,
+    contentDescription = stringResource(R.string.cd_go_back),
+    modifier = modifier,
+    enabled = enabled,
+  )
 }
 
 /**

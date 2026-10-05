@@ -163,21 +163,21 @@
 
     <!-- Task categories. The ids are storage values and never change; only the words do. -->
     <string name="cat_repairs_title">Home Repairs</string>
-    <string name="cat_repairs_sub">Plumbing, electrical, carpentry &amp; more</string>
+    <string name="cat_repairs_sub">Plumbing, wiring, carpentry</string>
     <string name="cat_cleaning_title">Cleaning</string>
     <string name="cat_cleaning_sub">Home, office, deep cleaning</string>
     <string name="cat_moving_title">Moving Help</string>
-    <string name="cat_moving_sub">Packing, loading, transport &amp; more</string>
+    <string name="cat_moving_sub">Packing, loading, transport</string>
     <string name="cat_tech_title">Tech Support</string>
     <string name="cat_tech_sub">Device setup, software help</string>
     <string name="cat_errands_title">Errands</string>
-    <string name="cat_errands_sub">Grocery, pickup, delivery &amp; more</string>
+    <string name="cat_errands_sub">Grocery, pickup, delivery</string>
     <string name="cat_painting_title">Painting</string>
-    <string name="cat_painting_sub">Home painting, touch ups &amp; more</string>
+    <string name="cat_painting_sub">Home painting, touch-ups</string>
     <string name="cat_car_title">Car Services</string>
-    <string name="cat_car_sub">Wash, minor repair, battery &amp; more</string>
+    <string name="cat_car_sub">Wash, battery, minor repair</string>
     <string name="cat_tutoring_title">Tutoring</string>
-    <string name="cat_tutoring_sub">Academic help, online or in-person</string>
+    <string name="cat_tutoring_sub">Academic help, online or home</string>
     <string name="cat_more_title">More</string>
     <string name="cat_more_sub">Others not listed here</string>
 
@@ -195,6 +195,8 @@
     <string name="task_category_search">Search category</string>
     <string name="task_category_popular">Popular Categories</string>
     <string name="task_category_required">Please select a category to continue</string>
+    <string name="task_category_empty_title">No matching category</string>
+    <string name="task_category_empty_body">Try another word, or pick \"More\" for anything not listed.</string>
     <string name="cd_category_selected">selected</string>
 
     <!-- Fallbacks when a task carries no title or no category. -->
@@ -266,11 +268,8 @@
     <string name="loc_switch_off">Off — enter an address above, or turn this on</string>
     <string name="loc_service_area_title">Set your service area</string>
     <string name="loc_within_km">Within %1$d km</string>
-    <string name="loc_tap_to_change">Tap to change how far helpers can be</string>
-    <string name="cd_change_service_area">Change service area</string>
-    <string name="loc_service_area">Service area</string>
+    <string name="loc_km_short">%1$d km</string>
     <string name="loc_service_area_body">Helpers within this distance will see your task.</string>
-    <string name="action_done">Done</string>
     <string name="loc_safe_title">Your location is safe with us</string>
     <string name="loc_safe_body">We never share your exact address with anyone.</string>
     <string name="loc_required">Enter an address, or turn on ‘Use my current location’</string>
@@ -281,70 +280,66 @@
     <string name="loc_error_no_address">Found your position, but not a street address. Please type it above.</string>
 
     <!-- Task flow: photos and details step -->
-    <string name="photos_title">Add photos (optional)</string>
+    <string name="photos_title">Photos (optional)</string>
     <string name="photos_subtitle">Add photos to help helpers understand the task better.</string>
     <string name="photos_saving">Saving photos…</string>
     <string name="photos_saving_body">Copying them into the app so they stay with your task.</string>
     <string name="photos_upload">Upload photos</string>
     <string name="photos_all_added">All %1$d photos added</string>
-    <string name="photos_tap_to_select">Tap to select up to %1$d more from your gallery</string>
+    <string name="photos_tap_to_select">Choose up to %1$d from your gallery</string>
     <string name="photos_remove_one">Remove one to add a different photo</string>
-    <string name="photos_added">Added photos</string>
     <string name="photos_count">%1$d/%2$d</string>
     <string name="cd_photo_n_of_m">Photo %1$d of %2$d</string>
     <string name="cd_remove_photo_n">Remove photo %1$d</string>
     <string name="cd_add_another_photo">Add another photo</string>
-    <string name="photos_debug_sample">⚡ Debug: attach sample photos</string>
-    <string name="details_title">Task Details</string>
-    <string name="details_field_title">Task Title *</string>
+    <string name="details_title">Task details</string>
+    <string name="details_subtitle">Tell helpers what needs doing. Only the title is required.</string>
+    <string name="details_field_title">Task title *</string>
     <string name="details_title_hint">e.g. Clean my kitchen sink / fix wood drawer</string>
     <string name="details_title_required">Title is required to post the task</string>
-    <string name="details_field_description">Detailed Description</string>
+    <string name="details_field_description">Description</string>
     <string name="details_description_hint">Provide details like what tools are needed, special requests, size of work etc.</string>
-    <string name="budget_section_title">Set Budget Range (Optional)</string>
-    <string name="budget_field_min">Min Budget (₹)</string>
+    <string name="budget_section_title">Budget (optional)</string>
+    <string name="budget_field_min">Min budget</string>
     <string name="budget_hint_min">e.g. 500</string>
-    <string name="budget_field_max">Max Budget (₹)</string>
+    <string name="budget_field_max">Max budget</string>
     <string name="budget_hint_max">e.g. 1500</string>
+    <string name="budget_max_below_min">Max budget can\'t be less than the min</string>
     <string name="tips_title">Tips for better responses</string>
     <string name="tips_photos">• Add clear, well-lit photos</string>
-    <string name="tips_budget">• Provide an accurate budget range so helpers can bid effectively</string>
+    <string name="tips_budget">• A realistic budget helps helpers decide quickly</string>
     <string name="tips_tools">• Detail any special equipment/tools required</string>
 
     <!-- Task flow: review step -->
     <string name="review_title">Review your task</string>
-    <string name="review_subtitle">Please review all details before posting</string>
+    <string name="review_subtitle">Check everything before you post</string>
     <string name="review_category">Category</string>
-    <string name="review_description">Task Description</string>
+    <string name="review_description">Task details</string>
     <string name="review_no_title">No title yet</string>
     <string name="review_no_details">No details added</string>
     <string name="review_location">Location</string>
     <string name="review_location_no_address">Current location (no street address found)</string>
     <string name="review_not_specified">Not specified</string>
     <string name="review_from_current">From your current location</string>
-    <string name="review_photos">Photos</string>
     <string name="review_no_photos">No photos added</string>
-    <string name="review_photos_added">%1$d photos added</string>
-    <string name="cd_review_image">Review image</string>
-    <string name="review_budget_range">₹%1$s - ₹%2$s</string>
-    <string name="review_budget_min">Min ₹%1$s</string>
-    <string name="review_budget_max">Max ₹%1$s</string>
-    <string name="review_no_budget">No budget specified</string>
-    <string name="review_your_budget">Your Budget</string>
-    <string name="review_budget_note">Helpers will submit their offers within this range</string>
-    <string name="review_control_title">You’re in control</string>
-    <string name="review_control_body">You’ll receive offers from nearby helpers and choose the best one for your task.</string>
-    <string name="review_submit_failed">Your task could not be saved on this device. Nothing was lost — tap Post Task to try again.</string>
+    <plurals name="review_photos_added">
+        <item quantity="one">%d photo added</item>
+        <item quantity="other">%d photos added</item>
+    </plurals>
+    <string name="review_your_budget">Budget</string>
+    <string name="review_budget_note">Helpers see this before they accept your task</string>
+    <string name="review_control_title">You stay in control</string>
+    <string name="review_control_body">You can cancel this task from My tasks any time before a helper accepts it.</string>
+    <string name="review_submit_failed">Your task could not be saved on this device. Nothing was lost — tap Try again.</string>
     <string name="review_posting">Posting…</string>
-    <string name="review_try_again">Try Again</string>
-    <string name="review_post_task">Post Task</string>
-    <string name="review_secure">Your details are safe and secure</string>
+    <string name="review_try_again">Try again</string>
+    <string name="review_post_task">Post task</string>
     <string name="action_edit">Edit</string>
 
     <!-- Task flow: steps and container -->
-    <string name="step_details">Task Details</string>
+    <string name="step_details">Details</string>
     <string name="step_location">Location</string>
-    <string name="step_photos">Photos</string>
+    <string name="step_category">Category</string>
     <string name="step_review">Review</string>
     <string name="discard_title">Discard this task?</string>
     <string name="discard_body">Your category, details and photos for this task will be removed. This cannot be undone.</string>

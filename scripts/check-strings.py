@@ -33,13 +33,12 @@ DEFAULT = RES / "values" / "strings.xml"
 
 # Names whose Hindi is deliberately the English: the product name, each language's own label
 # (shown in its own script so a reader who cannot read the current language can still find
-# theirs), and a debug-only control.
+# theirs).
 INTENTIONALLY_UNTRANSLATED = {
     "brand_fixora",
     "brand_x",
     "language_english",
     "language_hindi",
-    "photos_debug_sample",
 }
 
 PLACEHOLDER = re.compile(r"%\d*\$?[sd]")

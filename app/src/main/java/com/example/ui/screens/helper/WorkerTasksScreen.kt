@@ -29,6 +29,7 @@ import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.ui.components.EmptyState
+import com.example.ui.components.SearchField
 import com.example.ui.components.StatusBadge
 import com.example.ui.components.StatusTone
 import com.example.ui.screens.taskflow.dummyCategories
@@ -56,27 +57,11 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
         containerColor = FixTheme.colors.surfaceAlt
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = viewModel::onTaskQueryChange,
-                placeholder = { Text(stringResource(R.string.worker_tasks_search_hint)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
-                trailingIcon = {
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onTaskQueryChange("") }) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_clear_search))
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = FixTheme.colors.border,
-                    focusedBorderColor = FixTheme.colors.primary,
-                    unfocusedContainerColor = FixTheme.colors.surface,
-                    focusedContainerColor = FixTheme.colors.surface
-                )
+            SearchField(
+                query = query,
+                onQueryChange = viewModel::onTaskQueryChange,
+                placeholder = stringResource(R.string.worker_tasks_search_hint),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             LazyRow(

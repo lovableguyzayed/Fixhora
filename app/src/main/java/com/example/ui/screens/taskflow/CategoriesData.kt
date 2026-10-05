@@ -42,15 +42,17 @@ data class Category(
  */
 val dummyCategories =
   listOf(
+    // Icon tints come from one curated set that sits beside the brand blue and orange, replacing
+    // stock Material hues; the old amber (#FFC107) was barely visible on a white tile.
     Category("repairs", R.string.cat_repairs_title, R.string.cat_repairs_sub, Icons.Default.Build, BluePrimary),
-    Category("cleaning", R.string.cat_cleaning_title, R.string.cat_cleaning_sub, Icons.Default.CleaningServices, Color(0xFFFF8C00)),
-    Category("moving", R.string.cat_moving_title, R.string.cat_moving_sub, Icons.Default.LocalShipping, Color(0xFF4CAF50)),
-    Category("tech", R.string.cat_tech_title, R.string.cat_tech_sub, Icons.Default.Computer, Color(0xFF9C27B0)),
-    Category("errands", R.string.cat_errands_title, R.string.cat_errands_sub, Icons.Default.ShoppingCart, Color(0xFFF44336)),
-    Category("painting", R.string.cat_painting_title, R.string.cat_painting_sub, Icons.Default.FormatPaint, Color(0xFF00BCD4)),
-    Category("car", R.string.cat_car_title, R.string.cat_car_sub, Icons.Default.DirectionsCar, Color(0xFFFFC107)),
-    Category("tutoring", R.string.cat_tutoring_title, R.string.cat_tutoring_sub, Icons.Default.School, Color(0xFF3F51B5)),
-    Category("more", R.string.cat_more_title, R.string.cat_more_sub, Icons.Default.MoreHoriz, Color(0xFF795548)),
+    Category("cleaning", R.string.cat_cleaning_title, R.string.cat_cleaning_sub, Icons.Default.CleaningServices, Color(0xFFE85D00)),
+    Category("moving", R.string.cat_moving_title, R.string.cat_moving_sub, Icons.Default.LocalShipping, Color(0xFF16A34A)),
+    Category("tech", R.string.cat_tech_title, R.string.cat_tech_sub, Icons.Default.Computer, Color(0xFF7C3AED)),
+    Category("errands", R.string.cat_errands_title, R.string.cat_errands_sub, Icons.Default.ShoppingCart, Color(0xFFE11D48)),
+    Category("painting", R.string.cat_painting_title, R.string.cat_painting_sub, Icons.Default.FormatPaint, Color(0xFF0891B2)),
+    Category("car", R.string.cat_car_title, R.string.cat_car_sub, Icons.Default.DirectionsCar, Color(0xFFD97706)),
+    Category("tutoring", R.string.cat_tutoring_title, R.string.cat_tutoring_sub, Icons.Default.School, Color(0xFF4F46E5)),
+    Category("more", R.string.cat_more_title, R.string.cat_more_sub, Icons.Default.MoreHoriz, Color(0xFF64748B)),
   )
 
 /** Every category's title in the active language, keyed by id — what search matches against. */

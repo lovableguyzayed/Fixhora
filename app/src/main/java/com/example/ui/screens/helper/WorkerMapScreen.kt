@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.format.posterText
 import com.example.ui.components.EmptyState
+import com.example.ui.components.SearchField
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 
@@ -53,27 +54,11 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
         containerColor = FixTheme.colors.surfaceAlt
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            OutlinedTextField(
-                value = query,
-                onValueChange = viewModel::onMapQueryChange,
-                placeholder = { Text(stringResource(R.string.map_search_hint)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = FixTheme.colors.textSecondary) },
-                trailingIcon = {
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onMapQueryChange("") }) {
-                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cd_clear_search))
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = FixTheme.colors.border,
-                    focusedBorderColor = FixTheme.colors.primary,
-                    unfocusedContainerColor = FixTheme.colors.surface,
-                    focusedContainerColor = FixTheme.colors.surface
-                )
+            SearchField(
+                query = query,
+                onQueryChange = viewModel::onMapQueryChange,
+                placeholder = stringResource(R.string.map_search_hint),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             LazyRow(
