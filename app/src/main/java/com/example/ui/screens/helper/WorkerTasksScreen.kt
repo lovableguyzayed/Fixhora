@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.components.CircleBackButton
 import com.example.ui.format.budgetText
 import com.example.ui.format.taskLocationText
 import com.example.ui.format.posterText
@@ -37,7 +38,7 @@ import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
+fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBack: () -> Unit = {}) {
     val tasks by viewModel.filteredTasks.collectAsState()
     val query by viewModel.taskQuery.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
@@ -48,6 +49,13 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    CircleBackButton(
+                        onClick = onBack,
+                        contentDescription = stringResource(R.string.cd_back),
+                        modifier = Modifier.padding(start = Spacing.xs)
+                    )
+                },
                 title = { Text(stringResource(R.string.worker_tasks_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
                 // The Search / Filter / Sort icons are gone. Search is the field below, and
                 // neither filter nor sort was ever implemented.

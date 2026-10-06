@@ -65,6 +65,19 @@ class TaskRepository(private val database: AppDatabase) {
     database.withTransaction { taskDao.getDraftTask(ownerId)?.let { taskDao.deleteTaskById(it.id) } }
   }
 
+  /**
+   * Removes a task and its conversation in one step.
+   *
+   * Messages reference the task only by id, with no foreign key to cascade, so deleting the row
+   * alone would leave a thread behind that a later task reusing the id could inherit.
+   */
+  suspend fun deleteTask(taskId: Int) {
+    database.withTransaction {
+      database.chatDao().deleteMessagesForTask(taskId)
+      taskDao.deleteTaskById(taskId)
+    }
+  }
+
   suspend fun updateTaskStatus(task: TaskEntity, newStatus: TaskStatus) {
     taskDao.updateTask(task.copy(status = newStatus))
   }

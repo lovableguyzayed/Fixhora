@@ -34,6 +34,10 @@
     <!-- Language -->
     <string name="language_heading">भाषा चुनें</string>
     <string name="language_change_later">आप बाद में सेटिंग्स में भाषा बदल सकते हैं</string>
+    <string name="theme_heading">दिखावट</string>
+    <string name="theme_system">सिस्टम</string>
+    <string name="theme_light">लाइट</string>
+    <string name="theme_dark">डार्क</string>
 
     <!-- The version and the build number stay as they are; only the instruction is translated. -->
     <string name="version_footer_tap_to_check">v%1$s (%2$d) · अपडेट देखने के लिए टैप करें</string>
@@ -355,7 +359,11 @@
     <string name="map_empty_filtered_body">दूसरी श्रेणी आज़माएँ, या फ़िल्टर हटा दें।</string>
     <string name="map_empty_body">ग्राहक जैसे ही काम डालेंगे, वे यहाँ दिखने लगेंगे।</string>
     <string name="action_clear_filters">फ़िल्टर हटाएँ</string>
-    <string name="map_preview_notice">मैप अभी उपलब्ध नहीं है — काम फ़िलहाल श्रेणी के हिसाब से दिख रहे हैं।</string>
+    <string name="map_attribution">© OpenStreetMap योगदानकर्ता</string>
+    <string name="map_locating">मैप पर काम की जगहें ढूँढी जा रही हैं…</string>
+    <string name="map_none_placed">इनमें से कोई पता मैप पर नहीं मिला। काम नीचे सूची में हैं।</string>
+    <string name="map_placed_count">%2$d में से %1$d काम मैप पर दिख रहे हैं। काम देखने के लिए पिन पर टैप करें।</string>
+    <string name="cd_jobs_map">खुले कामों का मैप</string>
 
     <!-- Worker: home -->
     <string name="worker_home_title">आस-पास काम खोजें</string>
@@ -438,6 +446,10 @@
     <string name="mytasks_chat_empty">अभी कोई संदेश नहीं। अपने मददगार को नमस्ते कहें।</string>
     <string name="mytasks_chat_hint">अपने मददगार को संदेश भेजें</string>
     <string name="mytasks_cancel_action">यह काम रद्द करें</string>
+    <string name="mytasks_delete_action">कार्य हटाएँ</string>
+    <string name="mytasks_delete_title">यह कार्य हटाएँ?</string>
+    <string name="mytasks_delete_body">कार्य, उसकी फ़ोटो और चैट इस फ़ोन से हट जाएँगी। इसे वापस नहीं लाया जा सकता।</string>
+    <string name="mytasks_delete_confirm">हटाएँ</string>
 
     <!-- In-app update -->
     <string name="update_title_available">नया अपडेट उपलब्ध</string>

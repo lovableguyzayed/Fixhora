@@ -11,6 +11,9 @@ interface ChatDao {
     @Query("SELECT * FROM chat_messages WHERE taskId = :taskId ORDER BY timestamp DESC")
     fun getMessagesForTask(taskId: Int): Flow<List<ChatMessageEntity>>
 
+    @Query("DELETE FROM chat_messages WHERE taskId = :taskId")
+    suspend fun deleteMessagesForTask(taskId: Int)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: ChatMessageEntity)
 }

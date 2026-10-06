@@ -65,6 +65,7 @@ fun CustomerFlowContainer(
       onBack = viewModel::closeTask,
       onSend = viewModel::sendMessage,
       onCancelTask = viewModel::cancelOpenTask,
+      onDeleteTask = viewModel::deleteOpenTask,
     )
     return
   }
@@ -108,6 +109,7 @@ fun CustomerFlowContainer(
             tasks = tasks,
             onOpenTask = viewModel::openTask,
             onPostTask = { tab = CustomerTab.POST },
+            onBack = onBackToRoles,
           )
       }
     }

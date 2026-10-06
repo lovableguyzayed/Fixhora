@@ -3,13 +3,16 @@ package com.example.ui.screens.mytasks
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.ChatRepository
 import com.example.data.repository.TaskRepository
 import com.example.data.room.ChatMessageEntity
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.data.room.photoUriList
 import com.example.data.session.SessionManager
 import com.example.ui.format.isCancellableByCustomer
+import com.example.ui.format.isDeletableByCustomer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,6 +36,7 @@ class MyTasksViewModel(
   private val taskRepository: TaskRepository,
   private val chatRepository: ChatRepository,
   sessionManager: SessionManager,
+  private val photoStore: TaskPhotoStore? = null,
 ) : ViewModel() {
 
   /**
@@ -102,13 +106,31 @@ class MyTasksViewModel(
     viewModelScope.launch { taskRepository.updateTaskStatus(task, TaskStatus.CANCELLED) }
   }
 
+  /**
+   * Removes the open task, its conversation and its photos, then returns to the list.
+   *
+   * Guarded on the current row for the same reason as [cancelOpenTask]: a helper may have taken the
+   * task since the screen was drawn.
+   */
+  fun deleteOpenTask() {
+    val task = openTask.value ?: return
+    if (!isDeletableByCustomer(task.status)) return
+    closeTask()
+    viewModelScope.launch {
+      taskRepository.deleteTask(task.id)
+      // The copies belong to this task alone; nothing else points at them once the row is gone.
+      photoStore?.deleteAll(task.photoUriList())
+    }
+  }
+
   class Factory(
     private val taskRepository: TaskRepository,
     private val chatRepository: ChatRepository,
     private val sessionManager: SessionManager,
+    private val photoStore: TaskPhotoStore? = null,
   ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
-      MyTasksViewModel(taskRepository, chatRepository, sessionManager) as T
+      MyTasksViewModel(taskRepository, chatRepository, sessionManager, photoStore) as T
   }
 }

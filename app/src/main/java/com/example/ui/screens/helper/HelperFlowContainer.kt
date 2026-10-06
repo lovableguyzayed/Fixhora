@@ -110,16 +110,16 @@ fun HelperFlowContainer(
             }
 
             composable(HelperScreen.Home.route) {
-                WorkerHomeScreen(viewModel = viewModel, onOpenChat = ::openChat)
+                WorkerHomeScreen(viewModel = viewModel, onOpenChat = ::openChat, onBack = onBackToRoles)
             }
             composable(HelperScreen.Map.route) {
-                WorkerMapScreen(viewModel = viewModel, onOpenChat = ::openChat)
+                WorkerMapScreen(viewModel = viewModel, onOpenChat = ::openChat, onBack = onBackToRoles)
             }
             composable(HelperScreen.Chat.route) {
-                WorkerChatScreen(viewModel = viewModel)
+                WorkerChatScreen(viewModel = viewModel, onBack = onBackToRoles)
             }
             composable(HelperScreen.Tasks.route) {
-                WorkerTasksScreen(viewModel = viewModel, onOpenChat = ::openChat)
+                WorkerTasksScreen(viewModel = viewModel, onOpenChat = ::openChat, onBack = onBackToRoles)
             }
         }
     }

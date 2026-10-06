@@ -71,6 +71,18 @@ class ChatDaoTest {
     assertEquals(listOf("About task 2"), dao.getMessagesForTask(2).first().map { it.text })
   }
 
+  /** Deleting a task clears its thread and nobody else's. */
+  @Test
+  fun `deleting a task's messages leaves other tasks alone`() = runBlocking {
+    dao.insertMessage(message(1, 1, ChatRepository.SENDER_CUSTOMER, "About task 1", 1_000L))
+    dao.insertMessage(message(2, 2, ChatRepository.SENDER_CUSTOMER, "About task 2", 1_000L))
+
+    dao.deleteMessagesForTask(1)
+
+    assertTrue(dao.getMessagesForTask(1).first().isEmpty())
+    assertEquals(listOf("About task 2"), dao.getMessagesForTask(2).first().map { it.text })
+  }
+
   @Test
   fun `a task with no conversation yet returns nothing, not everything`() = runBlocking {
     dao.insertMessage(message(1, 1, ChatRepository.SENDER_CUSTOMER, "Hello", 1_000L))

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.components.CircleBackButton
 import com.example.ui.format.budgetText
 import com.example.ui.format.taskLocationText
 import com.example.ui.format.posterText
@@ -39,7 +40,7 @@ import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
+fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBack: () -> Unit = {}) {
     val tasks by viewModel.availableTasks.collectAsState()
     val stats by viewModel.stats.collectAsState()
     val ownerNames by viewModel.ownerNames.collectAsState()
@@ -53,6 +54,13 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    CircleBackButton(
+                        onClick = onBack,
+                        contentDescription = stringResource(R.string.cd_back),
+                        modifier = Modifier.padding(start = Spacing.xs)
+                    )
+                },
                 title = {
                     Column {
                         Text(

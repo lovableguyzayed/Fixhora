@@ -53,6 +53,7 @@ import com.example.ui.format.customerStatusDetail
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.hasAssignedHelper
 import com.example.ui.format.isCancellableByCustomer
+import com.example.ui.format.isDeletableByCustomer
 import com.example.ui.format.taskLocationText
 import com.example.ui.format.relativeTimeText
 import com.example.ui.components.MessageBubble
@@ -75,10 +76,38 @@ fun MyTaskDetailScreen(
   onBack: () -> Unit,
   onSend: (String) -> Unit,
   onCancelTask: () -> Unit,
+  onDeleteTask: () -> Unit = {},
 ) {
   val colors = FixTheme.colors
   var draft by remember { mutableStateOf("") }
   var confirmingCancel by remember { mutableStateOf(false) }
+  var confirmingDelete by remember { mutableStateOf(false) }
+
+  if (confirmingDelete) {
+    AlertDialog(
+      onDismissRequest = { confirmingDelete = false },
+      containerColor = colors.surface,
+      titleContentColor = colors.textPrimary,
+      textContentColor = colors.textSecondary,
+      title = { Text(stringResource(R.string.mytasks_delete_title), fontWeight = FontWeight.SemiBold) },
+      text = { Text(stringResource(R.string.mytasks_delete_body)) },
+      confirmButton = {
+        TextButton(
+          onClick = {
+            confirmingDelete = false
+            onDeleteTask()
+          }
+        ) {
+          Text(stringResource(R.string.mytasks_delete_confirm), color = colors.danger, fontWeight = FontWeight.SemiBold)
+        }
+      },
+      dismissButton = {
+        TextButton(onClick = { confirmingDelete = false }) {
+          Text(stringResource(R.string.mytasks_cancel_keep), color = colors.textSecondary)
+        }
+      },
+    )
+  }
   val chatOpen = hasAssignedHelper(task.status)
 
   if (confirmingCancel) {
@@ -143,6 +172,7 @@ fun MyTaskDetailScreen(
       TaskSummary(
         task = task,
         onRequestCancel = { confirmingCancel = true },
+        onRequestDelete = { confirmingDelete = true },
         modifier = Modifier.padding(Spacing.lg),
       )
 
@@ -217,7 +247,12 @@ fun MyTaskDetailScreen(
 }
 
 @Composable
-private fun TaskSummary(task: TaskEntity, onRequestCancel: () -> Unit, modifier: Modifier = Modifier) {
+private fun TaskSummary(
+  task: TaskEntity,
+  onRequestCancel: () -> Unit,
+  onRequestDelete: () -> Unit,
+  modifier: Modifier = Modifier,
+) {
   val colors = FixTheme.colors
   FixCard(modifier = modifier.fillMaxWidth()) {
     Column(modifier = Modifier.padding(Spacing.lg)) {
@@ -254,6 +289,14 @@ private fun TaskSummary(task: TaskEntity, onRequestCancel: () -> Unit, modifier:
         FixButton(
           text = stringResource(R.string.mytasks_cancel_action),
           onClick = onRequestCancel,
+          style = FixButtonStyle.SECONDARY,
+        )
+      }
+      if (isDeletableByCustomer(task.status)) {
+        Spacer(Modifier.height(if (isCancellableByCustomer(task.status)) Spacing.sm else Spacing.lg))
+        FixButton(
+          text = stringResource(R.string.mytasks_delete_action),
+          onClick = onRequestDelete,
           style = FixButtonStyle.DANGER,
         )
       }

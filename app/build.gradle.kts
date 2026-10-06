@@ -180,6 +180,8 @@ dependencies {
   implementation(libs.androidx.room.ktx)
   implementation(libs.androidx.room.runtime)
   implementation(libs.coil.compose)
+  // OpenStreetMap for the helper's job map: no API key, unlike Google Maps.
+  implementation(libs.osmdroid.android)
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.play.services.location)

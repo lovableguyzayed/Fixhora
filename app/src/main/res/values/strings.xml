@@ -44,6 +44,10 @@
     <!-- Language -->
     <string name="language_heading">Choose language</string>
     <string name="language_change_later">You can change the language later in settings</string>
+    <string name="theme_heading">Appearance</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
     <!-- Each language is named in its own language, so it is readable whichever one is active. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_hindi" translatable="false">हिंदी</string>
@@ -368,7 +372,11 @@
     <string name="map_empty_filtered_body">Try another category, or clear the filters.</string>
     <string name="map_empty_body">New requests appear here as soon as customers post them.</string>
     <string name="action_clear_filters">Clear filters</string>
-    <string name="map_preview_notice">Map view isn\'t available yet — jobs are listed by category for now.</string>
+    <string name="map_attribution">© OpenStreetMap contributors</string>
+    <string name="map_locating">Finding job locations on the map…</string>
+    <string name="map_none_placed">None of these addresses could be found on the map. The jobs are listed below.</string>
+    <string name="map_placed_count">%1$d of %2$d jobs shown on the map. Tap a pin to see the job.</string>
+    <string name="cd_jobs_map">Map of open jobs</string>
 
     <!-- Worker: home -->
     <string name="worker_home_title">Find work nearby</string>
@@ -451,6 +459,10 @@
     <string name="mytasks_chat_empty">No messages yet. Say hello to your helper.</string>
     <string name="mytasks_chat_hint">Message your helper</string>
     <string name="mytasks_cancel_action">Cancel this task</string>
+    <string name="mytasks_delete_action">Delete task</string>
+    <string name="mytasks_delete_title">Delete this task?</string>
+    <string name="mytasks_delete_body">The task, its photos and its chat are removed from this phone. This cannot be undone.</string>
+    <string name="mytasks_delete_confirm">Delete</string>
 
     <!-- In-app update -->
     <string name="update_title_available">Update available</string>

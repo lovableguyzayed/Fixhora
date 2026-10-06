@@ -245,6 +245,8 @@ private fun AppNavHost(
         onLanguageChange = { chosen ->
           scope.launch { application.sessionManager.setLanguage(chosen) }
         },
+        theme = session.theme,
+        onThemeChange = { chosen -> scope.launch { application.sessionManager.setTheme(chosen) } },
         onRoleSelected = { role ->
           scope.launch { application.sessionManager.setActiveRole(role) }
           when (role) {
@@ -269,6 +271,7 @@ private fun AppNavHost(
               application.taskRepository,
               application.chatRepository,
               application.sessionManager,
+              application.taskPhotoStore,
             )
         )
       CustomerFlowContainer(

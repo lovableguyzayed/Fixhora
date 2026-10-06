@@ -30,6 +30,18 @@ class CustomerStatusTest {
   }
 
   @Test
+  fun `a task can be deleted unless a helper is holding it`() {
+    assertTrue(isDeletableByCustomer(TaskStatus.SUBMITTED))
+    assertTrue(isDeletableByCustomer(TaskStatus.REJECTED))
+    assertTrue(isDeletableByCustomer(TaskStatus.CANCELLED))
+    assertTrue(isDeletableByCustomer(TaskStatus.COMPLETED))
+
+    assertFalse(isDeletableByCustomer(TaskStatus.ACCEPTED))
+    assertFalse(isDeletableByCustomer(TaskStatus.IN_PROGRESS))
+    assertFalse(isDeletableByCustomer(TaskStatus.DRAFT))
+  }
+
+  @Test
   fun `a helper exists only from accepted onwards`() {
     assertTrue(hasAssignedHelper(TaskStatus.ACCEPTED))
     assertTrue(hasAssignedHelper(TaskStatus.IN_PROGRESS))

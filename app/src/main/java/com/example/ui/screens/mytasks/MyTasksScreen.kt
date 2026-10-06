@@ -20,8 +20,12 @@ import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.R
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.ui.components.CircleBackButton
 import com.example.ui.components.EmptyState
 import com.example.ui.components.FixCard
 import com.example.ui.components.StatusBadge
@@ -53,27 +58,53 @@ import com.example.ui.theme.Spacing
  * invisible to the person who posted it. There was no way to see whether anyone had picked it up,
  * no way to call it off, and no way to reach the helper who took it.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTasksScreen(tasks: List<TaskEntity>, onOpenTask: (Int) -> Unit, onPostTask: () -> Unit) {
-  if (tasks.isEmpty()) {
-    EmptyState(
-      icon = Icons.AutoMirrored.Filled.Assignment,
-      title = stringResource(R.string.mytasks_empty_title),
-      description =
-        stringResource(R.string.mytasks_empty_body),
-      actionText = stringResource(R.string.mytasks_post_a_task),
-      onAction = onPostTask,
-      modifier = Modifier.fillMaxSize(),
+fun MyTasksScreen(
+  tasks: List<TaskEntity>,
+  onOpenTask: (Int) -> Unit,
+  onPostTask: () -> Unit,
+  onBack: () -> Unit = {},
+) {
+  Column(modifier = Modifier.fillMaxSize()) {
+    // The same bar as the Post tab. This tab had no heading and no way back to the role choice
+    // except the system back gesture.
+    CenterAlignedTopAppBar(
+      title = {
+        Text(
+          stringResource(R.string.customer_tab_my_tasks),
+          style = MaterialTheme.typography.titleMedium,
+          color = FixTheme.colors.textPrimary,
+        )
+      },
+      navigationIcon = {
+        CircleBackButton(
+          onClick = onBack,
+          contentDescription = stringResource(R.string.cd_back),
+          modifier = Modifier.padding(start = Spacing.xs),
+        )
+      },
+      colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = FixTheme.colors.background),
     )
-    return
-  }
 
-  LazyColumn(
-    modifier = Modifier.fillMaxSize(),
-    contentPadding = PaddingValues(Spacing.lg),
-    verticalArrangement = Arrangement.spacedBy(Spacing.md),
-  ) {
-    items(tasks, key = { it.id }) { task -> MyTaskCard(task = task, onClick = { onOpenTask(task.id) }) }
+    if (tasks.isEmpty()) {
+      EmptyState(
+        icon = Icons.AutoMirrored.Filled.Assignment,
+        title = stringResource(R.string.mytasks_empty_title),
+        description = stringResource(R.string.mytasks_empty_body),
+        actionText = stringResource(R.string.mytasks_post_a_task),
+        onAction = onPostTask,
+        modifier = Modifier.fillMaxSize(),
+      )
+    } else {
+      LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(start = Spacing.lg, end = Spacing.lg, bottom = Spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(Spacing.md),
+      ) {
+        items(tasks, key = { it.id }) { task -> MyTaskCard(task = task, onClick = { onOpenTask(task.id) }) }
+      }
+    }
   }
 }
 

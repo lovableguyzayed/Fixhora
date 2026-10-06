@@ -1,5 +1,18 @@
 # Changelog
 
+## Batch 13 — Theme switch, a real jobs map, deleting tasks, a way back
+
+Four gaps reported from using the app on a phone.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| System / Light / Dark choice on the role screen, under the language choice | `ThemePreference` was stored and applied in `MainActivity`, but nothing in the app could set it, so the app could only follow the phone. | None. Uses the existing `SessionManager.setTheme`. |
+| Helper Map tab shows an OpenStreetMap map with a pin per job (osmdroid 6.1.20) | The tab said the map was unavailable. Google Maps needs an API key the app does not have; OpenStreetMap does not. A job is pinned at the coordinates the customer shared, otherwise at the device geocoder's match for its address, and left off the map — still in the list — when there is no match. Nothing is placed by guesswork. Tapping a pin scrolls to that job. Tiles are inverted in the dark theme and cached in the app's cache directory. | Medium. New dependency (Maven Central, no transitive dependencies, no new permissions). Pins depend on the device geocoder, which needs network. |
+| Customers can delete a task that no helper is holding | Posted tasks could only be cancelled, and cancelled or completed ones stayed in the list for ever. `isDeletableByCustomer` allows it for open, declined, cancelled and completed tasks, not accepted or in-progress ones. The row, its chat messages and its photo copies are removed together, in one transaction for the database part. | Low. New DAO query `deleteMessagesForTask`, no schema change. Tests added for the rule and the query. |
+| Back buttons on My tasks and on every helper tab; back inside a helper chat returns to the chat list | These screens had no visible way back to the role choice, and system back from an open conversation left the helper side entirely. | None. |
+
+**Destructive operations:** only the delete a customer confirms in a dialog. No migration.
+
 ## Batch 12 — UI/UX polish: alignment, insets and consistency
 
 A pass over every screen for the things that make an app look unfinished rather than broken:

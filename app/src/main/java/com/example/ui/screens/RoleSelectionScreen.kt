@@ -13,7 +13,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +28,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.example.BuildConfig
 import com.example.R
 import com.example.data.session.AppLanguage
+import com.example.data.session.ThemePreference
 import com.example.data.session.UserRole
 import com.example.ui.components.BrandLogo
 import com.example.ui.components.BrandWordmark
@@ -57,7 +62,9 @@ fun RoleSelectionScreen(
     onSignOut: () -> Unit,
     onCheckForUpdates: () -> Unit = {},
     language: AppLanguage = AppLanguage.ENGLISH,
-    onLanguageChange: (AppLanguage) -> Unit = {}
+    onLanguageChange: (AppLanguage) -> Unit = {},
+    theme: ThemePreference = ThemePreference.SYSTEM,
+    onThemeChange: (ThemePreference) -> Unit = {}
 ) {
     val colors = FixTheme.colors
 
@@ -198,6 +205,37 @@ fun RoleSelectionScreen(
                 )
             }
 
+            // Appearance. The theme setting was stored and applied but had no control anywhere,
+            // so the app could only ever follow the phone.
+            Column(modifier = Modifier.padding(horizontal = Spacing.xl)) {
+                Spacer(modifier = Modifier.height(Spacing.xl))
+                SectionDividerTitle(text = stringResource(R.string.theme_heading))
+                Spacer(modifier = Modifier.height(Spacing.lg))
+                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    ThemeOption(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Default.BrightnessAuto,
+                        text = stringResource(R.string.theme_system),
+                        isSelected = theme == ThemePreference.SYSTEM,
+                        onClick = { onThemeChange(ThemePreference.SYSTEM) }
+                    )
+                    ThemeOption(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Default.LightMode,
+                        text = stringResource(R.string.theme_light),
+                        isSelected = theme == ThemePreference.LIGHT,
+                        onClick = { onThemeChange(ThemePreference.LIGHT) }
+                    )
+                    ThemeOption(
+                        modifier = Modifier.weight(1f),
+                        icon = Icons.Default.DarkMode,
+                        text = stringResource(R.string.theme_dark),
+                        isSelected = theme == ThemePreference.DARK,
+                        onClick = { onThemeChange(ThemePreference.DARK) }
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(Spacing.sm))
 
             // Which build is actually on the device. Without this there is no way to tell
@@ -327,6 +365,49 @@ private fun SectionDividerTitle(text: String) {
         )
         Box(modifier = Modifier.padding(end = Spacing.md).size(4.dp).clip(CircleShape).background(colors.primary))
         HorizontalDivider(modifier = Modifier.weight(1f), color = colors.border)
+    }
+}
+
+/** One theme choice: icon over label, so three fit side by side in either language. */
+@Composable
+private fun ThemeOption(
+    icon: ImageVector,
+    text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = FixTheme.colors
+    val shape = RoundedCornerShape(Radius.lg)
+    Surface(
+        modifier = modifier
+            .heightIn(min = 72.dp)
+            .clip(shape)
+            .selectable(selected = isSelected, role = Role.RadioButton, onClick = onClick),
+        shape = shape,
+        color = if (isSelected) colors.primarySurface else colors.surface,
+        border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, if (isSelected) colors.primary else colors.border)
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = Spacing.md, horizontal = Spacing.xs),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) colors.primary else colors.textSecondary,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(modifier = Modifier.height(Spacing.xs))
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isSelected) colors.primary else colors.textPrimary,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 }
 

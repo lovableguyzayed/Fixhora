@@ -143,6 +143,19 @@ fun taskLocation(locationQuery: String, hasCoordinates: Boolean): TaskLocation =
 fun isCancellableByCustomer(status: TaskStatus): Boolean =
   status == TaskStatus.SUBMITTED || status == TaskStatus.REJECTED
 
+/**
+ * Whether the customer may remove the task from the app altogether.
+ *
+ * Not while a helper holds it: deleting an accepted or in-progress task would pull it out from
+ * under someone who is on their way to do it. Cancelled and completed tasks are history the
+ * customer may want gone; an open one can be deleted outright instead of cancelled first.
+ */
+fun isDeletableByCustomer(status: TaskStatus): Boolean =
+  status == TaskStatus.SUBMITTED ||
+    status == TaskStatus.REJECTED ||
+    status == TaskStatus.CANCELLED ||
+    status == TaskStatus.COMPLETED
+
 /** Whether a conversation with a helper exists yet. Nobody is assigned before ACCEPTED. */
 fun hasAssignedHelper(status: TaskStatus): Boolean =
   status == TaskStatus.ACCEPTED ||

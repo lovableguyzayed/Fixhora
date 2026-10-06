@@ -20,7 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.graphics.luminance
+import kotlinx.coroutines.launch
 import com.example.R
+import com.example.ui.components.CircleBackButton
 import com.example.ui.format.posterText
 import com.example.ui.components.EmptyState
 import com.example.ui.components.SearchField
@@ -38,7 +42,7 @@ import com.example.ui.theme.*
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
+fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBack: () -> Unit = {}) {
     val tasks by viewModel.mapTasks.collectAsState()
     val query by viewModel.mapQuery.collectAsState()
     val selectedCategoryId by viewModel.mapCategoryId.collectAsState()
@@ -47,6 +51,13 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    CircleBackButton(
+                        onClick = onBack,
+                        contentDescription = stringResource(R.string.cd_back),
+                        modifier = Modifier.padding(start = Spacing.xs)
+                    )
+                },
                 title = { Text(stringResource(R.string.map_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
             )
@@ -83,8 +94,6 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                 }
             }
 
-            MapPreviewNotice()
-
             if (tasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     EmptyState(
@@ -109,7 +118,39 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit) {
                     )
                 }
             } else {
+                val locations = rememberJobLocations(tasks)
+                val listState = rememberLazyListState()
+                val scope = rememberCoroutineScope()
+                val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+
+                JobsMap(
+                    tasks = tasks,
+                    locations = locations,
+                    isDark = isDark,
+                    // A pin is only useful if it leads to the job, so tapping one brings its card
+                    // into view in the list.
+                    onJobSelected = { id ->
+                        val index = tasks.indexOfFirst { it.id == id }
+                        if (index >= 0) scope.launch { listState.animateScrollToItem(index) }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.lg, vertical = Spacing.sm)
+                        .height(260.dp)
+                )
+                Text(
+                    text = when {
+                        locations.resolving && locations.points.isEmpty() -> stringResource(R.string.map_locating)
+                        locations.points.isEmpty() -> stringResource(R.string.map_none_placed)
+                        else -> stringResource(R.string.map_placed_count, locations.points.size, tasks.size)
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FixTheme.colors.textSecondary,
+                    modifier = Modifier.padding(horizontal = Spacing.lg)
+                )
+
                 LazyColumn(
+                    state = listState,
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -146,31 +187,4 @@ private fun CategoryChip(label: String, selected: Boolean, onClick: () -> Unit) 
             borderColor = if (selected) FixTheme.colors.primary else FixTheme.colors.border
         )
     )
-}
-
-/** Says outright that the map is missing, rather than drawing something that looks like one. */
-@Composable
-private fun MapPreviewNotice() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .background(FixTheme.colors.infoSurface, RoundedCornerShape(12.dp))
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            Icons.Default.Map,
-            contentDescription = null,
-            tint = FixTheme.colors.info,
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = stringResource(R.string.map_preview_notice),
-            fontSize = 13.sp,
-            color = FixTheme.colors.textPrimary,
-            textAlign = TextAlign.Start
-        )
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.ui.screens.helper
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.components.CircleBackButton
 import com.example.ui.components.MessageBubble
 import com.example.ui.format.budgetText
 import com.example.ui.format.relativeTimeText
@@ -34,7 +36,7 @@ import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 
 @Composable
-fun WorkerChatScreen(viewModel: HelperViewModel) {
+fun WorkerChatScreen(viewModel: HelperViewModel, onBack: () -> Unit = {}) {
     val conversations by viewModel.conversations.collectAsState()
     val query by viewModel.chatQuery.collectAsState()
     val pendingChatTaskId by viewModel.pendingChatTaskId.collectAsState()
@@ -57,9 +59,13 @@ fun WorkerChatScreen(viewModel: HelperViewModel) {
             tasks = conversations,
             query = query,
             onQueryChange = viewModel::onChatQueryChange,
-            onChatClick = { selectedTaskId = it.id }
+            onChatClick = { selectedTaskId = it.id },
+            onBack = onBack
         )
     } else {
+        // Back from a conversation returns to the list. Without this it left the helper side
+        // altogether, dropping the user on the role choice mid-conversation.
+        BackHandler { selectedTaskId = null }
         WorkerChatConversationScreen(
             task = selectedTask,
             viewModel = viewModel,
@@ -74,10 +80,18 @@ fun WorkerChatListScreen(
     tasks: List<TaskEntity>,
     query: String,
     onQueryChange: (String) -> Unit,
-    onChatClick: (TaskEntity) -> Unit
+    onChatClick: (TaskEntity) -> Unit,
+    onBack: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt)) {
         TopAppBar(
+            navigationIcon = {
+                CircleBackButton(
+                    onClick = onBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    modifier = Modifier.padding(start = Spacing.xs)
+                )
+            },
             title = { Text(stringResource(R.string.chat_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
             // The filter icon and the "All / Unread / Pending Bids" chips are gone: read state and
             // bids do not exist in this app, so those filters could never have done anything.
