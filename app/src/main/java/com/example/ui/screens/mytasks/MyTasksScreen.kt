@@ -28,8 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +42,8 @@ import com.example.R
 import com.example.data.room.TaskEntity
 import com.example.ui.components.BentoCard
 import com.example.ui.components.BentoTag
-import com.example.ui.components.CircleBackButton
 import com.example.ui.components.EmptyState
+import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
 import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusLabel
@@ -74,22 +72,9 @@ fun MyTasksScreen(
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
     // This tab had no heading and no way back to the role choice except the system back gesture.
-    TopAppBar(
-      title = {
-        Text(
-          stringResource(R.string.customer_tab_my_tasks),
-          style = MaterialTheme.typography.headlineSmall,
-          fontWeight = FontWeight.ExtraBold,
-          color = FixTheme.colors.textPrimary,
-        )
-      },
-      navigationIcon = {
-        CircleBackButton(
-          onClick = onBack,
-          contentDescription = stringResource(R.string.cd_back),
-          modifier = Modifier.padding(start = Spacing.xs),
-        )
-      },
+    FixTopBar(
+      title = stringResource(R.string.customer_tab_my_tasks),
+      onBack = onBack,
       actions = {
         if (tasks.isNotEmpty()) {
           PillChip(
@@ -101,7 +86,6 @@ fun MyTasksScreen(
           )
         }
       },
-      colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background),
     )
 
     if (tasks.isEmpty()) {

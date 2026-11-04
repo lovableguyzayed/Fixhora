@@ -47,7 +47,7 @@ fun BrandWordmark(modifier: Modifier = Modifier, fontSize: TextUnit = 32.sp) {
   Text(
     text =
       buildAnnotatedString {
-        withStyle(SpanStyle(color = colors.primary)) { append(stringResource(R.string.brand_fixora)) }
+        withStyle(SpanStyle(color = colors.textPrimary)) { append(stringResource(R.string.brand_fixora)) }
         withStyle(SpanStyle(color = colors.accentGraphic)) { append(stringResource(R.string.brand_x)) }
       },
     modifier = modifier,

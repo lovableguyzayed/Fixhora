@@ -4,41 +4,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.ui.components.CircleBackButton
-import com.example.ui.format.budgetText
-import com.example.ui.format.taskLocationText
-import com.example.ui.format.posterText
-import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
-import com.example.ui.components.BentoStat
 import com.example.ui.components.BentoAction
 import com.example.ui.components.BentoActionRow
+import com.example.ui.components.BentoStat
 import com.example.ui.components.EmptyState
+import com.example.ui.components.FixTopBar
 import com.example.ui.components.SectionHeader
 import com.example.ui.components.SkeletonBox
-import com.example.ui.components.StatusBadge
-import com.example.ui.components.StatusTone
-import com.example.ui.screens.taskflow.dummyCategories
+import com.example.ui.format.posterText
 import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,27 +42,10 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBa
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    CircleBackButton(
-                        onClick = onBack,
-                        contentDescription = stringResource(R.string.cd_back),
-                        modifier = Modifier.padding(start = Spacing.xs)
-                    )
-                },
-                title = {
-                    Text(
-                        text = stringResource(R.string.worker_home_title),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = FixTheme.colors.textPrimary
-                    )
-                },
-                // The greeting with a hardcoded "Alex Worker", the online/offline pill that changed
-                // nothing, and the notification bell with a "2" badge are all gone: none of them
-                // was connected to anything.
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
-            )
+            // The greeting with a hardcoded "Alex Worker", the online/offline pill that changed
+            // nothing, and the notification bell with a "2" badge are all gone: none of them was
+            // connected to anything.
+            FixTopBar(title = stringResource(R.string.worker_home_title), onBack = onBack)
         },
         containerColor = FixTheme.colors.background
     ) { paddingValues ->

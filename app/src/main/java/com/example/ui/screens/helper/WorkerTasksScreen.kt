@@ -6,37 +6,28 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.ui.components.CircleBackButton
-import com.example.ui.format.budgetText
-import com.example.ui.format.taskLocationText
-import com.example.ui.format.posterText
-import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.ui.components.BentoAction
 import com.example.ui.components.BentoActionRow
 import com.example.ui.components.EmptyState
+import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
 import com.example.ui.components.SearchField
-import com.example.ui.components.StatusBadge
 import com.example.ui.components.StatusTone
-import com.example.ui.screens.taskflow.dummyCategories
+import com.example.ui.format.posterText
 import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,19 +42,9 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    CircleBackButton(
-                        onClick = onBack,
-                        contentDescription = stringResource(R.string.cd_back),
-                        modifier = Modifier.padding(start = Spacing.xs)
-                    )
-                },
-                title = { Text(stringResource(R.string.worker_tasks_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
-                // The Search / Filter / Sort icons are gone. Search is the field below, and
-                // neither filter nor sort was ever implemented.
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
-            )
+            // The Search / Filter / Sort icons are gone. Search is the field below, and neither
+            // filter nor sort was ever implemented.
+            FixTopBar(title = stringResource(R.string.worker_tasks_title), onBack = onBack)
         },
         containerColor = FixTheme.colors.background
     ) { paddingValues ->

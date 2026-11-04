@@ -5,32 +5,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.graphics.luminance
-import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.R
-import com.example.ui.components.CircleBackButton
-import com.example.ui.format.posterText
 import com.example.ui.components.EmptyState
+import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
 import com.example.ui.components.SearchField
+import com.example.ui.format.posterText
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
+import kotlinx.coroutines.launch
 
 /**
  * Browse open jobs by category.
@@ -51,17 +44,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBac
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    CircleBackButton(
-                        onClick = onBack,
-                        contentDescription = stringResource(R.string.cd_back),
-                        modifier = Modifier.padding(start = Spacing.xs)
-                    )
-                },
-                title = { Text(stringResource(R.string.map_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
-            )
+            FixTopBar(title = stringResource(R.string.map_title), onBack = onBack)
         },
         containerColor = FixTheme.colors.background
     ) { paddingValues ->

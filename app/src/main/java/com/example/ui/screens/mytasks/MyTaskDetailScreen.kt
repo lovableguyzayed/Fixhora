@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
@@ -29,8 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.repository.ChatRepository
 import com.example.data.room.ChatMessageEntity
@@ -50,7 +45,7 @@ import com.example.ui.components.BentoAction
 import com.example.ui.components.BentoActionRow
 import com.example.ui.components.BentoCard
 import com.example.ui.components.BentoTag
-import com.example.ui.components.CircleBackButton
+import com.example.ui.components.FixTopBar
 import com.example.ui.components.MessageBubble
 import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusDetail
@@ -147,29 +142,10 @@ fun MyTaskDetailScreen(
   Scaffold(
     containerColor = colors.background,
     topBar = {
-      TopAppBar(
-        title = {
-          Text(
-            text = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) },
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.ExtraBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-          )
-        },
-        navigationIcon = {
-          CircleBackButton(
-            onClick = onBack,
-            contentDescription = stringResource(R.string.cd_back_to_my_tasks),
-            modifier = Modifier.padding(start = Spacing.xs),
-          )
-        },
-        colors =
-          TopAppBarDefaults.topAppBarColors(
-            containerColor = colors.background,
-            titleContentColor = colors.textPrimary,
-            navigationIconContentColor = colors.textPrimary,
-          ),
+      FixTopBar(
+        title = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) },
+        onBack = onBack,
+        backDescription = stringResource(R.string.cd_back_to_my_tasks),
       )
     },
   ) { padding ->

@@ -62,15 +62,16 @@ object Palette {
   )
 
   /**
-   * Warm off-white page with white cards, near-black text, and a deeper brand blue that still
-   * clears 4.5:1 on every surface. The colour comes from the [Bento] cards, not the page.
+   * Warm off-white page, white cards, near-black text — and near-black for the main action too,
+   * the black pill of the reference designs. Colour comes from the [Bento] cards and the yellow
+   * [Theme.highlight], not from the chrome. Blue survives only as [Theme.info].
    */
   val Light =
     Theme(
-      primary = 0xFF2148E8,
-      primaryPressed = 0xFF1A3BC4,
+      primary = 0xFF141416,
+      primaryPressed = 0xFF2E2E33,
       onPrimary = 0xFFFFFFFF,
-      primarySurface = 0xFFE4E9FD,
+      primarySurface = 0xFFFFF1BF,
       accent = 0xFFFF6A2B,
       accentGraphic = 0xFFD9560F,
       accentText = 0xFFB24A00,
@@ -101,15 +102,15 @@ object Palette {
 
   /**
    * Charcoal, not navy: the coloured cards are the point of this look and read best on a neutral
-   * near-black. The blue is lightened, with dark text on it, because the light-theme blue scores
-   * under 3:1 here.
+   * near-black. The main action is the yellow pill with dark text, which is what a near-black
+   * button would need to become to be seen at all on this page.
    */
   val Dark =
     Theme(
-      primary = 0xFF9DAEFF,
-      primaryPressed = 0xFFB9C6FF,
+      primary = 0xFFFFD43B,
+      primaryPressed = 0xFFFFE27A,
       onPrimary = 0xFF141416,
-      primarySurface = 0xFF1E2340,
+      primarySurface = 0xFF3A3214,
       accent = 0xFFFF7A3D,
       accentGraphic = 0xFFFF7A3D,
       accentText = 0xFFFF8A4C,

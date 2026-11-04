@@ -342,6 +342,7 @@
 
     <!-- Task flow: steps and container -->
     <string name="step_details">Details</string>
+    <string name="step_counter">Step %1$d of %2$d</string>
     <string name="step_location">Location</string>
     <string name="step_category">Category</string>
     <string name="step_review">Review</string>

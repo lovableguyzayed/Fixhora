@@ -14,34 +14,30 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Radius
 import com.example.ui.theme.Spacing
 
-/** Title block at the top of every post-a-task step, so all four steps start the same way. */
+/**
+ * Title block at the top of every post-a-task step, so all four steps start the same way: a
+ * large bold question on the left, as in the reference designs, with its explanation under it.
+ */
 @Composable
 fun StepHeader(title: String, subtitle: String, modifier: Modifier = Modifier) {
-  Column(
-    modifier = modifier.fillMaxWidth().padding(top = Spacing.sm, bottom = Spacing.xl),
-    horizontalAlignment = Alignment.CenterHorizontally,
-  ) {
+  Column(modifier = modifier.fillMaxWidth().padding(top = Spacing.sm, bottom = Spacing.xl)) {
     Text(
       text = title,
-      style = MaterialTheme.typography.headlineMedium,
+      style = MaterialTheme.typography.headlineLarge,
       color = FixTheme.colors.textPrimary,
-      textAlign = TextAlign.Center,
     )
     Spacer(modifier = Modifier.height(Spacing.xs))
     Text(
       text = subtitle,
       style = MaterialTheme.typography.bodyMedium,
       color = FixTheme.colors.textSecondary,
-      textAlign = TextAlign.Center,
     )
   }
 }

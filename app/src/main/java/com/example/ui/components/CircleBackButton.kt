@@ -1,6 +1,7 @@
 package com.example.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.example.ui.theme.FixTheme
 
 /**
- * The back button used in every top bar: a 40dp tinted circle inside a 48dp touch target, so
+ * The back button used in every top bar: a 40dp outlined circle inside a 48dp touch target, so
  * "back" looks the same whichever flow the user is in.
  */
 @Composable
@@ -28,7 +29,11 @@ fun CircleBackButton(
 ) {
   IconButton(onClick = onClick, enabled = enabled, modifier = modifier) {
     Box(
-      modifier = Modifier.size(40.dp).clip(CircleShape).background(FixTheme.colors.surfaceAlt),
+      modifier =
+        Modifier.size(40.dp)
+          .clip(CircleShape)
+          .background(FixTheme.colors.surface)
+          .border(1.dp, FixTheme.colors.border, CircleShape),
       contentAlignment = Alignment.Center,
     ) {
       Icon(

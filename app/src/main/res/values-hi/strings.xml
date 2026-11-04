@@ -329,6 +329,7 @@
 
     <!-- Task flow: steps and container -->
     <string name="step_details">विवरण</string>
+    <string name="step_counter">चरण %1$d / %2$d</string>
     <string name="step_location">जगह</string>
     <string name="step_category">श्रेणी</string>
     <string name="step_review">जाँच</string>

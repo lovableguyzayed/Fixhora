@@ -9,29 +9,28 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.ui.components.CircleBackButton
-import com.example.ui.components.MessageBubble
-import com.example.ui.format.budgetText
-import com.example.ui.format.relativeTimeText
 import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
 import com.example.ui.components.EmptyState
+import com.example.ui.components.FixTopBar
+import com.example.ui.components.MessageBubble
 import com.example.ui.components.SearchField
 import com.example.ui.components.StatusBadge
+import com.example.ui.format.budgetText
+import com.example.ui.format.relativeTimeText
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 
@@ -84,19 +83,9 @@ fun WorkerChatListScreen(
     onBack: () -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.background)) {
-        TopAppBar(
-            navigationIcon = {
-                CircleBackButton(
-                    onClick = onBack,
-                    contentDescription = stringResource(R.string.cd_back),
-                    modifier = Modifier.padding(start = Spacing.xs)
-                )
-            },
-            title = { Text(stringResource(R.string.chat_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
-            // The filter icon and the "All / Unread / Pending Bids" chips are gone: read state and
-            // bids do not exist in this app, so those filters could never have done anything.
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
-        )
+        // The filter icon and the "All / Unread / Pending Bids" chips are gone: read state and
+        // bids do not exist in this app, so those filters could never have done anything.
+        FixTopBar(title = stringResource(R.string.chat_title), onBack = onBack)
 
         SearchField(
             query = query,
@@ -182,32 +171,14 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
     val messages by viewModel.getChatMessages(task.id).collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.background)) {
-        TopAppBar(
-            title = {
-                Column {
-                    Text(
-                        task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_conversation) },
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = FixTheme.colors.textPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    // Was a hardcoded green "Online". Presence is not tracked.
-                    Text(
-                        budgetText(task.minBudget, task.maxBudget),
-                        fontSize = 12.sp,
-                        color = FixTheme.colors.textSecondary
-                    )
-                }
-            },
-            navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back_to_chats))
-                }
-            },
-            // Call and "More" removed: there is no phone number stored and no menu to show.
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
+        // Was a hardcoded green "Online" under the title. Presence is not tracked; the budget is
+        // what the helper actually needs while talking. Call and "More" are gone too: there is no
+        // phone number stored and no menu to show.
+        FixTopBar(
+            title = task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_conversation) },
+            subtitle = budgetText(task.minBudget, task.maxBudget),
+            onBack = onBack,
+            backDescription = stringResource(R.string.cd_back_to_chats)
         )
 
         if (messages.isEmpty()) {

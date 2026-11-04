@@ -1,42 +1,42 @@
 package com.example.ui.screens
 
-import androidx.annotation.StringRes
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.FixhoraApplication
 import com.example.R
-import com.example.ui.screens.taskflow.*
-import androidx.compose.foundation.border
-import com.example.ui.components.CircleBackButton
+import com.example.ui.components.BentoCard
 import com.example.ui.components.FixButton
+import com.example.ui.components.FixButtonStyle
+import com.example.ui.components.FixTopBar
+import com.example.ui.screens.taskflow.*
+import com.example.ui.screens.taskflow.TaskViewModel
+import com.example.ui.theme.Bento
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Spacing
-
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.ui.screens.taskflow.TaskViewModel
-import com.example.FixhoraApplication
 
 sealed class TaskScreen(val route: String, val index: Int, @StringRes val titleRes: Int) {
     object Category : TaskScreen("category", 1, R.string.step_category)
@@ -120,28 +120,10 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
         containerColor = FixTheme.colors.background,
         topBar = {
             if (currentRoute != "success") {
-                // Centre-aligned so the title sits in the middle of the screen whatever the
-                // navigation icon and actions are; a fillMaxWidth title in a TopAppBar is centred
-                // only in the space left over.
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            stringResource(R.string.flow_i_need_help),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = FixTheme.colors.textPrimary
-                        )
-                    },
-                    navigationIcon = {
-                        CircleBackButton(
-                            onClick = { goBack() },
-                            contentDescription = stringResource(R.string.cd_back),
-                            modifier = Modifier.padding(start = Spacing.xs)
-                        )
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = FixTheme.colors.background,
-                        scrolledContainerColor = FixTheme.colors.background
-                    )
+                FixTopBar(
+                    title = stringResource(R.string.flow_i_need_help),
+                    subtitle = stringResource(R.string.step_counter, currentScreen.index, taskScreens.size),
+                    onBack = { goBack() }
                 )
             }
         }
@@ -194,46 +176,45 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, onTaskPosted: () -> Unit = {}) 
 @Composable
 private fun TaskPostedScreen(onViewTasks: () -> Unit, onBackHome: () -> Unit) {
     val colors = FixTheme.colors
+    val bento = Bento.Lime
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.background)
             .systemBarsPadding()
             .padding(horizontal = Spacing.xl),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(
-            modifier = Modifier.size(112.dp).clip(CircleShape).background(colors.successSurface),
-            contentAlignment = Alignment.Center
-        ) {
+        BentoCard(colors = bento, modifier = Modifier.fillMaxWidth(), contentPadding = Spacing.xl) {
             Box(
-                modifier = Modifier.size(72.dp).clip(CircleShape).background(colors.success),
+                modifier = Modifier.size(64.dp).clip(CircleShape).background(colors.ink),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(40.dp))
+                Icon(Icons.Default.Check, contentDescription = null, tint = colors.onInk, modifier = Modifier.size(36.dp))
             }
+            Spacer(modifier = Modifier.height(Spacing.xl))
+            Text(
+                stringResource(R.string.success_title),
+                style = MaterialTheme.typography.displaySmall,
+                color = bento.onFill
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            // The old copy promised "you will be notified once someone accepts your task". There
+            // are no notifications in this app, so that was a promise it could not keep. Checking
+            // back is what actually works.
+            Text(
+                stringResource(R.string.success_body),
+                style = MaterialTheme.typography.bodyLarge,
+                color = bento.onFillSecondary
+            )
+            Spacer(modifier = Modifier.height(Spacing.xl))
+            FixButton(
+                text = stringResource(R.string.success_view_tasks),
+                onClick = onViewTasks,
+                style = FixButtonStyle.INK
+            )
         }
-        Spacer(modifier = Modifier.height(Spacing.xl))
-        Text(
-            stringResource(R.string.success_title),
-            style = MaterialTheme.typography.headlineMedium,
-            color = colors.textPrimary,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        // The old copy promised "you will be notified once someone accepts your task". There are
-        // no notifications in this app, so that was a promise it could not keep. Checking back is
-        // what actually works.
-        Text(
-            stringResource(R.string.success_body),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-            color = colors.textSecondary
-        )
-        Spacer(modifier = Modifier.height(Spacing.xxxl))
-        FixButton(text = stringResource(R.string.success_view_tasks), onClick = onViewTasks)
-        Spacer(modifier = Modifier.height(Spacing.sm))
+        Spacer(modifier = Modifier.height(Spacing.md))
         TextButton(onClick = onBackHome, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
             Text(stringResource(R.string.success_back_home), style = MaterialTheme.typography.labelLarge, color = colors.textSecondary)
         }
@@ -241,84 +222,61 @@ private fun TaskPostedScreen(onViewTasks: () -> Unit, onBackHome: () -> Unit) {
 }
 
 /**
- * Four evenly spaced steps. Each step owns an equal slice of the width with its circle centred in
- * it, so every label sits directly under its own circle and the connector runs through the
- * circles. The previous layout spread the circles edge to edge but gave the labels equal columns,
- * so only the middle of the row lined up.
+ * The four steps as a row of pills: done ones are black with a check, the current one is the
+ * yellow highlight, the rest are outlined. Equal widths, so the row never scrolls or wraps.
+ *
+ * The whole row is announced as one "Step 2 of 4: Location" rather than as four loose words.
  */
 @Composable
 fun StepProgressBar(currentStep: Int) {
     val colors = FixTheme.colors
+    val currentLabel = stringResource(taskScreens[(currentStep - 1).coerceIn(0, taskScreens.lastIndex)].titleRes)
+    val summary = stringResource(R.string.step_counter, currentStep, taskScreens.size) + ": " + currentLabel
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = Spacing.sm, vertical = Spacing.md)
+            .padding(horizontal = Spacing.lg, vertical = Spacing.sm)
+            .clearAndSetSemantics { contentDescription = summary },
+        horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
     ) {
         taskScreens.forEachIndexed { index, screen ->
             val step = index + 1
             val isDone = step < currentStep
             val isCurrent = step == currentStep
-            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    StepConnector(visible = index > 0, active = step <= currentStep, modifier = Modifier.weight(1f))
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(if (isCurrent) colors.primarySurface else Color.Transparent),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(26.dp)
-                                .clip(CircleShape)
-                                .background(if (isDone || isCurrent) colors.primary else colors.surface)
-                                .border(1.dp, if (isDone || isCurrent) colors.primary else colors.border, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isDone) {
-                                Icon(Icons.Default.Check, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(16.dp))
-                            } else {
-                                Text(
-                                    text = step.toString(),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isCurrent) colors.onPrimary else colors.textSecondary
-                                )
-                            }
-                        }
-                    }
-                    StepConnector(visible = index < taskScreens.lastIndex, active = step < currentStep, modifier = Modifier.weight(1f))
+            val container = when {
+                isCurrent -> colors.highlight
+                isDone -> colors.ink
+                else -> colors.surface
+            }
+            val content = when {
+                isCurrent -> colors.onHighlight
+                isDone -> colors.onInk
+                else -> colors.textSecondary
+            }
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(36.dp)
+                    .clip(CircleShape)
+                    .background(container)
+                    .then(if (!isDone && !isCurrent) Modifier.border(1.dp, colors.border, CircleShape) else Modifier)
+                    .padding(horizontal = Spacing.sm),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isDone) {
+                    Icon(Icons.Default.Check, contentDescription = null, tint = content, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
                 }
-                Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = stringResource(screen.titleRes),
                     style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Medium,
-                    color = when {
-                        isCurrent -> colors.primary
-                        isDone -> colors.textPrimary
-                        else -> colors.textSecondary
-                    },
-                    textAlign = TextAlign.Center,
-                    maxLines = 1
+                    fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
+                    color = content,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
     }
-}
-
-@Composable
-private fun StepConnector(visible: Boolean, active: Boolean, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .height(2.dp)
-            .background(
-                when {
-                    !visible -> Color.Transparent
-                    active -> FixTheme.colors.primary
-                    else -> FixTheme.colors.border
-                }
-            )
-    )
 }
