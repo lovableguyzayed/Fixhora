@@ -30,12 +30,14 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -220,16 +222,18 @@ fun EmptyState(
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
   ) {
-    Icon(
-      imageVector = icon,
-      contentDescription = null,
-      tint = colors.textMuted,
-      modifier = Modifier.size(56.dp),
-    )
+    // The icon on a yellow disc: the one spot of colour on an otherwise empty screen.
+    Box(
+      modifier = Modifier.size(88.dp).clip(CircleShape).background(colors.highlight),
+      contentAlignment = Alignment.Center,
+    ) {
+      Icon(imageVector = icon, contentDescription = null, tint = colors.onHighlight, modifier = Modifier.size(40.dp))
+    }
     Spacer(modifier = Modifier.height(Spacing.lg))
     Text(
       text = title,
-      style = MaterialTheme.typography.titleMedium,
+      style = MaterialTheme.typography.headlineSmall,
+      fontWeight = FontWeight.ExtraBold,
       color = colors.textPrimary,
       textAlign = TextAlign.Center,
     )
@@ -242,7 +246,7 @@ fun EmptyState(
     )
     if (actionText != null && onAction != null) {
       Spacer(modifier = Modifier.height(Spacing.xl))
-      FixButton(text = actionText, onClick = onAction, style = FixButtonStyle.SECONDARY)
+      FixButton(text = actionText, onClick = onAction)
     }
   }
 }

@@ -222,8 +222,9 @@ private fun TaskPostedScreen(onViewTasks: () -> Unit, onBackHome: () -> Unit) {
 }
 
 /**
- * The four steps as a row of pills: done ones are black with a check, the current one is the
- * yellow highlight, the rest are outlined. Equal widths, so the row never scrolls or wraps.
+ * The four steps as a row of pills: done ones shrink to a black check, the current one is the
+ * yellow highlight, the rest are outlined and share the remaining width, so the row never
+ * scrolls or wraps.
  *
  * The whole row is announced as one "Step 2 of 4: Location" rather than as four loose words.
  */
@@ -253,29 +254,35 @@ fun StepProgressBar(currentStep: Int) {
                 isDone -> colors.onInk
                 else -> colors.textSecondary
             }
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(36.dp)
-                    .clip(CircleShape)
-                    .background(container)
-                    .then(if (!isDone && !isCurrent) Modifier.border(1.dp, colors.border, CircleShape) else Modifier)
-                    .padding(horizontal = Spacing.sm),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (isDone) {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = content, modifier = Modifier.size(14.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
+            if (isDone) {
+                // A finished step shrinks to a check, leaving the width to the steps still ahead;
+                // at equal widths their names were cut to "Categ…" and "Locati…".
+                Box(
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(container),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null, tint = content, modifier = Modifier.size(18.dp))
                 }
-                Text(
-                    text = stringResource(screen.titleRes),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
-                    color = content,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(36.dp)
+                        .clip(CircleShape)
+                        .background(container)
+                        .then(if (!isCurrent) Modifier.border(1.dp, colors.border, CircleShape) else Modifier)
+                        .padding(horizontal = Spacing.sm),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(screen.titleRes),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = if (isCurrent) FontWeight.ExtraBold else FontWeight.SemiBold,
+                        color = content,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

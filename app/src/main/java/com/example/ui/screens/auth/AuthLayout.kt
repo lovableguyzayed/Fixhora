@@ -25,10 +25,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
@@ -53,7 +51,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
+import com.example.ui.components.BentoCard
 import com.example.ui.components.CircleBackButton
+import com.example.ui.theme.Bento
+import com.example.ui.theme.BentoColors
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
@@ -110,30 +111,47 @@ fun AuthBackButton(onBack: () -> Unit, modifier: Modifier = Modifier, enabled: B
 }
 
 /**
- * Page title and its supporting line.
+ * Page title and its supporting line, on a coloured card with the step's icon in a black circle.
  *
- * Uses the type scale rather than a bare `fontSize`: titles set only a size inherited the 24sp line
- * height of body text, so any title that wrapped ("Create Your Account", "Login with Mobile
- * Number") drew its second line over the first.
+ * Each auth step gets its own card colour, so moving from sign-in to the code to the profile
+ * reads as progress rather than as the same white form three times. Uses the type scale rather
+ * than a bare `fontSize`: titles set only a size inherited the 24sp line height of body text, so
+ * any title that wrapped drew its second line over the first. [textAlign] is kept for callers
+ * that pass it; the card is always laid out from the start edge.
  */
 @Composable
-fun AuthHeader(title: String, subtitle: String? = null, textAlign: TextAlign = TextAlign.Start) {
-  Text(
-    text = title,
-    style = MaterialTheme.typography.headlineLarge,
-    color = FixTheme.colors.textPrimary,
-    textAlign = textAlign,
-    modifier = Modifier.fillMaxWidth(),
-  )
-  if (subtitle != null) {
-    Spacer(modifier = Modifier.height(Spacing.sm))
+fun AuthHeader(
+  title: String,
+  subtitle: String? = null,
+  textAlign: TextAlign = TextAlign.Start,
+  colors: BentoColors = Bento.Sun,
+  icon: ImageVector? = null,
+) {
+  BentoCard(colors = colors, modifier = Modifier.fillMaxWidth(), contentPadding = Spacing.xl) {
+    if (icon != null) {
+      Box(
+        modifier = Modifier.size(48.dp).clip(CircleShape).background(FixTheme.colors.ink),
+        contentAlignment = Alignment.Center,
+      ) {
+        Icon(icon, contentDescription = null, tint = FixTheme.colors.onInk, modifier = Modifier.size(24.dp))
+      }
+      Spacer(modifier = Modifier.height(Spacing.lg))
+    }
     Text(
-      text = subtitle,
-      style = MaterialTheme.typography.bodyLarge,
-      color = FixTheme.colors.textSecondary,
-      textAlign = textAlign,
+      text = title,
+      style = MaterialTheme.typography.headlineLarge,
+      color = colors.onFill,
       modifier = Modifier.fillMaxWidth(),
     )
+    if (subtitle != null) {
+      Spacer(modifier = Modifier.height(Spacing.xs))
+      Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodyMedium,
+        color = colors.onFillSecondary,
+        modifier = Modifier.fillMaxWidth(),
+      )
+    }
   }
 }
 

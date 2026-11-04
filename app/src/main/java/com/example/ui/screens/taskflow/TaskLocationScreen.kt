@@ -5,20 +5,16 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
-
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Shield
@@ -27,25 +23,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.R
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.R
 import com.example.ui.components.BottomActionBar
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixCard
 import com.example.ui.components.StylizedMap
+import com.example.ui.theme.Bento
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
 import com.example.ui.theme.Spacing
-
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
@@ -286,47 +280,46 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 TaskViewModel.DISTANCE_OPTIONS_KM.forEach { km ->
                     val selected = uiState.selectedDistance == km
-                    val shape = RoundedCornerShape(Radius.md)
-                    Surface(
+                    // Radio semantics: exactly one distance is always chosen.
+                    Box(
                         modifier = Modifier
                             .weight(1f)
                             .height(MinTouchTarget)
-                            .clip(shape)
+                            .clip(CircleShape)
+                            .background(if (selected) colors.highlight else colors.surface)
+                            .then(if (selected) Modifier else Modifier.border(1.dp, colors.border, CircleShape))
                             .selectable(selected = selected, role = Role.RadioButton) {
                                 viewModel.updateSelectedDistance(km)
                             },
-                        shape = shape,
-                        color = if (selected) colors.primarySurface else colors.surface,
-                        border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) colors.primary else colors.border)
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                stringResource(R.string.loc_km_short, km),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = if (selected) colors.primary else colors.textPrimary
-                            )
-                        }
+                        Text(
+                            stringResource(R.string.loc_km_short, km),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.SemiBold,
+                            color = if (selected) colors.onHighlight else colors.textPrimary
+                        )
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(Spacing.xl))
             Surface(
-                color = colors.primarySurface,
-                shape = RoundedCornerShape(Radius.md),
+                color = Bento.Mint.fill,
+                shape = RoundedCornerShape(Radius.lg),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(modifier = Modifier.padding(Spacing.lg), verticalAlignment = Alignment.Top) {
                     Icon(
                         imageVector = Icons.Default.Shield,
                         contentDescription = null,
-                        tint = colors.primary,
+                        tint = Bento.Mint.onFill,
                         modifier = Modifier.size(22.dp)
                     )
                     Spacer(modifier = Modifier.width(Spacing.md))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.loc_safe_title), style = MaterialTheme.typography.titleSmall, color = colors.textPrimary)
-                        Text(stringResource(R.string.loc_safe_body), style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                        Text(stringResource(R.string.loc_safe_title), style = MaterialTheme.typography.titleSmall, color = Bento.Mint.onFill)
+                        Text(stringResource(R.string.loc_safe_body), style = MaterialTheme.typography.bodySmall, color = Bento.Mint.onFillSecondary)
                     }
                 }
             }

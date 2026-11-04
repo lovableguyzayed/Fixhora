@@ -1,5 +1,26 @@
 # Changelog
 
+## Batch 15 — Redesign, completed across every screen
+
+Batch 14 restyled the home, list and category screens but left the rest of the app on the old
+blue-and-white look, so moving between screens felt like two different apps. This pass carries
+the reference designs' language through every screen and replaces blue as the action colour.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| `primary` is near-black in light and yellow in dark; blue remains only as `info` | The reference designs act in black and yellow pills. Blue buttons next to yellow chips and a black tab bar read as unfinished. `ContrastTest` passes for every pair, including the pale-yellow `primarySurface`. | Low. Every button, link, focus ring and step marker follows the token, so nothing was recoloured by hand. |
+| `FixTopBar`: round back button, large bold title on the left, optional subtitle | Top bars were centred on one screen, white on another, a plain arrow on a third, titles from 16sp to 22sp. Now one component on the task flow, My tasks, task detail, all helper tabs and both chats. | None. |
+| Task steps are pills: done steps shrink to a black check, the current one is yellow, the rest outlined; the bar announces "Step 2 of 4: Location" | Equal-width pills cut finished steps' names to "Categ…". Step headers are now left-aligned, as in the reference. | None. |
+| Auth headers are coloured cards with the step's icon (sign-in yellow, sign-up lime, mobile periwinkle, code mint, reset peach, profile cream, permissions mint) | Each step reads as progress rather than the same white form again. | None. |
+| Welcome: a yellow hero card with both personas, two role tiles, black and outlined pills | The old welcome was the one screen still built on a gradient circle. | None — same actions, same strings. |
+| Review: each summarised step is a coloured card with a black "Edit" pill; the reassurance note is periwinkle | White cards with blue text links did not belong to the new look. | None. |
+| Location: distance chips are pills (yellow when chosen); the safety note is a mint card. Task posted: a lime card with a black action | Brings the last task-flow screens in line. | None. |
+| Empty states put their icon on a yellow disc with a bold title and a filled action | A grey outline icon on an empty page looked like a placeholder. | None. |
+| `ChatInputBar`: one rounded field and a round yellow send button for both chats | The two chats had different input rows and a grey arrow for send that was easy to miss. | None. |
+
+**Destructive operations: none.** No schema or stored value changed; one string added
+(`step_counter`, English and Hindi).
+
 ## Batch 14 — Bento redesign
 
 A new look, after reference designs the owner shared: a neutral page, flat full-colour cards with

@@ -1,6 +1,7 @@
 package com.example.ui.screens.taskflow
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -22,21 +23,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.R
+import com.example.ui.components.BentoCard
 import com.example.ui.components.BottomActionBar
 import com.example.ui.components.FixButton
-import com.example.ui.components.FixCard
 import com.example.ui.format.Budget
 import com.example.ui.format.budget
 import com.example.ui.format.budgetText
 import com.example.ui.screens.TaskScreen
+import com.example.ui.theme.Bento
+import com.example.ui.theme.BentoColors
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
@@ -74,7 +78,7 @@ fun TaskReviewScreen(
 
             ReviewCard(
                 icon = category?.icon ?: Icons.AutoMirrored.Filled.HelpOutline,
-                iconTint = category?.iconTint ?: colors.textSecondary,
+                bento = categoryBento(uiState.categoryId),
                 label = stringResource(R.string.review_category),
                 title = category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.category_not_selected),
                 subtitle = category?.let { stringResource(it.subtitleRes) } ?: stringResource(R.string.category_tap_edit),
@@ -86,17 +90,17 @@ fun TaskReviewScreen(
             // one card and one Edit instead of three cards that all led to the same place.
             ReviewCard(
                 icon = Icons.Default.Description,
-                iconTint = colors.primary,
+                bento = Bento.Cream,
                 label = stringResource(R.string.review_description),
                 title = uiState.descriptionTitle.ifBlank { stringResource(R.string.review_no_title) },
                 subtitle = uiState.descriptionDetails.ifBlank { stringResource(R.string.review_no_details) },
                 onEditClick = { onNavigateToStep(TaskScreen.Photos.route) }
-            ) {
+            ) { bento ->
                 if (uiState.photoUris.isEmpty()) {
                     Text(
                         stringResource(R.string.review_no_photos),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textSecondary,
+                        color = bento.onFillSecondary,
                         modifier = Modifier.padding(top = Spacing.sm)
                     )
                 } else {
@@ -112,14 +116,14 @@ fun TaskReviewScreen(
                                 modifier = Modifier
                                     .size(56.dp)
                                     .clip(RoundedCornerShape(Radius.sm))
-                                    .background(colors.surfaceAlt)
+                                    .background(bento.onFill.copy(alpha = 0.1f))
                             )
                         }
                     }
                     Text(
                         pluralStringResource(R.plurals.review_photos_added, uiState.photoUris.size, uiState.photoUris.size),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textSecondary,
+                        color = bento.onFillSecondary,
                         modifier = Modifier.padding(top = Spacing.xs)
                     )
                 }
@@ -130,7 +134,7 @@ fun TaskReviewScreen(
             // regardless of where the user actually was.
             ReviewCard(
                 icon = Icons.Default.LocationOn,
-                iconTint = colors.primary,
+                bento = Bento.Peach,
                 label = stringResource(R.string.review_location),
                 title = when {
                     uiState.locationQuery.isNotBlank() -> uiState.locationQuery
@@ -143,21 +147,21 @@ fun TaskReviewScreen(
                     null
                 },
                 onEditClick = { onNavigateToStep(TaskScreen.Location.route) }
-            ) {
+            ) { bento ->
                 Row(
                     modifier = Modifier
                         .padding(top = Spacing.sm)
                         .clip(CircleShape)
-                        .background(colors.primarySurface)
+                        .background(bento.onFill.copy(alpha = 0.1f))
                         .padding(horizontal = Spacing.md, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.MyLocation, contentDescription = null, tint = colors.primary, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.MyLocation, contentDescription = null, tint = bento.onFill, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(Spacing.xs))
                     Text(
                         stringResource(R.string.loc_within_km, uiState.selectedDistance),
                         style = MaterialTheme.typography.labelMedium,
-                        color = colors.primary
+                        color = bento.onFill
                     )
                 }
             }
@@ -166,7 +170,7 @@ fun TaskReviewScreen(
             val hasBudget = budget(uiState.minBudget, uiState.maxBudget) != Budget.NotSet
             ReviewCard(
                 icon = Icons.Default.CurrencyRupee,
-                iconTint = colors.primary,
+                bento = Bento.Lime,
                 label = stringResource(R.string.review_your_budget),
                 title = budgetText(uiState.minBudget, uiState.maxBudget),
                 subtitle = if (hasBudget) stringResource(R.string.review_budget_note) else null,
@@ -177,15 +181,15 @@ fun TaskReviewScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(Radius.lg))
-                    .background(colors.primarySurface)
+                    .clip(RoundedCornerShape(Radius.xl))
+                    .background(Bento.Periwinkle.fill)
                     .padding(Spacing.lg),
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
                     imageVector = Icons.Default.Shield,
                     contentDescription = null,
-                    tint = colors.primary,
+                    tint = Bento.Periwinkle.onFill,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(Spacing.md))
@@ -193,13 +197,13 @@ fun TaskReviewScreen(
                     Text(
                         stringResource(R.string.review_control_title),
                         style = MaterialTheme.typography.titleSmall,
-                        color = colors.textPrimary
+                        color = Bento.Periwinkle.onFill
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         stringResource(R.string.review_control_body),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textSecondary
+                        color = Bento.Periwinkle.onFillSecondary
                     )
                 }
             }
@@ -250,53 +254,64 @@ fun TaskReviewScreen(
     }
 }
 
-/** One summarised step: icon, what was entered, and a way back to change it. */
+/**
+ * One summarised step on a card in that step's colour — the category's own colour for the
+ * category — with a black "Edit" pill that goes back to it.
+ */
 @Composable
 fun ReviewCard(
     icon: ImageVector,
-    iconTint: Color,
+    bento: BentoColors,
     label: String,
     title: String,
     subtitle: String?,
     onEditClick: () -> Unit,
-    extraContent: @Composable (ColumnScope.() -> Unit)? = null
+    extraContent: @Composable (ColumnScope.(BentoColors) -> Unit)? = null
 ) {
     val colors = FixTheme.colors
-    FixCard {
-        Row(
-            modifier = Modifier.padding(start = Spacing.lg, top = Spacing.lg, bottom = Spacing.lg, end = Spacing.xs),
-            verticalAlignment = Alignment.Top
-        ) {
+    BentoCard(colors = bento, modifier = Modifier.fillMaxWidth()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(iconTint.copy(alpha = 0.12f)),
+                    .background(colors.ink),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(22.dp))
+                Icon(icon, contentDescription = null, tint = colors.onInk, modifier = Modifier.size(20.dp))
             }
             Spacer(modifier = Modifier.width(Spacing.md))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(label, style = MaterialTheme.typography.labelMedium, color = colors.textSecondary)
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, color = colors.textPrimary)
-                if (subtitle != null) {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
-                }
-                extraContent?.invoke(this)
-            }
-            // Pulled up so its label lines up with the card's label row rather than sitting low.
-            TextButton(
-                onClick = onEditClick,
+            Text(
+                label.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = bento.onFillSecondary,
+                modifier = Modifier.weight(1f)
+            )
+            // A 48dp target around a small pill, so it reads as a tag but is easy to hit.
+            Box(
                 modifier = Modifier
                     .heightIn(min = MinTouchTarget)
-                    .offset(y = (-12).dp),
-                contentPadding = PaddingValues(horizontal = Spacing.md)
+                    .clip(CircleShape)
+                    .clickable(role = Role.Button, onClick = onEditClick),
+                contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(R.string.action_edit), style = MaterialTheme.typography.labelLarge, color = colors.primary)
+                Text(
+                    stringResource(R.string.action_edit),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = colors.onInk,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(colors.ink)
+                        .padding(horizontal = Spacing.lg, vertical = 6.dp)
+                )
             }
         }
+        Spacer(modifier = Modifier.height(Spacing.sm))
+        Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold, color = bento.onFill)
+        if (subtitle != null) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = bento.onFillSecondary)
+        }
+        extraContent?.invoke(this, bento)
     }
 }

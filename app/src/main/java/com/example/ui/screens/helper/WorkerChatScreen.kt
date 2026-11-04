@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.data.repository.ChatRepository
 import com.example.data.room.TaskEntity
+import com.example.ui.components.ChatInputBar
 import com.example.ui.components.EmptyState
 import com.example.ui.components.FixTopBar
 import com.example.ui.components.MessageBubble
@@ -207,41 +206,14 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             }
         }
 
-        Surface(color = FixTheme.colors.surface) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    placeholder = { Text(stringResource(R.string.chat_input_hint)) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FixTheme.colors.primary,
-                        unfocusedBorderColor = FixTheme.colors.border,
-                        focusedContainerColor = FixTheme.colors.surfaceAlt,
-                        unfocusedContainerColor = FixTheme.colors.surfaceAlt
-                    ),
-                    maxLines = 4
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                // Attach and voice-note buttons removed: neither was implemented.
-                IconButton(
-                    onClick = {
-                        viewModel.sendMessage(task.id, messageText)
-                        messageText = ""
-                    },
-                    enabled = messageText.isNotBlank()
-                ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Send,
-                        contentDescription = stringResource(R.string.cd_send_message),
-                        tint = if (messageText.isNotBlank()) FixTheme.colors.primary else FixTheme.colors.onDisabled
-                    )
-                }
+        ChatInputBar(
+            value = messageText,
+            onValueChange = { messageText = it },
+            placeholder = stringResource(R.string.chat_input_hint),
+            onSend = {
+                viewModel.sendMessage(task.id, it)
+                messageText = ""
             }
-        }
+        )
     }
 }

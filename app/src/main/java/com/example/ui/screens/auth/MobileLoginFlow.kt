@@ -3,32 +3,32 @@ package com.example.ui.screens.auth
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import com.example.R
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.semantics.Role
+import com.example.R
 import com.example.ui.theme.*
 import com.example.util.FieldError
 import com.example.util.Validators
@@ -58,7 +58,7 @@ fun MobileLoginScreen(onSendOtp: (mobile: String) -> Unit, onBack: () -> Unit) {
   }
 
   AuthScreen(onBack = onBack) {
-    AuthHeader(stringResource(R.string.mobile_login_title), stringResource(R.string.mobile_login_subtitle))
+    AuthHeader(stringResource(R.string.mobile_login_title), stringResource(R.string.mobile_login_subtitle), colors = Bento.Periwinkle, icon = Icons.Default.PhoneAndroid)
     Spacer(modifier = Modifier.height(Spacing.xl))
 
     DemoModeNotice(stringResource(R.string.demo_no_sms))
@@ -147,6 +147,8 @@ fun OtpVerificationScreen(
     AuthHeader(
       stringResource(R.string.otp_title),
       stringResource(R.string.otp_subtitle, Validators.OTP_LENGTH, formatIndianMobile(mobile)),
+      colors = Bento.Mint,
+      icon = Icons.Default.Sms,
     )
 
     Spacer(modifier = Modifier.height(Spacing.xl))
@@ -289,7 +291,7 @@ fun ForgotPasswordScreen(
   AuthScreen(onBack = onBack) {
     when (step) {
       1 -> {
-        AuthHeader(stringResource(R.string.forgot_title), stringResource(R.string.forgot_subtitle))
+        AuthHeader(stringResource(R.string.forgot_title), stringResource(R.string.forgot_subtitle), colors = Bento.Peach, icon = Icons.Default.LockReset)
         Spacer(modifier = Modifier.height(Spacing.xxl))
         AuthTextField(
           value = mobile,
@@ -312,6 +314,8 @@ fun ForgotPasswordScreen(
         AuthHeader(
           stringResource(R.string.action_verify_otp),
           stringResource(R.string.code_sent_to, formatIndianMobile(normalizeMobile(mobile))),
+          colors = Bento.Mint,
+          icon = Icons.Default.Sms,
         )
         Spacer(modifier = Modifier.height(Spacing.xl))
         DemoModeNotice(stringResource(R.string.demo_your_code, expectedCode))
@@ -336,7 +340,7 @@ fun ForgotPasswordScreen(
         SubmitButton(text = stringResource(R.string.action_verify), isSubmitting = false, onClick = { submitOtp() })
       }
       else -> {
-        AuthHeader(stringResource(R.string.reset_title), stringResource(R.string.reset_subtitle))
+        AuthHeader(stringResource(R.string.reset_title), stringResource(R.string.reset_subtitle), colors = Bento.Lime, icon = Icons.Default.Key)
         Spacer(modifier = Modifier.height(Spacing.xxl))
         AuthTextField(
           value = newPassword,

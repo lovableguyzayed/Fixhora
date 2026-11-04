@@ -11,10 +11,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Pin
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Wc
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,14 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.example.R
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.semantics.Role
+import com.example.R
 import com.example.ui.components.FixCard
 import com.example.ui.theme.*
 
@@ -59,7 +55,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
   }
 
   AuthScreen(onBack = null) {
-    AuthHeader(stringResource(R.string.profile_title), stringResource(R.string.profile_subtitle))
+    AuthHeader(stringResource(R.string.profile_title), stringResource(R.string.profile_subtitle), colors = Bento.Cream, icon = Icons.Default.Person)
     Spacer(modifier = Modifier.height(Spacing.xxl))
 
     AuthTextField(
@@ -227,25 +223,14 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
         .padding(horizontal = Spacing.xl),
     horizontalAlignment = Alignment.CenterHorizontally,
   ) {
-    Spacer(modifier = Modifier.height(Spacing.xxxl))
-    Box(
-      modifier = Modifier.size(112.dp).clip(CircleShape).background(FixTheme.colors.primarySurface),
-      contentAlignment = Alignment.Center,
-    ) {
-      Box(
-        modifier = Modifier.size(64.dp).clip(CircleShape).background(FixTheme.colors.surface),
-        contentAlignment = Alignment.Center,
-      ) {
-        Icon(Icons.Default.Shield, contentDescription = null, tint = FixTheme.colors.primary, modifier = Modifier.size(32.dp))
-      }
-    }
     Spacer(modifier = Modifier.height(Spacing.xl))
     AuthHeader(
       stringResource(R.string.perm_title),
       stringResource(R.string.perm_subtitle),
-      textAlign = TextAlign.Center,
+      colors = Bento.Mint,
+      icon = Icons.Default.Shield,
     )
-    Spacer(modifier = Modifier.height(Spacing.xxl))
+    Spacer(modifier = Modifier.height(Spacing.xl))
 
     PermissionRow(
       icon = Icons.Default.LocationOn,
