@@ -2,9 +2,11 @@ package com.example.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.R
 
 /**
  * The full type scale.
@@ -14,19 +16,31 @@ import androidx.compose.ui.unit.sp
  * heights are set explicitly because Devanagari sits taller than Latin and clips at Material's
  * defaults.
  *
- * One family throughout: the system default, which already ships a Devanagari face on every
- * Android device, so Hindi text needs no extra font download on a slow connection.
+ * Plus Jakarta Sans (SIL Open Font License, see `licenses/`), bundled at five weights — about
+ * 150 KB, Latin only. Hindi text and the rupee sign are not in it and fall back per character to
+ * the system font, which ships a Devanagari face on every Android device.
  */
-private val Sans = FontFamily.Default
+private val Sans =
+  FontFamily(
+    Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),
+    Font(R.font.plus_jakarta_sans_medium, FontWeight.Medium),
+    Font(R.font.plus_jakarta_sans_semibold, FontWeight.SemiBold),
+    Font(R.font.plus_jakarta_sans_bold, FontWeight.Bold),
+    Font(R.font.plus_jakarta_sans_extrabold, FontWeight.ExtraBold),
+  )
 
 val Typography =
   Typography(
+    displayLarge =
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 56.sp, lineHeight = 60.sp, letterSpacing = (-1.5).sp),
+    displayMedium =
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 44.sp, lineHeight = 50.sp, letterSpacing = (-1).sp),
     displaySmall =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp, lineHeight = 40.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp, lineHeight = 40.sp, letterSpacing = (-0.5).sp),
     headlineLarge =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Bold, fontSize = 28.sp, lineHeight = 36.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, lineHeight = 36.sp, letterSpacing = (-0.5).sp),
     headlineMedium =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Bold, fontSize = 24.sp, lineHeight = 32.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, lineHeight = 32.sp, letterSpacing = (-0.25).sp),
     headlineSmall =
       TextStyle(fontFamily = Sans, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 28.sp),
     titleLarge =

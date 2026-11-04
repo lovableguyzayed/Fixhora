@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.example.R
+import com.example.ui.components.FloatingNavBar
+import com.example.ui.components.FloatingNavItem
 import com.example.ui.screens.taskflow.categoryTitles
 import com.example.ui.theme.FixTheme
 
@@ -55,40 +57,25 @@ fun HelperFlowContainer(
 
     Scaffold(
         containerColor = FixTheme.colors.background,
-        // The same bar as the customer side. This used to be a floating pill that ignored the
-        // system navigation bar, sat on a band of a different colour from the screen above it,
-        // and hid every label except the selected one.
+        // The same bar as the customer side: a floating pill that pads itself for the system
+        // navigation bar, with every tab named for screen readers.
         bottomBar = {
-            NavigationBar(containerColor = FixTheme.colors.surface) {
-                helperBottomNavItems.forEach { screen ->
-                    val isSelected = navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
-                    // NavigationBarItem is a selectable tab, so the active tab is announced as
-                    // selected — the reason this was hand-built with selectable() before.
-                    // The Chat tab carried a hardcoded "3" badge. Nothing records whether a
-                    // message has been read, so there is no unread count to show.
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(screen.icon, contentDescription = null) },
-                        label = { Text(stringResource(screen.titleRes), maxLines = 1) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = FixTheme.colors.primary,
-                            selectedTextColor = FixTheme.colors.primary,
-                            unselectedIconColor = FixTheme.colors.textSecondary,
-                            unselectedTextColor = FixTheme.colors.textSecondary,
-                            indicatorColor = FixTheme.colors.primarySurface
-                        )
-                    )
+            val selectedIndex = helperBottomNavItems.indexOfFirst { screen ->
+                navBackStackEntry?.destination?.hierarchy?.any { it.route == screen.route } == true
+            }.coerceAtLeast(0)
+            FloatingNavBar(
+                items = helperBottomNavItems.map { FloatingNavItem(it.titleRes, it.icon) },
+                selectedIndex = selectedIndex,
+                onSelect = { index ->
+                    navController.navigate(helperBottomNavItems[index].route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
-            }
+            )
         }
     ) { paddingValues ->
         NavHost(

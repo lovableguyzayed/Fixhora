@@ -1,0 +1,184 @@
+package com.example.ui.screens.helper
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import com.example.R
+import com.example.data.room.TaskEntity
+import com.example.ui.components.BentoCard
+import com.example.ui.components.BentoAction
+import com.example.ui.components.BentoActionRow
+import com.example.ui.components.BentoTag
+import com.example.ui.components.CircleIconButton
+import com.example.ui.format.budgetText
+import com.example.ui.format.relativeTimeText
+import com.example.ui.format.taskLocationText
+import com.example.ui.screens.taskflow.categoryBento
+import com.example.ui.screens.taskflow.dummyCategories
+import com.example.ui.theme.BentoColors
+import com.example.ui.theme.FixTheme
+import com.example.ui.theme.MinTouchTarget
+import com.example.ui.theme.Spacing
+
+/** Text on the white info strip inside a job card; the strip is white in both themes. */
+private val StripInk = Color(0xFF141416)
+
+/**
+ * A job as a card in its category's colour: what and where on the card itself, who and how much
+ * on a white strip, and the actions beneath.
+ *
+ * Shared by the Home, Map and Tasks tabs, which each drew their own white card before. [onChat]
+ * puts the round chat button in the top corner, labelled [chatLabel] for screen readers.
+ */
+@Composable
+fun JobBentoCard(
+  task: TaskEntity,
+  posterName: String,
+  statusLabel: String,
+  modifier: Modifier = Modifier,
+  onChat: (() -> Unit)? = null,
+  chatLabel: String = "",
+  actions: @Composable ColumnScope.(BentoColors) -> Unit,
+) {
+  val bento = categoryBento(task.categoryId)
+  val category = dummyCategories.find { it.id == task.categoryId }
+  // Recomputed per composition rather than captured once, so the age does not freeze on screen.
+  val postedAgo = relativeTimeText(task.createdAt)
+  val categoryTitle = category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_uncategorised)
+
+  BentoCard(colors = bento, modifier = modifier.fillMaxWidth()) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+      Column(modifier = Modifier.weight(1f)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          BentoTag(text = categoryTitle, colors = bento)
+          Spacer(Modifier.width(Spacing.sm))
+          BentoTag(text = statusLabel, colors = bento)
+        }
+        Spacer(Modifier.height(Spacing.xs))
+        Text(postedAgo, style = MaterialTheme.typography.bodySmall, color = bento.onFillSecondary)
+      }
+      if (onChat != null) {
+        CircleIconButton(
+          icon = Icons.AutoMirrored.Filled.Chat,
+          contentDescription = chatLabel,
+          onClick = onChat,
+          container = FixTheme.colors.ink,
+          content = FixTheme.colors.onInk,
+        )
+      }
+    }
+
+    Spacer(Modifier.height(Spacing.md))
+    Text(
+      text = task.descriptionTitle.ifBlank { categoryTitle },
+      style = MaterialTheme.typography.headlineSmall,
+      fontWeight = FontWeight.ExtraBold,
+      color = bento.onFill,
+      maxLines = 2,
+      overflow = TextOverflow.Ellipsis,
+    )
+    if (task.descriptionDetails.isNotBlank()) {
+      Spacer(Modifier.height(Spacing.xs))
+      Text(
+        text = task.descriptionDetails,
+        style = MaterialTheme.typography.bodyMedium,
+        color = bento.onFillSecondary,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+
+    Spacer(Modifier.height(Spacing.md))
+    JobMeta(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null), bento)
+    Spacer(Modifier.height(Spacing.xs))
+    JobMeta(Icons.Default.MyLocation, stringResource(R.string.loc_within_km, task.selectedDistance), bento)
+
+    Spacer(Modifier.height(Spacing.md))
+    // Who and how much, on a white strip — the one place a helper's eye goes first.
+    Row(
+      modifier =
+        Modifier.fillMaxWidth()
+          .clip(CircleShape)
+          .background(Color.White.copy(alpha = 0.9f))
+          .padding(start = Spacing.xs, end = Spacing.lg, top = Spacing.xs, bottom = Spacing.xs),
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      Icon(
+        Icons.Default.Person,
+        contentDescription = null,
+        tint = StripInk,
+        modifier = Modifier.size(32.dp).clip(CircleShape).background(bento.fill).padding(6.dp),
+      )
+      Spacer(Modifier.width(Spacing.sm))
+      // Was "Customer Name" with a verified tick and a 4.8 rating. Nothing verifies anyone and
+      // there is no rating system, so neither is shown.
+      Text(
+        posterName,
+        style = MaterialTheme.typography.labelLarge,
+        color = StripInk,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = Modifier.weight(1f),
+      )
+      Spacer(Modifier.width(Spacing.sm))
+      Text(
+        budgetText(task.minBudget, task.maxBudget),
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.ExtraBold,
+        color = StripInk,
+        maxLines = 1,
+      )
+    }
+
+    Spacer(Modifier.height(Spacing.md))
+    actions(bento)
+  }
+}
+
+@Composable
+private fun JobMeta(icon: ImageVector, text: String, colors: BentoColors) {
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    Icon(icon, contentDescription = null, tint = colors.onFill, modifier = Modifier.size(16.dp))
+    Spacer(Modifier.width(Spacing.sm))
+    Text(
+      text,
+      style = MaterialTheme.typography.bodyMedium,
+      color = colors.onFill,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+    )
+  }
+}

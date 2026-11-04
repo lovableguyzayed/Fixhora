@@ -1,5 +1,25 @@
 # Changelog
 
+## Batch 14 — Bento redesign
+
+A new look, after reference designs the owner shared: a neutral page, flat full-colour cards with
+large soft corners, big bold figures, pill-shaped buttons and chips, and a dark floating tab bar
+with a yellow active tab. No feature was added or removed, and nothing fabricated was added — the
+reference designs' avatars, ratings and progress percentages have no data behind them here, so
+they are not imitated.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Palette: warm off-white light theme, charcoal dark theme, a deeper brand blue, plus `highlight` (yellow) and `ink` (near-black) roles | The coloured cards need a neutral page to stand on; navy competed with them. `ContrastTest` covers the new roles and still passes for every pair. | Low. Every colour still comes from `Palette`; screens did not hard-code the old values. |
+| Nine `Bento` card colours, the same in both themes, each with its own text colour | One colour per category, so a job or task card is recognisable by colour before it is read. New `ContrastTest` case checks the text and the faded secondary text on every card. | None. |
+| Plus Jakarta Sans at five weights (`res/font`, ~150 KB, OFL licence in `licenses/`) | The geometric face is much of the reference look. It is Latin-only; Hindi and the rupee sign fall back per character to the system font. | Low. Adds 150 KB to the APK. |
+| Pill buttons and badges; card radius 20dp, hero radius 28dp | The rounded ends are the most recognisable part of the look. | None. |
+| `FloatingNavBar` replaces both bottom bars | Dark pill, yellow active tab with its label, icons for the rest; every tab is a `Role.Tab` with its name, and the bar pads itself for the system navigation bar. | Low. Tabs, routes and back-stack behaviour unchanged. |
+| Category tiles, job cards, My tasks cards and the task detail summary are cards in the category's colour; role choice is a yellow card and an orange card | The reference designs are built from coloured cards. Job cards share one `JobBentoCard`, so Home, Map and Tasks match. | Low. Same data, same actions; "Ask a question" became the round chat button on the card. |
+| Helper home: one large "open nearby" figure and a 2×2 grid of the helper's own counts | Replaces a blue summary card plus a pipeline row that repeated two of its numbers. Three strings that only those used are removed. | None — the same `HelperStats`. |
+
+**Destructive operations: none.** No schema or stored value changed.
+
 ## Batch 13 — Theme switch, a real jobs map, deleting tasks, a way back
 
 Four gaps reported from using the app on a phone.

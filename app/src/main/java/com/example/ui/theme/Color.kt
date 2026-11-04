@@ -40,6 +40,10 @@ data class FixColors(
   val infoSurface: Color,
   val disabled: Color,
   val onDisabled: Color,
+  val highlight: Color,
+  val onHighlight: Color,
+  val ink: Color,
+  val onInk: Color,
 )
 
 internal fun Palette.Theme.toFixColors() =
@@ -70,10 +74,37 @@ internal fun Palette.Theme.toFixColors() =
     infoSurface = Color(infoSurface),
     disabled = Color(disabled),
     onDisabled = Color(onDisabled),
+    highlight = Color(highlight),
+    onHighlight = Color(onHighlight),
+    ink = Color(ink),
+    onInk = Color(onInk),
   )
 
 val LightFixColors = Palette.Light.toFixColors()
 val DarkFixColors = Palette.Dark.toFixColors()
+
+/** A coloured card's fill, its text, and its faded secondary text. */
+data class BentoColors(val fill: Color, val onFill: Color) {
+  val onFillSecondary: Color
+    get() = onFill.copy(alpha = Palette.Bento.SECONDARY_ALPHA.toFloat())
+}
+
+private fun Palette.Swatch.toBentoColors() = BentoColors(Color(fill), Color(onFill))
+
+/**
+ * The card colours, for `FixTheme.bento`-free use anywhere: they do not change with the theme.
+ */
+object Bento {
+  val Sun = Palette.Bento.sun.toBentoColors()
+  val Lime = Palette.Bento.lime.toBentoColors()
+  val Coral = Palette.Bento.coral.toBentoColors()
+  val Tangerine = Palette.Bento.tangerine.toBentoColors()
+  val Periwinkle = Palette.Bento.periwinkle.toBentoColors()
+  val Mint = Palette.Bento.mint.toBentoColors()
+  val Cream = Palette.Bento.cream.toBentoColors()
+  val Peach = Palette.Bento.peach.toBentoColors()
+  val Forest = Palette.Bento.forest.toBentoColors()
+}
 
 // ---------------------------------------------------------------------------------------------
 // Static colours for the few places that are not inside a composition and so cannot read the

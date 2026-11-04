@@ -1,7 +1,7 @@
 package com.example.ui.screens.taskflow
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -11,7 +11,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -130,76 +131,85 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 }
 
 /**
- * One category. A fixed height with room for two lines of title and two of description, so long
- * labels (and Hindi, which runs longer) wrap inside the tile instead of being clipped by an aspect
- * ratio, and every tile in a row stays the same size.
+ * One category, as a tile in that category's own card colour.
+ *
+ * A fixed height with room for two lines of title and two of description, so long labels (and
+ * Hindi, which runs longer) wrap inside the tile instead of being clipped, and every tile in a row
+ * stays the same size. The chosen tile gets a heavy outline in the page's text colour and a check:
+ * with every tile coloured, colour alone cannot say which one is picked.
  */
 @Composable
 private fun CategoryTile(category: Category, isSelected: Boolean, onClick: () -> Unit) {
     val colors = FixTheme.colors
+    val bento = category.bento
     val shape = RoundedCornerShape(Radius.lg)
-    Surface(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(152.dp)
-            .clip(shape)
-            // selectable, not clickable: the border and tint show the choice visually, but only
-            // this reports it to a screen reader.
-            .selectable(selected = isSelected, role = Role.RadioButton, onClick = onClick),
-        shape = shape,
-        color = if (isSelected) colors.primarySurface else colors.surface,
-        border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, if (isSelected) colors.primary else colors.border)
+            .then(if (isSelected) Modifier.border(3.dp, colors.textPrimary, shape) else Modifier)
+            .padding(if (isSelected) 5.dp else 0.dp)
+            .clip(if (isSelected) RoundedCornerShape(Radius.lg - 5.dp) else shape)
+            .background(bento.fill)
+            // selectable, not clickable: only this reports the choice to a screen reader.
+            .selectable(selected = isSelected, role = Role.RadioButton, onClick = onClick)
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (isSelected) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = stringResource(R.string.cd_category_selected),
-                    tint = colors.primary,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(6.dp)
-                        .size(18.dp)
-                )
-            }
-            Column(
+        if (isSelected) {
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 6.dp, vertical = Spacing.md),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp)
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(colors.ink),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(category.iconTint.copy(alpha = 0.12f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(category.icon, contentDescription = null, tint = category.iconTint, modifier = Modifier.size(24.dp))
-                }
-                Spacer(modifier = Modifier.height(Spacing.sm))
-                Text(
-                    text = stringResource(category.titleRes),
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = if (isSelected) colors.primary else colors.textPrimary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(category.subtitleRes),
-                    fontSize = 11.sp,
-                    lineHeight = 14.sp,
-                    color = colors.textSecondary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = stringResource(R.string.cd_category_selected),
+                    tint = colors.onInk,
+                    modifier = Modifier.size(14.dp)
                 )
             }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp, vertical = Spacing.md),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(bento.onFill.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(category.icon, contentDescription = null, tint = bento.onFill, modifier = Modifier.size(24.dp))
+            }
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            Text(
+                text = stringResource(category.titleRes),
+                fontSize = 13.sp,
+                lineHeight = 17.sp,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = bento.onFill,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = stringResource(category.subtitleRes),
+                fontSize = 11.sp,
+                lineHeight = 14.sp,
+                color = bento.onFillSecondary,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }

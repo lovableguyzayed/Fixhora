@@ -27,6 +27,7 @@ import com.example.R
 import com.example.ui.components.CircleBackButton
 import com.example.ui.format.posterText
 import com.example.ui.components.EmptyState
+import com.example.ui.components.PillChip
 import com.example.ui.components.SearchField
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
@@ -58,11 +59,11 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBac
                         modifier = Modifier.padding(start = Spacing.xs)
                     )
                 },
-                title = { Text(stringResource(R.string.map_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
+                title = { Text(stringResource(R.string.map_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
             )
         },
-        containerColor = FixTheme.colors.surfaceAlt
+        containerColor = FixTheme.colors.background
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             SearchField(
@@ -171,20 +172,5 @@ fun WorkerMapScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBac
 
 @Composable
 private fun CategoryChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = { Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium) },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = FixTheme.colors.primary,
-            selectedLabelColor = FixTheme.colors.onPrimary,
-            containerColor = FixTheme.colors.surface,
-            labelColor = FixTheme.colors.textPrimary
-        ),
-        border = FilterChipDefaults.filterChipBorder(
-            enabled = true,
-            selected = selected,
-            borderColor = if (selected) FixTheme.colors.primary else FixTheme.colors.border
-        )
-    )
+    PillChip(text = label, selected = selected, onClick = onClick)
 }

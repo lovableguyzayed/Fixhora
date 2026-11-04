@@ -30,6 +30,9 @@ import com.example.ui.format.taskLocationText
 import com.example.ui.format.posterText
 import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
+import com.example.ui.components.BentoStat
+import com.example.ui.components.BentoAction
+import com.example.ui.components.BentoActionRow
 import com.example.ui.components.EmptyState
 import com.example.ui.components.SectionHeader
 import com.example.ui.components.SkeletonBox
@@ -62,63 +65,29 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBa
                     )
                 },
                 title = {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.worker_home_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = FixTheme.colors.textPrimary
-                        )
-                        Text(
-                            text = if (stats.activeNow > 0) {
-                                pluralStringResource(
-                                    R.plurals.jobs_in_progress,
-                                    stats.activeNow,
-                                    stats.activeNow
-                                )
-                            } else {
-                                stringResource(R.string.worker_no_jobs_in_progress)
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FixTheme.colors.textSecondary
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.worker_home_title),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = FixTheme.colors.textPrimary
+                    )
                 },
                 // The greeting with a hardcoded "Alex Worker", the online/offline pill that changed
                 // nothing, and the notification bell with a "2" badge are all gone: none of them
                 // was connected to anything.
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
             )
         },
-        containerColor = FixTheme.colors.surfaceAlt
+        containerColor = FixTheme.colors.background
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            contentPadding = PaddingValues(start = Spacing.lg, end = Spacing.lg, top = Spacing.sm, bottom = Spacing.xl),
+            verticalArrangement = Arrangement.spacedBy(Spacing.lg)
         ) {
-            item { WorkSummaryCard(stats) }
-
-            item {
-                SectionHeader(title = stringResource(R.string.worker_pipeline))
-                Spacer(modifier = Modifier.height(Spacing.md))
-                // Three equal tiles that always fit. This was a sideways-scrolling row of five
-                // whose third tile was cut off at the screen edge, and two of the five repeated
-                // the numbers already shown in the card above.
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-                ) {
-                    SummaryCard(stringResource(R.string.worker_stat_accepted), stats.accepted, Icons.AutoMirrored.Filled.Assignment,
-                        FixTheme.colors.infoSurface, FixTheme.colors.info, Modifier.weight(1f).fillMaxHeight())
-                    SummaryCard(stringResource(R.string.worker_stat_in_progress), stats.inProgress, Icons.Default.PendingActions,
-                        FixTheme.colors.warningSurface, FixTheme.colors.warning, Modifier.weight(1f).fillMaxHeight())
-                    SummaryCard(stringResource(R.string.worker_stat_declined), stats.declined, Icons.Default.Cancel,
-                        FixTheme.colors.dangerSurface, FixTheme.colors.danger, Modifier.weight(1f).fillMaxHeight())
-                }
-            }
+            item { WorkSummaryGrid(stats) }
 
             item { SectionHeader(title = stringResource(R.string.worker_available_jobs)) }
 
@@ -149,83 +118,61 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBa
 }
 
 /**
- * The three numbers the app can actually prove.
+ * The numbers the app can actually prove, as coloured tiles: one large figure for the jobs open
+ * now, and the four stages of the helper's own work beneath it.
  *
  * This replaces a "Performance Overview" card of earnings, a star rating, a response time and
  * three percentage rings, none of which had any data behind them. Payments, ratings and response
  * times are not tracked, so they are not shown.
  */
 @Composable
-fun WorkSummaryCard(stats: HelperStats) {
-    Card(
-        shape = RoundedCornerShape(Radius.xl),
-        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.primary),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(Spacing.xl)) {
-            Text(
-                stringResource(R.string.worker_your_work),
-                color = FixTheme.colors.onPrimary,
-                style = MaterialTheme.typography.titleMedium
+fun WorkSummaryGrid(stats: HelperStats) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
+        BentoStat(
+            value = stats.availableNow.toString(),
+            label = stringResource(R.string.worker_stat_open_nearby),
+            colors = Bento.Tangerine,
+            icon = Icons.Default.NearMe,
+            caption = if (stats.activeNow > 0) {
+                pluralStringResource(R.plurals.jobs_in_progress, stats.activeNow, stats.activeNow)
+            } else {
+                stringResource(R.string.worker_no_jobs_in_progress)
+            },
+            large = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+            BentoStat(
+                value = stats.accepted.toString(),
+                label = stringResource(R.string.worker_stat_accepted),
+                colors = Bento.Sun,
+                icon = Icons.AutoMirrored.Filled.Assignment,
+                modifier = Modifier.weight(1f)
             )
-            Spacer(modifier = Modifier.height(Spacing.lg))
-            // Equal columns, so the three numbers line up however long each label is.
-            Row(modifier = Modifier.fillMaxWidth()) {
-                HeadlineStat(stringResource(R.string.worker_stat_open_nearby), stats.availableNow, Modifier.weight(1f))
-                HeadlineStat(stringResource(R.string.worker_stat_active), stats.activeNow, Modifier.weight(1f))
-                HeadlineStat(stringResource(R.string.worker_stat_completed), stats.completed, Modifier.weight(1f))
-            }
+            BentoStat(
+                value = stats.inProgress.toString(),
+                label = stringResource(R.string.worker_stat_in_progress),
+                colors = Bento.Periwinkle,
+                icon = Icons.Default.PendingActions,
+                modifier = Modifier.weight(1f)
+            )
         }
-    }
-}
-
-@Composable
-private fun HeadlineStat(label: String, value: Int, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = FixTheme.colors.onPrimary
-        )
-        Spacer(modifier = Modifier.height(Spacing.xs))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = FixTheme.colors.onPrimary.copy(alpha = 0.85f)
-        )
-    }
-}
-
-@Composable
-fun SummaryCard(
-    title: String,
-    count: Int,
-    icon: ImageVector,
-    bgColor: Color,
-    iconColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(Radius.lg))
-            .background(bgColor)
-            .padding(Spacing.md)
-    ) {
-        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
-        Spacer(modifier = Modifier.height(Spacing.sm))
-        Text(
-            text = count.toString(),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = FixTheme.colors.textPrimary
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
-            color = FixTheme.colors.textSecondary,
-            maxLines = 2
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
+            BentoStat(
+                value = stats.completed.toString(),
+                label = stringResource(R.string.worker_stat_completed),
+                colors = Bento.Lime,
+                icon = Icons.Default.CheckCircle,
+                modifier = Modifier.weight(1f)
+            )
+            BentoStat(
+                value = stats.declined.toString(),
+                label = stringResource(R.string.worker_stat_declined),
+                colors = Bento.Peach,
+                icon = Icons.Default.Cancel,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 
@@ -267,147 +214,17 @@ fun WorkerJobCard(
     onDecline: () -> Unit,
     onMessage: () -> Unit
 ) {
-    val category = dummyCategories.find { it.id == task.categoryId }
-    // Recomputed per composition rather than captured once, so the age does not freeze on screen.
-    val postedAgo = relativeTimeText(task.createdAt)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape)
-                            .background(FixTheme.colors.surfaceAlt),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = FixTheme.colors.textSecondary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        // Was "Customer Name" with a verified tick and a 4.8 rating. Nothing
-                        // verifies anyone and there is no rating system, so neither is shown.
-                        Text(
-                            posterName,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = FixTheme.colors.textPrimary,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(postedAgo, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
-                    }
-                }
-                StatusBadge(text = stringResource(R.string.job_status_open), tone = StatusTone.INFO)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_untitled) },
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = FixTheme.colors.textPrimary
-            )
-            if (task.descriptionDetails.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = task.descriptionDetails,
-                    color = FixTheme.colors.textSecondary,
-                    fontSize = 14.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            JobMetaRow(
-                Icons.Default.LocationOn,
-                taskLocationText(task.locationQuery, task.latitude != null)
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            JobMetaRow(Icons.Default.MyLocation, stringResource(R.string.loc_within_km, task.selectedDistance))
-            Spacer(modifier = Modifier.height(6.dp))
-            JobMetaRow(
-                Icons.Default.AccountBalanceWallet,
-                budgetText(task.minBudget, task.maxBudget),
-                emphasise = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = FixTheme.colors.border)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // "Place Bid" is gone: there is no bidding system for it to submit anything to.
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = onDecline,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border)
-                ) {
-                    Text(stringResource(R.string.action_not_for_me), fontWeight = FontWeight.SemiBold)
-                }
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = FixTheme.colors.primary,
-                        contentColor = FixTheme.colors.onPrimary
-                    )
-                ) {
-                    Text(stringResource(R.string.action_accept_job), fontWeight = FontWeight.Bold)
-                }
-            }
-            TextButton(
-                onClick = onMessage,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Chat,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = FixTheme.colors.primary
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(stringResource(R.string.action_ask_question), color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold)
-            }
+    JobBentoCard(
+        task = task,
+        posterName = posterName,
+        statusLabel = stringResource(R.string.job_status_open),
+        onChat = onMessage,
+        chatLabel = stringResource(R.string.action_ask_question)
+    ) { bento ->
+        // "Place Bid" is gone: there is no bidding system for it to submit anything to.
+        BentoActionRow {
+            BentoAction(stringResource(R.string.action_not_for_me), onDecline, bento, filled = false)
+            BentoAction(stringResource(R.string.action_accept_job), onAccept, bento, filled = true)
         }
-    }
-}
-
-@Composable
-private fun JobMetaRow(icon: ImageVector, text: String, emphasise: Boolean = false) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = if (emphasise) FixTheme.colors.textPrimary else FixTheme.colors.textSecondary,
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = text,
-            fontSize = 13.sp,
-            fontWeight = if (emphasise) FontWeight.Bold else FontWeight.Normal,
-            color = if (emphasise) FixTheme.colors.textPrimary else FixTheme.colors.textSecondary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }

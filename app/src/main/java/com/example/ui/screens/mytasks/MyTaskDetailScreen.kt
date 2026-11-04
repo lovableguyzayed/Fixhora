@@ -19,10 +19,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,27 +38,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import com.example.R
 import com.example.data.repository.ChatRepository
 import com.example.data.room.ChatMessageEntity
 import com.example.data.room.TaskEntity
-import com.example.ui.components.FixButton
-import com.example.ui.components.FixButtonStyle
-import com.example.ui.components.FixCard
-import com.example.ui.components.StatusBadge
+import com.example.ui.components.BentoAction
+import com.example.ui.components.BentoActionRow
+import com.example.ui.components.BentoCard
+import com.example.ui.components.BentoTag
+import com.example.ui.components.CircleBackButton
+import com.example.ui.components.MessageBubble
 import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusDetail
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.hasAssignedHelper
 import com.example.ui.format.isCancellableByCustomer
 import com.example.ui.format.isDeletableByCustomer
-import com.example.ui.format.taskLocationText
 import com.example.ui.format.relativeTimeText
-import com.example.ui.components.MessageBubble
+import com.example.ui.format.taskLocationText
+import com.example.ui.screens.taskflow.categoryBento
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Radius
 import com.example.ui.theme.Spacing
@@ -147,19 +151,22 @@ fun MyTaskDetailScreen(
         title = {
           Text(
             text = task.descriptionTitle.ifBlank { stringResource(R.string.task_untitled) },
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.ExtraBold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
           )
         },
         navigationIcon = {
-          IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_back_to_my_tasks))
-          }
+          CircleBackButton(
+            onClick = onBack,
+            contentDescription = stringResource(R.string.cd_back_to_my_tasks),
+            modifier = Modifier.padding(start = Spacing.xs),
+          )
         },
         colors =
           TopAppBarDefaults.topAppBarColors(
-            containerColor = colors.surface,
+            containerColor = colors.background,
             titleContentColor = colors.textPrimary,
             navigationIconContentColor = colors.textPrimary,
           ),
@@ -253,52 +260,67 @@ private fun TaskSummary(
   onRequestDelete: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  val colors = FixTheme.colors
-  FixCard(modifier = modifier.fillMaxWidth()) {
-    Column(modifier = Modifier.padding(Spacing.lg)) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        StatusBadge(text = customerStatusLabel(task.status), tone = task.status.customerTone())
-        Text(
-          text = relativeTimeText(task.createdAt),
-          fontSize = 12.sp,
-          color = colors.textSecondary,
-        )
-      }
-
-      Spacer(Modifier.height(Spacing.sm))
-      Text(text = customerStatusDetail(task.status), color = colors.textSecondary)
-
-      if (task.descriptionDetails.isNotBlank()) {
-        Spacer(Modifier.height(Spacing.md))
-        Text(text = task.descriptionDetails, color = colors.textPrimary)
-      }
-
-      Spacer(Modifier.height(Spacing.md))
+  val bento = categoryBento(task.categoryId)
+  BentoCard(colors = bento, modifier = modifier.fillMaxWidth()) {
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.SpaceBetween,
+      verticalAlignment = Alignment.CenterVertically,
+    ) {
+      BentoTag(text = customerStatusLabel(task.status), colors = bento)
       Text(
-        text = taskLocationText(task.locationQuery, task.latitude != null),
-        color = colors.textSecondary,
+        text = relativeTimeText(task.createdAt),
+        style = MaterialTheme.typography.bodySmall,
+        color = bento.onFillSecondary,
       )
-      Text(text = budgetText(task.minBudget, task.maxBudget), color = colors.textSecondary)
+    }
 
-      if (isCancellableByCustomer(task.status)) {
-        Spacer(Modifier.height(Spacing.lg))
-        FixButton(
-          text = stringResource(R.string.mytasks_cancel_action),
-          onClick = onRequestCancel,
-          style = FixButtonStyle.SECONDARY,
-        )
+    Spacer(Modifier.height(Spacing.sm))
+    Text(
+      text = customerStatusDetail(task.status),
+      style = MaterialTheme.typography.bodyMedium,
+      color = bento.onFill,
+    )
+
+    if (task.descriptionDetails.isNotBlank()) {
+      Spacer(Modifier.height(Spacing.md))
+      Text(text = task.descriptionDetails, style = MaterialTheme.typography.bodyMedium, color = bento.onFillSecondary)
+    }
+
+    Spacer(Modifier.height(Spacing.md))
+    Text(
+      text = taskLocationText(task.locationQuery, task.latitude != null),
+      style = MaterialTheme.typography.bodyMedium,
+      color = bento.onFillSecondary,
+    )
+    Text(
+      text = budgetText(task.minBudget, task.maxBudget),
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.ExtraBold,
+      color = bento.onFill,
+    )
+
+    val canCancel = isCancellableByCustomer(task.status)
+    val canDelete = isDeletableByCustomer(task.status)
+    if (canCancel || canDelete) {
+      // One action per row: side by side, "Cancel this task" and "Delete task" were both cut off.
+      Spacer(Modifier.height(Spacing.lg))
+      if (canCancel) {
+        BentoActionRow {
+          BentoAction(stringResource(R.string.mytasks_cancel_action), onRequestCancel, bento, filled = false)
+        }
       }
-      if (isDeletableByCustomer(task.status)) {
-        Spacer(Modifier.height(if (isCancellableByCustomer(task.status)) Spacing.sm else Spacing.lg))
-        FixButton(
-          text = stringResource(R.string.mytasks_delete_action),
-          onClick = onRequestDelete,
-          style = FixButtonStyle.DANGER,
-        )
+      if (canCancel && canDelete) Spacer(Modifier.height(Spacing.sm))
+      if (canDelete) {
+        BentoActionRow {
+          BentoAction(
+            stringResource(R.string.mytasks_delete_action),
+            onRequestDelete,
+            bento,
+            filled = true,
+            icon = Icons.Default.DeleteOutline,
+          )
+        }
       }
     }
   }

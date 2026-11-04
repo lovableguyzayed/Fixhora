@@ -83,7 +83,7 @@ fun WorkerChatListScreen(
     onChatClick: (TaskEntity) -> Unit,
     onBack: () -> Unit = {}
 ) {
-    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt)) {
+    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.background)) {
         TopAppBar(
             navigationIcon = {
                 CircleBackButton(
@@ -92,10 +92,10 @@ fun WorkerChatListScreen(
                     modifier = Modifier.padding(start = Spacing.xs)
                 )
             },
-            title = { Text(stringResource(R.string.chat_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+            title = { Text(stringResource(R.string.chat_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
             // The filter icon and the "All / Unread / Pending Bids" chips are gone: read state and
             // bids do not exist in this app, so those filters could never have done anything.
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
         )
 
         SearchField(
@@ -181,7 +181,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
     val category = dummyCategories.find { it.id == task.categoryId }
     val messages by viewModel.getChatMessages(task.id).collectAsState(initial = emptyList())
 
-    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.surfaceAlt)) {
+    Column(modifier = Modifier.fillMaxSize().background(FixTheme.colors.background)) {
         TopAppBar(
             title = {
                 Column {
@@ -207,7 +207,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 }
             },
             // Call and "More" removed: there is no phone number stored and no menu to show.
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
         )
 
         if (messages.isEmpty()) {

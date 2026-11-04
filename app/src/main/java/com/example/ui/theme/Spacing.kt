@@ -36,14 +36,14 @@ object Radius {
   /** 8dp — badges, small chips. */
   val sm = 8.dp
 
-  /** 12dp — buttons, inputs. */
-  val md = 12.dp
+  /** 14dp — inputs and small tiles. */
+  val md = 14.dp
 
-  /** 16dp — cards. */
-  val lg = 16.dp
+  /** 20dp — cards. */
+  val lg = 20.dp
 
-  /** 24dp — hero cards and sheets. */
-  val xl = 24.dp
+  /** 28dp — hero cards and sheets: the large, soft corners of the coloured cards. */
+  val xl = 28.dp
 }
 
 /** Minimum size for anything tappable, per the Android accessibility guidance. */

@@ -51,6 +51,11 @@ class ContrastTest {
     assertAtLeast("$name warning/surface", theme.warning, theme.surface, Contrast.AA_BODY)
     assertAtLeast("$name danger/surface", theme.danger, theme.surface, Contrast.AA_BODY)
 
+    // The yellow pill and the dark tab bar carry their own text.
+    assertAtLeast("$name onHighlight/highlight", theme.onHighlight, theme.highlight, Contrast.AA_BODY)
+    assertAtLeast("$name onInk/ink", theme.onInk, theme.ink, Contrast.AA_BODY)
+    assertAtLeast("$name highlight/ink", theme.highlight, theme.ink, Contrast.AA_LARGE)
+
     // Meaningful non-text.
     assertAtLeast("$name accentGraphic/background", theme.accentGraphic, theme.background, Contrast.AA_LARGE)
     assertAtLeast("$name accentGraphic/surface", theme.accentGraphic, theme.surface, Contrast.AA_LARGE)
@@ -65,6 +70,28 @@ class ContrastTest {
   @Test fun `light theme meets WCAG AA`() = checkTheme("light", Palette.Light)
 
   @Test fun `dark theme meets WCAG AA`() = checkTheme("dark", Palette.Dark)
+
+  /** Text on every coloured card, at full strength and at the faded secondary strength. */
+  @Test
+  fun `bento cards keep their text readable`() {
+    Palette.Bento.all.forEach { swatch ->
+      val label = "bento %08X".format(swatch.fill)
+      assertAtLeast("$label text", swatch.onFill, swatch.fill, Contrast.AA_BODY)
+      val faded = blend(swatch.onFill, swatch.fill, Palette.Bento.SECONDARY_ALPHA)
+      assertAtLeast("$label secondary text", faded, swatch.fill, Contrast.AA_BODY)
+    }
+  }
+
+  /** [foreground] drawn at [alpha] over [background], as the screen would show it. */
+  private fun blend(foreground: Long, background: Long, alpha: Double): Long {
+    var out = 0xFF000000
+    for (shift in intArrayOf(16, 8, 0)) {
+      val f = (foreground shr shift) and 0xFF
+      val b = (background shr shift) and 0xFF
+      out = out or (Math.round(f * alpha + b * (1 - alpha)) shl shift)
+    }
+    return out
+  }
 
   /** If this drifts, every other assertion here is measuring the wrong thing. */
   @Test

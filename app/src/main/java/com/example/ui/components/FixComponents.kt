@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,6 +53,8 @@ enum class FixButtonStyle {
   SECONDARY,
   /** Destructive, and not undoable. */
   DANGER,
+  /** The near-black pill, for an action sitting on a coloured card where blue would clash. */
+  INK,
 }
 
 /**
@@ -72,7 +75,8 @@ fun FixButton(
   loadingText: String = stringResource(R.string.action_please_wait),
 ) {
   val colors = FixTheme.colors
-  val shape = RoundedCornerShape(Radius.md)
+  // Pill-shaped: the rounded ends are the most recognisable part of the app's look.
+  val shape = CircleShape
   // A button already working must not be pressable again, whatever the caller passed.
   val clickable = enabled && !isLoading
   val height = MinTouchTarget + Spacing.sm
@@ -93,7 +97,13 @@ fun FixButton(
       ButtonContent(text, isLoading, loadingText, colors.textPrimary)
     }
   } else {
-    val container = if (style == FixButtonStyle.DANGER) colors.danger else colors.primary
+    val container =
+      when (style) {
+        FixButtonStyle.DANGER -> colors.danger
+        FixButtonStyle.INK -> colors.ink
+        else -> colors.primary
+      }
+    val contentColor = if (style == FixButtonStyle.INK) colors.onInk else colors.onPrimary
     Button(
       onClick = onClick,
       enabled = clickable,
@@ -102,12 +112,12 @@ fun FixButton(
       colors =
         ButtonDefaults.buttonColors(
           containerColor = container,
-          contentColor = colors.onPrimary,
+          contentColor = contentColor,
           disabledContainerColor = colors.disabled,
           disabledContentColor = colors.onDisabled,
         ),
     ) {
-      ButtonContent(text, isLoading, loadingText, colors.onPrimary)
+      ButtonContent(text, isLoading, loadingText, contentColor)
     }
   }
 }
@@ -179,12 +189,12 @@ fun StatusBadge(text: String, tone: StatusTone, modifier: Modifier = Modifier) {
       StatusTone.WARNING -> colors.warning
       StatusTone.DANGER -> colors.danger
     }
-  Surface(color = container, shape = RoundedCornerShape(Radius.sm), modifier = modifier) {
+  Surface(color = container, shape = CircleShape, modifier = modifier) {
     Text(
       text = text,
       color = content,
       style = MaterialTheme.typography.labelMedium,
-      modifier = Modifier.padding(horizontal = Spacing.sm, vertical = Spacing.xs),
+      modifier = Modifier.padding(horizontal = Spacing.md, vertical = Spacing.xs),
     )
   }
 }

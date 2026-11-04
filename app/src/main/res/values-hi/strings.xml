@@ -372,17 +372,14 @@
         <item quantity="one">%1$d काम चल रहा है</item>
         <item quantity="other">%1$d काम चल रहे हैं</item>
     </plurals>
-    <string name="worker_pipeline">आपका काम</string>
     <string name="worker_stat_open_nearby">आस-पास खुले</string>
     <string name="worker_stat_accepted">स्वीकार किए</string>
     <string name="worker_stat_in_progress">चल रहे</string>
     <string name="worker_stat_completed">पूरे हुए</string>
     <string name="worker_stat_declined">मना किए</string>
-    <string name="worker_stat_active">चालू</string>
     <string name="worker_available_jobs">आस-पास उपलब्ध काम</string>
     <string name="worker_empty_title">अभी आस-पास कोई काम नहीं</string>
     <string name="worker_empty_body">ग्राहक जैसे ही नया काम डालेंगे, वह यहाँ दिखने लगेगा।</string>
-    <string name="worker_your_work">आपका काम</string>
     <string name="job_status_open">खुला</string>
     <string name="action_not_for_me">मेरे लिए नहीं</string>
     <string name="action_accept_job">काम स्वीकार करें</string>

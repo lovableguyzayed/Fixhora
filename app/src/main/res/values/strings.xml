@@ -385,17 +385,14 @@
         <item quantity="one">%1$d job in progress</item>
         <item quantity="other">%1$d jobs in progress</item>
     </plurals>
-    <string name="worker_pipeline">Your pipeline</string>
     <string name="worker_stat_open_nearby">Open nearby</string>
     <string name="worker_stat_accepted">Accepted</string>
     <string name="worker_stat_in_progress">In progress</string>
     <string name="worker_stat_completed">Completed</string>
     <string name="worker_stat_declined">Declined</string>
-    <string name="worker_stat_active">Active</string>
     <string name="worker_available_jobs">Available nearby jobs</string>
     <string name="worker_empty_title">No jobs nearby right now</string>
     <string name="worker_empty_body">New requests from customers appear here as soon as they are posted.</string>
-    <string name="worker_your_work">Your work</string>
     <string name="job_status_open">Open</string>
     <string name="action_not_for_me">Not for me</string>
     <string name="action_accept_job">Accept job</string>

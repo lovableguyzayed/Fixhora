@@ -24,6 +24,8 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.example.R
+import com.example.ui.components.FloatingNavBar
+import com.example.ui.components.FloatingNavItem
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.screens.TaskFlowContainer
 import com.example.ui.theme.FixTheme
@@ -73,24 +75,11 @@ fun CustomerFlowContainer(
   Scaffold(
     containerColor = FixTheme.colors.background,
     bottomBar = {
-      NavigationBar(containerColor = FixTheme.colors.surface) {
-        CustomerTab.entries.forEach { entry ->
-          NavigationBarItem(
-            selected = tab == entry,
-            onClick = { tab = entry },
-            icon = { Icon(entry.icon, contentDescription = null) },
-            label = { Text(stringResource(entry.labelRes)) },
-            colors =
-              NavigationBarItemDefaults.colors(
-                selectedIconColor = FixTheme.colors.primary,
-                selectedTextColor = FixTheme.colors.primary,
-                unselectedIconColor = FixTheme.colors.textSecondary,
-                unselectedTextColor = FixTheme.colors.textSecondary,
-                indicatorColor = FixTheme.colors.primarySurface,
-              ),
-          )
-        }
-      }
+      FloatingNavBar(
+        items = CustomerTab.entries.map { FloatingNavItem(it.labelRes, it.icon) },
+        selectedIndex = tab.ordinal,
+        onSelect = { tab = CustomerTab.entries[it] },
+      )
     },
   ) { padding ->
     // consumeWindowInsets: the screens inside draw their own top app bars, which would otherwise add

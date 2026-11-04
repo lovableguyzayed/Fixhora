@@ -29,7 +29,10 @@ import com.example.ui.format.posterText
 import com.example.ui.format.relativeTimeText
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.ui.components.BentoAction
+import com.example.ui.components.BentoActionRow
 import com.example.ui.components.EmptyState
+import com.example.ui.components.PillChip
 import com.example.ui.components.SearchField
 import com.example.ui.components.StatusBadge
 import com.example.ui.components.StatusTone
@@ -56,13 +59,13 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
                         modifier = Modifier.padding(start = Spacing.xs)
                     )
                 },
-                title = { Text(stringResource(R.string.worker_tasks_title), fontWeight = FontWeight.Bold, color = FixTheme.colors.textPrimary) },
+                title = { Text(stringResource(R.string.worker_tasks_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = FixTheme.colors.textPrimary) },
                 // The Search / Filter / Sort icons are gone. Search is the field below, and
                 // neither filter nor sort was ever implemented.
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.surface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = FixTheme.colors.background)
             )
         },
-        containerColor = FixTheme.colors.surfaceAlt
+        containerColor = FixTheme.colors.background
     ) { paddingValues ->
         Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             SearchField(
@@ -80,26 +83,10 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
                     val isSelected = selectedTab == tab
                     val count =
                         if (tab.status == null) allTasks.size else allTasks.count { it.status == tab.status }
-                    FilterChip(
+                    PillChip(
+                        text = stringResource(R.string.worker_tab_with_count, stringResource(tab.labelRes), count),
                         selected = isSelected,
-                        onClick = { viewModel.onTabSelected(tab) },
-                        label = {
-                            Text(
-                                text = stringResource(R.string.worker_tab_with_count, stringResource(tab.labelRes), count),
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                            )
-                        },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = FixTheme.colors.primary,
-                            selectedLabelColor = FixTheme.colors.onPrimary,
-                            containerColor = FixTheme.colors.surface,
-                            labelColor = FixTheme.colors.textPrimary
-                        ),
-                        border = FilterChipDefaults.filterChipBorder(
-                            enabled = true,
-                            selected = isSelected,
-                            borderColor = if (isSelected) FixTheme.colors.primary else FixTheme.colors.border
-                        )
+                        onClick = { viewModel.onTabSelected(tab) }
                     )
                 }
             }
@@ -182,221 +169,51 @@ fun WorkerTaskCard(
     onChat: () -> Unit,
     onNavigate: () -> Unit
 ) {
-    val category = dummyCategories.find { it.id == task.categoryId }
-    val postedAgo = relativeTimeText(task.createdAt)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = FixTheme.colors.surface),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        posterName,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
-                        color = FixTheme.colors.textPrimary
-                    )
-                    Text(postedAgo, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
-                }
-                StatusBadge(text = task.status.displayLabel(), tone = task.status.tone())
+    // Chat exists from acceptance onwards; before that there is nobody to talk to yet.
+    val canChat = task.status == TaskStatus.ACCEPTED ||
+        task.status == TaskStatus.IN_PROGRESS ||
+        task.status == TaskStatus.COMPLETED
+    JobBentoCard(
+        task = task,
+        posterName = posterName,
+        statusLabel = task.status.displayLabel(),
+        onChat = if (canChat) onChat else null,
+        chatLabel = stringResource(R.string.action_chat)
+    ) { bento ->
+        // Each state offers only actions that actually do something in this build.
+        when (task.status) {
+            TaskStatus.SUBMITTED -> BentoActionRow {
+                BentoAction(stringResource(R.string.action_decline), onDecline, bento, filled = false)
+                BentoAction(stringResource(R.string.action_accept), onAccept, bento, filled = true)
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                task.descriptionTitle.ifBlank { category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_untitled) },
-                fontWeight = FontWeight.Bold,
-                fontSize = 17.sp,
-                color = FixTheme.colors.textPrimary
-            )
-            if (task.descriptionDetails.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
+            TaskStatus.ACCEPTED -> BentoActionRow {
+                BentoAction(stringResource(R.string.action_directions), onNavigate, bento, filled = false, icon = Icons.Default.Navigation)
+                BentoAction(stringResource(R.string.action_start), onStart, bento, filled = true)
+            }
+            TaskStatus.IN_PROGRESS -> BentoActionRow {
+                BentoAction(stringResource(R.string.action_directions), onNavigate, bento, filled = false, icon = Icons.Default.Navigation)
+                BentoAction(stringResource(R.string.action_mark_done), onComplete, bento, filled = true, icon = Icons.Default.Check)
+            }
+            TaskStatus.COMPLETED -> Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = bento.onFill,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    task.descriptionDetails,
-                    fontSize = 14.sp,
-                    color = FixTheme.colors.textSecondary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    stringResource(R.string.worker_finished),
+                    color = bento.onFill,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f)) {
-                    TaskMetaRow(Icons.Default.Category, category?.let { stringResource(it.titleRes) } ?: stringResource(R.string.task_uncategorised))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(
-                        Icons.Default.LocationOn,
-                        taskLocationText(task.locationQuery, task.latitude != null)
-                    )
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    TaskMetaRow(
-                        Icons.Default.AccountBalanceWallet,
-                        budgetText(task.minBudget, task.maxBudget)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(
-                        Icons.Default.MyLocation,
-                        stringResource(R.string.loc_within_km, task.selectedDistance)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = FixTheme.colors.border)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Each state offers only actions that actually do something in this build.
-            when (task.status) {
-                TaskStatus.SUBMITTED ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        OutlinedButton(
-                            onClick = onDecline,
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = FixTheme.colors.textSecondary),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, FixTheme.colors.border),
-                            modifier = Modifier.weight(1f)
-                        ) { Text(stringResource(R.string.action_decline), fontWeight = FontWeight.SemiBold) }
-                        Button(
-                            onClick = onAccept,
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = FixTheme.colors.primary,
-                                contentColor = FixTheme.colors.onPrimary
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) { Text(stringResource(R.string.action_accept), fontWeight = FontWeight.Bold) }
-                    }
-
-                TaskStatus.ACCEPTED ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CardAction(
-                            Icons.AutoMirrored.Filled.Chat,
-                            stringResource(R.string.action_chat),
-                            onChat,
-                            Modifier.weight(1f)
-                        )
-                        CardAction(
-                            Icons.Default.Navigation,
-                            stringResource(R.string.action_directions),
-                            onNavigate,
-                            Modifier.weight(1f)
-                        )
-                        Button(
-                            onClick = onStart,
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = FixTheme.colors.primary,
-                                contentColor = FixTheme.colors.onPrimary
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) { Text(stringResource(R.string.action_start), fontWeight = FontWeight.Bold) }
-                    }
-
-                TaskStatus.IN_PROGRESS ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CardAction(
-                            Icons.AutoMirrored.Filled.Chat,
-                            stringResource(R.string.action_chat),
-                            onChat,
-                            Modifier.weight(1f)
-                        )
-                        CardAction(
-                            Icons.Default.Navigation,
-                            stringResource(R.string.action_directions),
-                            onNavigate,
-                            Modifier.weight(1f)
-                        )
-                        Button(
-                            onClick = onComplete,
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = FixTheme.colors.success,
-                                contentColor = FixTheme.colors.onPrimary
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) { Text(stringResource(R.string.action_mark_done), fontWeight = FontWeight.Bold) }
-                    }
-
-                TaskStatus.COMPLETED ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = FixTheme.colors.success,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            stringResource(R.string.worker_finished),
-                            color = FixTheme.colors.success,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        CardAction(Icons.AutoMirrored.Filled.Chat, stringResource(R.string.action_chat), onChat)
-                    }
-
-                else ->
-                    Text(
-                        stringResource(R.string.worker_no_actions),
-                        fontSize = 13.sp,
-                        color = FixTheme.colors.textSecondary
-                    )
-            }
+            else -> Text(
+                stringResource(R.string.worker_no_actions),
+                style = MaterialTheme.typography.bodySmall,
+                color = bento.onFillSecondary
+            )
         }
-    }
-}
-
-@Composable
-private fun CardAction(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TextButton(onClick = onClick, modifier = modifier) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = FixTheme.colors.primary)
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(label, color = FixTheme.colors.primary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-    }
-}
-
-@Composable
-fun TaskMetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = FixTheme.colors.textSecondary, modifier = Modifier.size(16.dp))
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text,
-            fontSize = 12.sp,
-            color = FixTheme.colors.textPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

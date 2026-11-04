@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.BuildConfig
 import com.example.R
+import com.example.ui.components.BentoCard
 import com.example.data.session.AppLanguage
 import com.example.data.session.ThemePreference
 import com.example.data.session.UserRole
@@ -129,7 +130,7 @@ fun RoleSelectionScreen(
                         .fillMaxHeight(),
                     title = stringResource(R.string.role_customer_title),
                     description = stringResource(R.string.role_customer_description),
-                    accentColor = colors.primary,
+                    bento = Bento.Sun,
                     illustrationId = R.drawable.img_customer,
                     illustrationAspect = CustomerArtAspect,
                     onClick = { onRoleSelected(UserRole.CUSTOMER) }
@@ -140,7 +141,7 @@ fun RoleSelectionScreen(
                         .fillMaxHeight(),
                     title = stringResource(R.string.role_worker_title),
                     description = stringResource(R.string.role_worker_description),
-                    accentColor = colors.accentGraphic,
+                    bento = Bento.Tangerine,
                     illustrationId = R.drawable.img_worker,
                     illustrationAspect = WorkerArtAspect,
                     onClick = { onRoleSelected(UserRole.HELPER) }
@@ -264,30 +265,22 @@ fun RoleSelectionScreen(
     }
 }
 
+/**
+ * One role, as a full-colour card: yellow for asking, orange for helping, so the two choices are
+ * told apart at a glance. The whole card is the button; the black arrow only marks it as one.
+ */
 @Composable
 private fun RoleCard(
     title: String,
     description: String,
-    accentColor: Color,
+    bento: BentoColors,
     illustrationId: Int,
     illustrationAspect: Float,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = FixTheme.colors
-    val shape = RoundedCornerShape(Radius.xl)
-    Card(
-        onClick = onClick,
-        modifier = modifier.shadow(
-            elevation = 16.dp,
-            shape = shape,
-            ambientColor = colors.textPrimary.copy(alpha = 0.06f),
-            spotColor = colors.textPrimary.copy(alpha = 0.10f)
-        ),
-        shape = shape,
-        colors = CardDefaults.cardColors(containerColor = colors.surface),
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.3f))
-    ) {
+    BentoCard(colors = bento, modifier = modifier, onClick = onClick, contentPadding = 0.dp) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -305,7 +298,7 @@ private fun RoleCard(
                     modifier = Modifier
                         .size(112.dp)
                         .clip(CircleShape)
-                        .background(accentColor.copy(alpha = 0.1f))
+                        .background(bento.onFill.copy(alpha = 0.08f))
                 )
                 Image(
                     painter = painterResource(id = illustrationId),
@@ -320,14 +313,15 @@ private fun RoleCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.textPrimary,
+                fontWeight = FontWeight.ExtraBold,
+                color = bento.onFill,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(Spacing.xs))
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.textSecondary,
+                color = bento.onFillSecondary,
                 textAlign = TextAlign.Center
             )
             // Pushes the action to the bottom so both cards' buttons line up.
@@ -337,13 +331,13 @@ private fun RoleCard(
                 modifier = Modifier
                     .size(MinTouchTarget)
                     .clip(CircleShape)
-                    .background(accentColor),
+                    .background(colors.ink),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = stringResource(R.string.role_get_started),
-                    tint = colors.onPrimary,
+                    tint = colors.onInk,
                     modifier = Modifier.size(24.dp)
                 )
             }
