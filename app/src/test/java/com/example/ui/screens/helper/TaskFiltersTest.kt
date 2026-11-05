@@ -206,4 +206,20 @@ class TaskFiltersTest {
 
     assertEquals(listOf(10, 13, 15), ids)
   }
+
+  @Test
+  fun `a helper's rating averages only the jobs they did`() {
+    val world =
+      listOf(
+        task(30, TaskStatus.COMPLETED).copy(acceptedByHelperId = "me", rating = 5),
+        task(31, TaskStatus.COMPLETED).copy(acceptedByHelperId = "me", rating = 4),
+        task(32, TaskStatus.COMPLETED).copy(acceptedByHelperId = "me"),
+        task(33, TaskStatus.COMPLETED).copy(acceptedByHelperId = "other", rating = 1),
+      )
+
+    val rating = world.toHelperStats("me").rating
+
+    assertEquals(com.example.ui.format.RatingSummary(average = 4.5, count = 2), rating)
+    assertEquals(null, listOf(task(34)).toHelperStats("me").rating)
+  }
 }

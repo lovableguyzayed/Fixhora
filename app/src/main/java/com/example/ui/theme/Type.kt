@@ -19,6 +19,10 @@ import com.example.R
  * Plus Jakarta Sans (SIL Open Font License, see `licenses/`), bundled at five weights — about
  * 150 KB, Latin only. Hindi text and the rupee sign are not in it and fall back per character to
  * the system font, which ships a Devanagari face on every Android device.
+ *
+ * Nothing is smaller than 12sp, and the small sizes most screens use for captions and tags were
+ * raised a step (13 to 14, 12 to 13): at 11 and 12sp, budgets, times and status tags were hard to
+ * read on the budget phones much of the audience uses, in bright light, and in Devanagari.
  */
 private val Sans =
   FontFamily(
@@ -54,11 +58,11 @@ val Typography =
     bodyMedium =
       TextStyle(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 22.sp),
     bodySmall =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 20.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
     labelLarge =
       TextStyle(fontFamily = Sans, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp),
     labelMedium =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Medium, fontSize = 13.sp, lineHeight = 18.sp),
     labelSmall =
-      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp),
+      TextStyle(fontFamily = Sans, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp),
   )

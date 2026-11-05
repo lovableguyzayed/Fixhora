@@ -32,4 +32,16 @@ data class UserEntity(
   val skills: String? = null,
   /** A line or two a helper writes about themselves. */
   val about: String? = null,
-)
+) {
+  companion object {
+    const val SKILL_SEPARATOR = "\n"
+  }
+}
+
+/** The category ids in [UserEntity.skills]. */
+fun UserEntity.skillIds(): List<String> =
+  skills.orEmpty().split(UserEntity.SKILL_SEPARATOR).map { it.trim() }.filter { it.isNotEmpty() }
+
+/** Joins category ids for storage in [UserEntity.skills]; null when there are none. */
+fun List<String>.joinSkillIds(): String? =
+  filter { it.isNotBlank() }.distinct().joinToString(UserEntity.SKILL_SEPARATOR).ifEmpty { null }

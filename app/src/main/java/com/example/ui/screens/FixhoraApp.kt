@@ -325,6 +325,7 @@ private fun AppNavHost(
               application.chatRepository,
               application.sessionManager,
               application.taskPhotoStore,
+              application.userRepository,
             )
         )
       CustomerFlowContainer(

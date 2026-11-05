@@ -26,6 +26,7 @@ import com.example.ui.components.SectionHeader
 import com.example.ui.components.SettingsButton
 import com.example.ui.components.SkeletonBox
 import com.example.ui.format.posterText
+import com.example.ui.format.ratingText
 import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -142,6 +143,8 @@ fun WorkSummaryGrid(stats: HelperStats) {
                 label = stringResource(R.string.worker_stat_completed),
                 colors = Bento.Lime,
                 icon = Icons.Default.CheckCircle,
+                // Only ever a real average of customers' ratings, never a placeholder score.
+                caption = stats.rating?.let { ratingText(it) },
                 modifier = Modifier.weight(1f)
             )
             BentoStat(

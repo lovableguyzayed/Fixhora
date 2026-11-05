@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cake
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.LocationOn
@@ -33,11 +35,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.ui.components.FixCard
+import com.example.ui.components.PillChip
+import com.example.ui.screens.taskflow.StepTextField
+import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 
 @Composable
@@ -150,6 +156,18 @@ fun ProfileSetupScreen(
       enabled = !state.isSubmitting,
     )
 
+    if (editing) {
+      // Only when editing: sign-up stays short, and a customer who never helps can ignore it.
+      Spacer(modifier = Modifier.height(Spacing.xxl))
+      HelperDetails(
+        skills = state.skills,
+        about = state.about,
+        enabled = !state.isSubmitting,
+        onSkillsChange = { viewModel.onProfileFieldChange(skills = it) },
+        onAboutChange = { viewModel.onProfileFieldChange(about = it) },
+      )
+    }
+
     Spacer(modifier = Modifier.height(Spacing.xxl))
     SubmitButton(
       text = stringResource(if (editing) R.string.action_save else R.string.action_continue),
@@ -157,6 +175,52 @@ fun ProfileSetupScreen(
       onClick = { viewModel.submitProfile() },
     )
   }
+}
+
+/**
+ * What a helper offers and a line about them, shown to a customer once they take the job. A
+ * customer had no way to know who would turn up beyond a name.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun HelperDetails(
+  skills: Set<String>,
+  about: String,
+  enabled: Boolean,
+  onSkillsChange: (Set<String>) -> Unit,
+  onAboutChange: (String) -> Unit,
+) {
+  val colors = FixTheme.colors
+  Text(stringResource(R.string.profile_skills_title), style = MaterialTheme.typography.titleMedium, color = colors.textPrimary)
+  Spacer(modifier = Modifier.height(Spacing.xs))
+  Text(stringResource(R.string.profile_skills_body), style = MaterialTheme.typography.bodyMedium, color = colors.textSecondary)
+  Spacer(modifier = Modifier.height(Spacing.md))
+  FlowRow(
+    horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+    verticalArrangement = Arrangement.spacedBy(Spacing.sm),
+  ) {
+    dummyCategories.filter { it.id != "more" }.forEach { category ->
+      val selected = category.id in skills
+      PillChip(
+        text = stringResource(category.titleRes),
+        selected = selected,
+        icon = if (selected) Icons.Default.Check else null,
+        onClick = { if (enabled) onSkillsChange(if (selected) skills - category.id else skills + category.id) },
+      )
+    }
+  }
+  Spacer(modifier = Modifier.height(Spacing.lg))
+  StepTextField(
+    value = about,
+    onValueChange = onAboutChange,
+    label = stringResource(R.string.profile_about_label),
+    placeholder = stringResource(R.string.profile_about_hint),
+    singleLine = false,
+    minLines = 2,
+    maxLines = 4,
+    supportingText = "${about.length} / ${AuthViewModel.MAX_ABOUT_LENGTH}",
+    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+  )
 }
 
 /** Stored values stay English keys, so changing the app language never changes the saved data. */

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
@@ -67,6 +68,9 @@ fun JobBentoCard(
   onChat: (() -> Unit)? = null,
   chatLabel: String = "",
   showFullAddress: Boolean = false,
+  /** Rings the customer; set only once this helper holds the job and the customer has a number. */
+  onCall: (() -> Unit)? = null,
+  callLabel: String = "",
   actions: @Composable ColumnScope.(BentoColors) -> Unit,
 ) {
   val bento = categoryBento(task.categoryId)
@@ -85,6 +89,16 @@ fun JobBentoCard(
         }
         Spacer(Modifier.height(Spacing.xs))
         Text(postedAgo, style = MaterialTheme.typography.bodySmall, color = bento.onFillSecondary)
+      }
+      if (onCall != null) {
+        CircleIconButton(
+          icon = Icons.Default.Call,
+          contentDescription = callLabel,
+          onClick = onCall,
+          container = FixTheme.colors.ink,
+          content = FixTheme.colors.onInk,
+        )
+        if (onChat != null) Spacer(Modifier.width(Spacing.sm))
       }
       if (onChat != null) {
         CircleIconButton(

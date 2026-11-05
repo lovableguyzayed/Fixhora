@@ -3,6 +3,8 @@ package com.example.ui.screens.helper
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.data.room.declinedHelperIds
+import com.example.ui.format.RatingSummary
+import com.example.ui.format.ratingSummaryOf
 
 /**
  * The tabs on the worker's task list, each backed by a real [TaskStatus].
@@ -107,6 +109,8 @@ data class HelperStats(
   val inProgress: Int = 0,
   val completed: Int = 0,
   val declined: Int = 0,
+  /** What customers who confirmed this helper's work said, or null before anyone has. */
+  val rating: RatingSummary? = null,
 ) {
   val activeNow: Int
     get() = accepted + inProgress
@@ -129,4 +133,5 @@ fun List<TaskEntity>.toHelperStats(helperId: String) =
     inProgress = count { it.isTakenBy(helperId) && it.status == TaskStatus.IN_PROGRESS },
     completed = count { it.isTakenBy(helperId) && it.status == TaskStatus.COMPLETED },
     declined = count { it.isDeclinedBy(helperId) && !it.isTakenBy(helperId) },
+    rating = ratingSummaryOf(filter { it.acceptedByHelperId == helperId }.mapNotNull { it.rating }),
   )

@@ -6,22 +6,43 @@ import androidx.lifecycle.viewModelScope
 import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.ChatRepository
 import com.example.data.repository.TaskRepository
+import com.example.data.repository.UserRepository
+import com.example.data.room.CancelReason
 import com.example.data.room.ChatMessageEntity
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import com.example.data.room.photoUriList
+import com.example.data.room.skillIds
 import com.example.data.session.SessionManager
+import com.example.ui.format.RatingSummary
+import com.example.ui.format.awaitsCustomerConfirmation
 import com.example.ui.format.isCancellableByCustomer
 import com.example.ui.format.isDeletableByCustomer
+import com.example.ui.format.ratingSummaryOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+/**
+ * The helper who took a task, as the customer sees them: who they are, how to reach them, and what
+ * other customers have said. [mobile] is null for a helper using the app as a guest, who has none.
+ */
+data class AssignedHelper(
+  val name: String?,
+  val mobile: String?,
+  val skills: List<String>,
+  val about: String?,
+  val rating: RatingSummary?,
+)
 
 /**
  * The customer's own tasks, and the conversation on each one.
@@ -37,6 +58,7 @@ class MyTasksViewModel(
   private val chatRepository: ChatRepository,
   sessionManager: SessionManager,
   private val photoStore: TaskPhotoStore? = null,
+  private val userRepository: UserRepository? = null,
 ) : ViewModel() {
 
   /**
@@ -75,6 +97,33 @@ class MyTasksViewModel(
       .flatMapLatest { id -> if (id == null) emptyFlow() else chatRepository.getMessagesForTask(id) }
       .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+  /**
+   * Who took the open task. Null until someone has, and for tasks from before v4, which never
+   * recorded it.
+   */
+  val assignedHelper: StateFlow<AssignedHelper?> =
+    openTask
+      .map { it?.acceptedByHelperId }
+      .distinctUntilChanged()
+      .flatMapLatest { helperId ->
+        if (helperId == null) {
+          flowOf(null)
+        } else {
+          val users = userRepository
+          val profile = if (users == null) flowOf(null) else users.observeUser(helperId)
+          combine(profile, taskRepository.ratingsFor(helperId)) { user, ratings ->
+            AssignedHelper(
+              name = user?.fullName,
+              mobile = user?.mobile?.takeIf { it.isNotBlank() },
+              skills = user?.skillIds().orEmpty(),
+              about = user?.about?.trim()?.takeIf { it.isNotEmpty() },
+              rating = ratingSummaryOf(ratings),
+            )
+          }
+        }
+      }
+      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
   fun openTask(taskId: Int) {
     _openTaskId.value = taskId
   }
@@ -100,10 +149,39 @@ class MyTasksViewModel(
    * accepted it in the meantime — cancelling then would leave someone working on a task the
    * customer believes is dead.
    */
-  fun cancelOpenTask() {
+  fun cancelOpenTask(reason: CancelReason? = null) {
     val task = openTask.value ?: return
     if (!isCancellableByCustomer(task.status)) return
-    viewModelScope.launch { taskRepository.updateTaskStatus(task, TaskStatus.CANCELLED) }
+    viewModelScope.launch {
+      taskRepository.updateTask(task.copy(status = TaskStatus.CANCELLED, cancelReason = reason?.storageValue))
+    }
+  }
+
+  /**
+   * The customer agrees the work is done, and says how it went.
+   *
+   * "Done" used to be whatever the helper said it was. The rating is what other customers see on
+   * this helper's card, so it is only taken from the person the work was done for.
+   */
+  fun confirmCompletion(rating: Int, review: String) {
+    val task = openTask.value ?: return
+    if (!awaitsCustomerConfirmation(task) || rating !in 1..5) return
+    viewModelScope.launch {
+      taskRepository.updateTask(
+        task.copy(
+          rating = rating,
+          review = review.trim().take(MAX_REVIEW_LENGTH).ifEmpty { null },
+          confirmedAt = System.currentTimeMillis(),
+        )
+      )
+    }
+  }
+
+  /** The helper marked it done but it is not: back to in progress, so they can finish it. */
+  fun reopenTask() {
+    val task = openTask.value ?: return
+    if (!awaitsCustomerConfirmation(task)) return
+    viewModelScope.launch { taskRepository.updateTaskStatus(task, TaskStatus.IN_PROGRESS) }
   }
 
   /**
@@ -128,9 +206,14 @@ class MyTasksViewModel(
     private val chatRepository: ChatRepository,
     private val sessionManager: SessionManager,
     private val photoStore: TaskPhotoStore? = null,
+    private val userRepository: UserRepository? = null,
   ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T =
-      MyTasksViewModel(taskRepository, chatRepository, sessionManager, photoStore) as T
+      MyTasksViewModel(taskRepository, chatRepository, sessionManager, photoStore, userRepository) as T
+  }
+
+  companion object {
+    const val MAX_REVIEW_LENGTH = 500
   }
 }

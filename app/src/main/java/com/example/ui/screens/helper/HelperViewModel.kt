@@ -76,6 +76,16 @@ class HelperViewModel(
       }
       .asState(emptyMap())
 
+  /** Mobile numbers of the customers whose jobs this helper holds, so the card can ring them. */
+  val ownerMobiles: StateFlow<Map<String, String>> =
+    allTasks
+      .map { tasks -> tasks.filter { it.status.isActiveEngagement }.map { it.ownerId }.distinct().sorted() }
+      .distinctUntilChanged()
+      .map { ids ->
+        ids.mapNotNull { id -> userRepository.findById(id)?.mobile?.takeIf { it.isNotBlank() }?.let { id to it } }.toMap()
+      }
+      .asState(emptyMap())
+
   // ------------------------------------------------------------------ search vocabulary
 
   /**

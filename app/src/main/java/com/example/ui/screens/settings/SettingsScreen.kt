@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.LightMode
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
@@ -61,6 +60,7 @@ import com.example.ui.components.BentoCard
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
 import com.example.ui.components.FixTopBar
+import com.example.ui.components.InitialsAvatar
 import com.example.ui.components.SectionHeader
 import com.example.ui.screens.legal.LegalDocument
 import com.example.ui.theme.Bento
@@ -251,17 +251,7 @@ private fun AccountCard(state: SettingsUiState, onEditProfile: () -> Unit, onSig
   val colors = FixTheme.colors
   BentoCard(colors = bento, modifier = Modifier.fillMaxWidth()) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-      Box(
-        modifier = Modifier.size(56.dp).clip(CircleShape).background(colors.ink),
-        contentAlignment = Alignment.Center,
-      ) {
-        val initials = state.name?.let(::initialsOf)
-        if (initials.isNullOrEmpty()) {
-          Icon(Icons.Default.Person, contentDescription = null, tint = colors.onInk, modifier = Modifier.size(28.dp))
-        } else {
-          Text(initials, style = MaterialTheme.typography.titleLarge, color = colors.onInk, fontWeight = FontWeight.ExtraBold)
-        }
-      }
+      InitialsAvatar(name = state.name, size = 56.dp)
       Spacer(Modifier.width(Spacing.lg))
       Column(modifier = Modifier.weight(1f)) {
         Text(
@@ -330,13 +320,6 @@ private fun ChoiceOption(
       Text(text, style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
     }
   }
-}
-
-/** Up to two initials, from the first and last words of a name. */
-internal fun initialsOf(name: String): String {
-  val words = name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
-  val picked = if (words.size > 1) listOf(words.first(), words.last()) else words
-  return picked.mapNotNull { it.firstOrNull()?.uppercaseChar() }.joinToString("")
 }
 
 @Composable

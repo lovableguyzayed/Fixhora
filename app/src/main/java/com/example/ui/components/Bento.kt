@@ -1,7 +1,6 @@
 package com.example.ui.components
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,14 +22,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.ui.theme.BentoColors
@@ -211,12 +211,12 @@ fun CircleIconButton(
 data class FloatingNavItem(@StringRes val labelRes: Int, val icon: ImageVector)
 
 /**
- * The tab bar: a dark pill floating above the content, with the active tab drawn as a yellow pill
- * that also names it.
+ * The tab bar: a dark rounded bar floating above the content, every tab an icon over its name,
+ * with the active one on a yellow pill.
  *
- * Inactive tabs show only their icon to keep four tabs on a narrow phone, but every tab is a
- * selectable `Role.Tab` with its name, so a screen reader hears all of them and which is active.
- * It pads itself for the system navigation bar, which the earlier floating bar sat underneath.
+ * Inactive tabs used to show only their icon. A map outline or a clipboard means little to someone
+ * new to apps, so every tab now says what it is, in either language. Each tab is a selectable
+ * `Role.Tab`. It pads itself for the system navigation bar.
  */
 @Composable
 fun FloatingNavBar(
@@ -226,52 +226,50 @@ fun FloatingNavBar(
   modifier: Modifier = Modifier,
 ) {
   val colors = FixTheme.colors
+  val barShape = RoundedCornerShape(Radius.xl)
   Box(
     modifier =
       modifier
         .fillMaxWidth()
         .background(colors.background)
         .navigationBarsPadding()
-        .padding(horizontal = Spacing.xl, vertical = Spacing.md),
+        .padding(horizontal = Spacing.lg, vertical = Spacing.sm),
     contentAlignment = Alignment.Center,
   ) {
     Row(
       modifier =
-        Modifier.clip(CircleShape)
+        Modifier.fillMaxWidth()
+          .clip(barShape)
           .background(colors.ink)
-          .border(1.dp, colors.onInk.copy(alpha = 0.06f), CircleShape)
-          .padding(Spacing.sm),
+          .border(1.dp, colors.onInk.copy(alpha = 0.06f), barShape)
+          .padding(Spacing.xs),
       horizontalArrangement = Arrangement.spacedBy(Spacing.xs),
       verticalAlignment = Alignment.CenterVertically,
     ) {
       items.forEachIndexed { index, item ->
         val selected = index == selectedIndex
-        val label = stringResource(item.labelRes)
-        Row(
+        val content = if (selected) colors.onHighlight else colors.onInk.copy(alpha = 0.78f)
+        Column(
           modifier =
-            Modifier.height(MinTouchTarget)
-              .clip(CircleShape)
+            Modifier.weight(1f)
+              .heightIn(min = 56.dp)
+              .clip(RoundedCornerShape(Radius.lg))
               .background(if (selected) colors.highlight else Color.Transparent)
               .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(index) })
-              .animateContentSize()
-              .padding(horizontal = if (selected) Spacing.lg else Spacing.md),
-          verticalAlignment = Alignment.CenterVertically,
+              .padding(vertical = Spacing.xs, horizontal = Spacing.xs),
+          horizontalAlignment = Alignment.CenterHorizontally,
+          verticalArrangement = Arrangement.Center,
         ) {
-          Icon(
-            item.icon,
-            contentDescription = if (selected) null else label,
-            tint = if (selected) colors.onHighlight else colors.onInk.copy(alpha = 0.72f),
-            modifier = Modifier.size(22.dp),
+          Icon(item.icon, contentDescription = null, tint = content, modifier = Modifier.size(22.dp))
+          Spacer(Modifier.height(2.dp))
+          Text(
+            text = stringResource(item.labelRes),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            color = content,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
           )
-          if (selected) {
-            Spacer(Modifier.width(Spacing.sm))
-            Text(
-              text = label,
-              style = MaterialTheme.typography.labelLarge,
-              color = colors.onHighlight,
-              maxLines = 1,
-            )
-          }
         }
       }
     }

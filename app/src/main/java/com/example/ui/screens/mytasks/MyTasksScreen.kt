@@ -48,6 +48,7 @@ import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
 import com.example.ui.components.SettingsButton
 import com.example.ui.format.budgetText
+import com.example.ui.format.awaitsCustomerConfirmation
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.relativeTimeText
 import com.example.ui.format.scheduleText
@@ -129,7 +130,12 @@ private fun MyTaskCard(task: TaskEntity, onClick: () -> Unit) {
           BentoTag(text = stringResource(category.titleRes), colors = bento)
           Spacer(Modifier.width(Spacing.sm))
         }
-        BentoTag(text = customerStatusLabel(task.status), colors = bento)
+        BentoTag(
+          text =
+            if (awaitsCustomerConfirmation(task)) stringResource(R.string.status_confirm_needed)
+            else customerStatusLabel(task.status),
+          colors = bento,
+        )
       }
       // Marks the card as something that opens; the card itself is the touch target.
       Box(

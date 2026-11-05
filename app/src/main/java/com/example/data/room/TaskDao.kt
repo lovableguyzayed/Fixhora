@@ -37,6 +37,10 @@ interface TaskDao {
   @Query("SELECT * FROM tasks WHERE acceptedByHelperId = :helperId")
   suspend fun tasksAcceptedBy(helperId: String): List<TaskEntity>
 
+  /** Every star rating customers have given this helper, for the average shown on their card. */
+  @Query("SELECT rating FROM tasks WHERE acceptedByHelperId = :helperId AND rating IS NOT NULL")
+  fun observeRatingsFor(helperId: String): Flow<List<Int?>>
+
   @Query("SELECT * FROM tasks WHERE id = :id") fun observeTask(id: Int): Flow<TaskEntity?>
 
   /** A customer has at most one draft in flight at a time. */

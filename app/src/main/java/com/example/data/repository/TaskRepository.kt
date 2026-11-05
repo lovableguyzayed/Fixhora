@@ -5,6 +5,7 @@ import com.example.data.room.AppDatabase
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class TaskRepository(private val database: AppDatabase) {
 
@@ -18,6 +19,10 @@ class TaskRepository(private val database: AppDatabase) {
 
   /** What one customer has posted, newest first. Their own drafts are not included. */
   fun tasksForOwner(ownerId: String): Flow<List<TaskEntity>> = taskDao.getTasksForOwner(ownerId)
+
+  /** The ratings customers have given [helperId], watched. */
+  fun ratingsFor(helperId: String): Flow<List<Int>> =
+    taskDao.observeRatingsFor(helperId).map { it.filterNotNull() }
 
   /** One task, watched. Emits null once the row is gone, so a detail screen can close itself. */
   fun observeTask(id: Int): Flow<TaskEntity?> = taskDao.observeTask(id)

@@ -40,7 +40,9 @@ import coil.compose.AsyncImage
 import com.example.R
 import com.example.ui.components.BottomActionBar
 import com.example.ui.components.FixButton
+import com.example.ui.components.PillChip
 import com.example.ui.components.SectionHeader
+import com.example.ui.format.budgetText
 import com.example.ui.theme.FixTheme
 import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Radius
@@ -55,6 +57,10 @@ private const val BUDGET_MAX_DIGITS = 7
  * The required title now comes first. It used to sit below an optional photo picker, so the one
  * field that blocks posting was the one most likely to be scrolled past.
  */
+/** Common budget ranges, as (min, max) in rupees; an empty min means "up to". */
+private val BudgetQuickPicks = listOf("" to "500", "500" to "1000", "1000" to "2000", "2000" to "5000")
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
     val uiState by viewModel.uiState.collectAsState()
@@ -120,6 +126,15 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 minLines = 4,
                 maxLines = 8,
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            VoiceInputButton(
+                onText = { spoken ->
+                    viewModel.updateDescription(
+                        uiState.descriptionTitle,
+                        appendDictation(uiState.descriptionDetails, spoken)
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(Spacing.xl))
@@ -222,6 +237,27 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(start = Spacing.lg, top = Spacing.xs)
                 )
+            }
+            // One tap for the usual ranges; still the customer's own choice, not a price the app
+            // claims is right.
+            Spacer(modifier = Modifier.height(Spacing.md))
+            Text(
+                text = stringResource(R.string.budget_quick_label),
+                style = MaterialTheme.typography.labelMedium,
+                color = colors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(Spacing.sm))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+                verticalArrangement = Arrangement.spacedBy(Spacing.sm)
+            ) {
+                BudgetQuickPicks.forEach { (min, max) ->
+                    PillChip(
+                        text = budgetText(min, max),
+                        selected = uiState.minBudget == min && uiState.maxBudget == max,
+                        onClick = { viewModel.updateBudget(min, max) }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Spacing.xl))

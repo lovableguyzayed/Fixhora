@@ -53,6 +53,7 @@ fun CustomerFlowContainer(
   val tasks by viewModel.tasks.collectAsStateWithLifecycle()
   val openTask by viewModel.openTask.collectAsStateWithLifecycle()
   val messages by viewModel.messages.collectAsStateWithLifecycle()
+  val helper by viewModel.assignedHelper.collectAsStateWithLifecycle()
 
   val task = openTask
   if (tab == CustomerTab.MY_TASKS && task != null) {
@@ -69,6 +70,9 @@ fun CustomerFlowContainer(
       onSend = viewModel::sendMessage,
       onCancelTask = viewModel::cancelOpenTask,
       onDeleteTask = viewModel::deleteOpenTask,
+      helper = helper,
+      onConfirmCompletion = viewModel::confirmCompletion,
+      onReopenTask = viewModel::reopenTask,
     )
     return
   }

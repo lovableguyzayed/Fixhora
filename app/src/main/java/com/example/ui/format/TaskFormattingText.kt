@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.R
+import com.example.data.room.CancelReason
 import com.example.data.room.TaskStatus
 import com.example.data.room.TimeSlot
 import java.text.SimpleDateFormat
@@ -168,3 +169,24 @@ private fun shortDate(epochDay: Long): String {
     .apply { timeZone = TimeZone.getTimeZone("UTC") }
     .format(Date(epochDayToUtcMillis(epochDay)))
 }
+
+/** "4.5 ★ · 3 ratings", or that there are none yet. Never a number without ratings behind it. */
+@Composable
+fun ratingText(summary: RatingSummary?): String =
+  if (summary == null) {
+    stringResource(R.string.helper_no_ratings)
+  } else {
+    pluralStringResource(R.plurals.rating_summary, summary.count, formatRatingAverage(summary.average), summary.count)
+  }
+
+@Composable
+fun CancelReason.label(): String =
+  stringResource(
+    when (this) {
+      CancelReason.FOUND_SOMEONE -> R.string.cancel_reason_found_someone
+      CancelReason.NOT_NEEDED -> R.string.cancel_reason_not_needed
+      CancelReason.NO_RESPONSE -> R.string.cancel_reason_no_response
+      CancelReason.WRONG_DETAILS -> R.string.cancel_reason_wrong_details
+      CancelReason.OTHER -> R.string.cancel_reason_other
+    }
+  )

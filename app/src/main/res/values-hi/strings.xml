@@ -22,25 +22,25 @@
     <string name="legal_privacy_title">गोपनीयता नीति</string>
     <string name="legal_updated">पिछला अपडेट: 5 नवंबर 2026</string>
     <string name="legal_terms_s1_title">FixoraX क्या है</string>
-    <string name="legal_terms_s1_body">FixoraX लोगों को छोटे काम पोस्ट करने और आस-पास के सहायकों को वे काम ढूँढने में मदद करता है। FixoraX सहायकों को नौकरी पर नहीं रखता और ग्राहक व सहायक के बीच के समझौते का हिस्सा नहीं है।</string>
+    <string name="legal_terms_s1_body">FixoraX लोगों को छोटे काम पोस्ट करने और आस-पास के हेल्परों को वे काम ढूँढने में मदद करता है। FixoraX हेल्परों को नौकरी पर नहीं रखता और ग्राहक व हेल्पर के बीच के समझौते का हिस्सा नहीं है।</string>
     <string name="legal_terms_s2_title">आपका खाता</string>
     <string name="legal_terms_s2_body">अपना असली नाम और मोबाइल नंबर इस्तेमाल करें। आपके फ़ोन पर आपके खाते से जो भी किया जाता है, उसकी ज़िम्मेदारी आपकी है।</string>
     <string name="legal_terms_s3_title">काम डालना और लेना</string>
-    <string name="legal_terms_s3_body">काम की सही जानकारी दें और सिर्फ़ क़ानूनी काम डालें। कौन-सा काम लेना है, यह सहायक खुद तय करते हैं। काम शुरू होने से पहले कीमत और समय आपस में तय कर लें।</string>
+    <string name="legal_terms_s3_body">काम की सही जानकारी दें और सिर्फ़ क़ानूनी काम डालें। कौन-सा काम लेना है, यह हेल्पर खुद तय करते हैं। काम शुरू होने से पहले कीमत और समय आपस में तय कर लें।</string>
     <string name="legal_terms_s4_title">भुगतान</string>
-    <string name="legal_terms_s4_body">FixoraX पैसों का लेन-देन नहीं करता। काम पूरा होने पर ग्राहक सहायक को सीधे नकद या UPI से भुगतान करता है।</string>
+    <string name="legal_terms_s4_body">FixoraX पैसों का लेन-देन नहीं करता। काम पूरा होने पर ग्राहक हेल्पर को सीधे नकद या UPI से भुगतान करता है।</string>
     <string name="legal_terms_s5_title">सुरक्षा</string>
     <string name="legal_terms_s5_body">अपना पासवर्ड या OTP कभी किसी को न बताएँ। जो ठीक से व्यवहार न करे, उससे लेन-देन बंद कर दें। आपात स्थिति में 112 पर कॉल करें।</string>
     <string name="legal_terms_s6_title">यह संस्करण</string>
     <string name="legal_terms_s6_body">यह एक प्रीव्यू संस्करण है। खाते और काम सिर्फ़ इसी फ़ोन पर रहते हैं, OTP SMS से नहीं भेजा जाता, और ऐप जैसा है वैसा ही, बिना किसी गारंटी के दिया जाता है।</string>
-    <string name="legal_privacy_s1_title">क्या सहेजा जाता है</string>
-    <string name="legal_privacy_s1_body">आपका नाम और मोबाइल नंबर, और अगर आप दें तो ईमेल, लिंग, जन्म वर्ष, शहर, राज्य और पिन कोड। साथ ही आपके डाले गए काम, उनकी फ़ोटो और पते, और आपके चैट संदेश।</string>
+    <string name="legal_privacy_s1_title">क्या सेव किया जाता है</string>
+    <string name="legal_privacy_s1_body">आपका नाम और मोबाइल नंबर, और अगर आप दें तो ईमेल, लिंग, जन्म वर्ष, शहर, राज्य और पिन कोड। साथ ही आपके डाले गए काम, उनकी फ़ोटो और पते, और आपके चैट मैसेज।</string>
     <string name="legal_privacy_s2_title">यह कहाँ रहता है</string>
     <string name="legal_privacy_s2_body">सब कुछ इसी फ़ोन पर ऐप की निजी स्टोरेज में रहता है। FixoraX के किसी सर्वर पर कुछ नहीं भेजा जाता; अभी कोई सर्वर है ही नहीं। ऐप हटाने पर सब मिट जाता है।</string>
     <string name="legal_privacy_s3_title">लोकेशन</string>
     <string name="legal_privacy_s3_body">आपकी अनुमति से ऐप आपकी लोकेशन पढ़ता है ताकि काम का पता भरा जा सके और काम मैप पर दिखें। इसके लिए यह आपके फ़ोन की पता खोज सेवा और OpenStreetMap के मैप का इस्तेमाल करता है।</string>
     <string name="legal_privacy_s4_title">कौन क्या देख सकता है</string>
-    <string name="legal_privacy_s4_body">इस फ़ोन पर ऐप इस्तेमाल करने वाला कोई भी व्यक्ति इस पर डाले गए काम देख सकता है। आपका मकान नंबर और लैंडमार्क सहायक को तभी दिखता है जब वह आपका काम ले लेता है।</string>
+    <string name="legal_privacy_s4_body">इस फ़ोन पर ऐप इस्तेमाल करने वाला कोई भी व्यक्ति इस पर डाले गए काम देख सकता है। आपका मकान नंबर और लैंडमार्क हेल्पर को तभी दिखता है जब वह आपका काम ले लेता है।</string>
     <string name="legal_privacy_s5_title">इंटरनेट का इस्तेमाल</string>
     <string name="legal_privacy_s5_body">ऐप सिर्फ़ GitHub पर अपडेट देखने, OpenStreetMap के मैप लोड करने और आपके फ़ोन पर पता खोजने के लिए इंटरनेट इस्तेमाल करता है।</string>
     <string name="legal_privacy_s6_title">आपके विकल्प</string>
@@ -61,12 +61,16 @@
     <string name="settings_delete_confirm">सब कुछ हटाएँ</string>
     <string name="settings_delete_failed">खाता हटाया नहीं जा सका। कृपया फिर से कोशिश करें।</string>
     <string name="profile_edit_subtitle">अपनी जानकारी सही रखें, ताकि लोग जानें कि वे किससे बात कर रहे हैं।</string>
+    <string name="profile_skills_title">अगर आप दूसरों का काम करते हैं</string>
+    <string name="profile_skills_body">जब आप किसी का काम लेते हैं, तो ग्राहक देखते हैं कि आप कौन सा काम करते हैं और आपके बारे में एक लाइन।</string>
+    <string name="profile_about_label">आपके बारे में (ज़रूरी नहीं)</string>
+    <string name="profile_about_hint">जैसे: इलेक्ट्रीशियन, 6 साल का अनुभव, अपने औज़ार</string>
     <string name="action_save">सेव करें</string>
     <string name="help_title">मदद और आम सवाल</string>
     <string name="help_s1_title">मैं कोई काम कैसे करवाऊँ?</string>
     <string name="help_s1_body">“मुझे मदद चाहिए” चुनें, काम का प्रकार चुनें, काम बताएँ, कब और कहाँ चाहिए बताएँ, बजट डालें और पोस्ट करें। जो हेल्पर काम लेगा, वह काम की चैट में आपको मैसेज कर सकता है।</string>
     <string name="help_s2_title">मुझे काम कैसे मिलेगा?</string>
-    <string name="help_s2_body">“मैं मदद करना चाहता हूँ” चुनें, खुले काम देखें और जो काम ठीक लगे उस पर ‘स्वीकार करें’ दबाएँ। जो काम आप मना करते हैं, वह सिर्फ़ आपसे छिपता है।</string>
+    <string name="help_s2_body">“मुझे काम चाहिए” चुनें, खुले काम देखें और जो काम ठीक लगे उस पर ‘स्वीकार करें’ दबाएँ। जो काम आप मना करते हैं, वह सिर्फ़ आपसे छिपता है।</string>
     <string name="help_s3_title">मेरा काम और पता कौन देख सकता है?</string>
     <string name="help_s3_body">इस प्रीव्यू में सब कुछ इसी फ़ोन पर रहता है, इसलिए आपका काम सिर्फ़ वही लोग देखते हैं जो इस फ़ोन पर ऐप चलाते हैं। आपका मकान नंबर और लैंडमार्क हेल्पर को काम लेने के बाद ही दिखता है।</string>
     <string name="help_s4_title">पैसे कैसे दूँ?</string>
@@ -82,9 +86,9 @@
     <string name="role_heading">आप कैसे शुरुआत\nकरना चाहेंगे?</string>
     <string name="role_subheading">जारी रखने के लिए एक भूमिका चुनें</string>
     <string name="role_customer_title">मुझे मदद चाहिए</string>
-    <string name="role_customer_description">एक कार्य पोस्ट करें और पास में विश्वसनीय सहायक खोजें।</string>
-    <string name="role_worker_title">मैं मदद करना चाहता हूँ</string>
-    <string name="role_worker_description">पास के कार्य खोजें और दूसरों की मदद करके कमाएं।</string>
+    <string name="role_customer_description">एक काम पोस्ट करें और पास में भरोसेमंद हेल्पर खोजें।</string>
+    <string name="role_worker_title">मुझे काम चाहिए</string>
+    <string name="role_worker_description">पास के काम खोजें और दूसरों की मदद करके कमाएं।</string>
     <string name="role_get_started">शुरू करें</string>
     <string name="cd_selected">चुना गया</string>
     <string name="signed_in_as">साइन इन: %1$s</string>
@@ -93,7 +97,7 @@
     <!-- Language -->
     <string name="language_heading">भाषा चुनें</string>
     <string name="language_change_later">आप बाद में सेटिंग्स में भाषा बदल सकते हैं</string>
-    <string name="theme_heading">दिखावट</string>
+    <string name="theme_heading">थीम</string>
     <string name="theme_system">सिस्टम</string>
     <string name="theme_light">लाइट</string>
     <string name="theme_dark">डार्क</string>
@@ -107,15 +111,15 @@
     <string name="field_new_password">नया पासवर्ड</string>
     <string name="field_confirm_password">पासवर्ड दोबारा डालें</string>
     <string name="field_full_name">पूरा नाम</string>
-    <string name="field_email_optional">ईमेल पता (वैकल्पिक)</string>
+    <string name="field_email_optional">ईमेल पता (ज़रूरी नहीं)</string>
     <string name="field_city">शहर</string>
     <string name="field_state">राज्य</string>
-    <string name="field_gender_optional">लिंग (वैकल्पिक)</string>
-    <string name="field_birth_year_optional">जन्म वर्ष (वैकल्पिक)</string>
+    <string name="field_gender_optional">लिंग (ज़रूरी नहीं)</string>
+    <string name="field_birth_year_optional">जन्म वर्ष (ज़रूरी नहीं)</string>
     <string name="gender_male">पुरुष</string>
     <string name="gender_female">महिला</string>
     <string name="gender_other">अन्य</string>
-    <string name="field_pin_code_optional">पिन कोड (वैकल्पिक)</string>
+    <string name="field_pin_code_optional">पिन कोड (ज़रूरी नहीं)</string>
 
     <!-- Short names for the same fields, as they read inside an error sentence. -->
     <string name="label_mobile_number">मोबाइल नंबर</string>
@@ -154,11 +158,11 @@
     <string name="demo_mode">डेमो मोड</string>
     <string name="action_send_otp">OTP भेजें</string>
     <string name="action_resend">दोबारा भेजें</string>
-    <string name="otp_title">अपना मोबाइल नंबर सत्यापित करें</string>
+    <string name="otp_title">अपना मोबाइल नंबर वेरिफ़ाई करें</string>
     <string name="otp_subtitle">%2$s के लिए %1$d अंकों का कोड डालें।</string>
     <string name="otp_resend_in">%1$d सेकंड में दोबारा भेजें</string>
     <string name="otp_resend">कोड दोबारा भेजें</string>
-    <string name="action_verify">सत्यापित करें</string>
+    <string name="action_verify">वेरिफ़ाई करें</string>
     <string name="action_edit_mobile">मोबाइल नंबर बदलें</string>
     <string name="otp_sent_toast">आपके मोबाइल पर OTP भेजा गया</string>
     <string name="cd_go_back">वापस जाएँ</string>
@@ -166,21 +170,21 @@
     <!-- Forgot and reset password -->
     <string name="forgot_title">पासवर्ड भूल गए</string>
     <string name="forgot_subtitle">अपना पंजीकृत मोबाइल नंबर डालें, हम सत्यापन कोड भेजेंगे।</string>
-    <string name="action_verify_otp">OTP सत्यापित करें</string>
+    <string name="action_verify_otp">OTP वेरिफ़ाई करें</string>
     <string name="code_sent_to">%1$s पर कोड भेजा गया।</string>
     <string name="enter_otp">OTP डालें</string>
     <string name="reset_title">पासवर्ड बदलें</string>
     <string name="reset_subtitle">अपने खाते के लिए नया पासवर्ड चुनें।</string>
-    <string name="action_save_new_password">नया पासवर्ड सहेजें</string>
+    <string name="action_save_new_password">नया पासवर्ड सेव करें</string>
 
     <!-- Profile and permissions -->
     <string name="profile_title">प्रोफ़ाइल सेटअप</string>
-    <string name="profile_subtitle">इससे आस-पास के सहायकों को पता चलता है कि वे किसके साथ काम कर रहे हैं।</string>
+    <string name="profile_subtitle">इससे आस-पास के हेल्परों को पता चलता है कि वे किसके साथ काम कर रहे हैं।</string>
     <string name="action_continue">आगे बढ़ें</string>
     <string name="action_allow">अनुमति दें</string>
     <string name="action_skip">छोड़ें</string>
     <string name="action_dont_ask_again">दोबारा न पूछें</string>
-    <string name="perm_location_title">स्थान</string>
+    <string name="perm_location_title">लोकेशन</string>
     <string name="perm_title">अनुमति दें</string>
     <string name="perm_subtitle">लोकेशन चालू रखने पर FixoraX सबसे अच्छा काम करता है। अगले चरण में आप तय करें।</string>
     <string name="perm_location_body">काम का पता भरने और काम मैप पर दिखाने के लिए।</string>
@@ -238,20 +242,20 @@
 
     <!-- Task flow: category step -->
     <string name="task_category_title">आपको किस चीज़ में मदद चाहिए?</string>
-    <string name="task_category_subtitle">अपने काम के लिए सबसे सही श्रेणी चुनें</string>
-    <string name="task_category_search">श्रेणी खोजें</string>
-    <string name="task_category_popular">लोकप्रिय श्रेणियाँ</string>
-    <string name="task_category_required">आगे बढ़ने के लिए एक श्रेणी चुनें</string>
-    <string name="task_category_empty_title">कोई श्रेणी नहीं मिली</string>
+    <string name="task_category_subtitle">अपने काम के लिए सबसे सही प्रकार चुनें</string>
+    <string name="task_category_search">काम का प्रकार खोजें</string>
+    <string name="task_category_popular">लोकप्रिय काम</string>
+    <string name="task_category_required">आगे बढ़ने के लिए काम का प्रकार चुनें</string>
+    <string name="task_category_empty_title">ऐसा कोई प्रकार नहीं मिला</string>
     <string name="task_category_empty_body">कोई दूसरा शब्द आज़माएँ, या सूची में न होने वाले काम के लिए \"अन्य\" चुनें।</string>
     <string name="cd_category_selected">चुना गया</string>
 
     <!-- Fallbacks when a task carries no title or no category. -->
-    <string name="task_untitled">बिना शीर्षक का अनुरोध</string>
+    <string name="task_untitled">बिना नाम का काम</string>
     <string name="task_conversation">बातचीत</string>
-    <string name="task_uncategorised">बिना श्रेणी</string>
+    <string name="task_uncategorised">बिना प्रकार</string>
     <string name="category_not_selected">चुना नहीं गया</string>
-    <string name="category_tap_edit">श्रेणी चुनने के लिए Edit दबाएँ</string>
+    <string name="category_tap_edit">प्रकार चुनने के लिए Edit दबाएँ</string>
 
     <!-- Task age. The counted ones are plurals so English and Hindi each get their own rules. -->
     <string name="time_just_now">अभी</string>
@@ -275,19 +279,20 @@
 
     <!-- Task status, as the customer who posted it would describe it. -->
     <string name="status_draft">ड्राफ़्ट</string>
-    <string name="status_waiting">सहायक का इंतज़ार</string>
-    <string name="status_helper_assigned">सहायक मिल गया</string>
+    <string name="status_waiting">हेल्पर का इंतज़ार</string>
+    <string name="status_helper_assigned">हेल्पर मिल गया</string>
     <string name="status_in_progress">काम चल रहा है</string>
     <string name="status_completed">पूरा हुआ</string>
     <string name="status_cancelled">रद्द किया गया</string>
-    <string name="status_no_helper_yet">अभी कोई सहायक नहीं</string>
+    <string name="status_no_helper_yet">अभी कोई हेल्पर नहीं</string>
     <string name="status_detail_draft">अभी पोस्ट नहीं हुआ। पूरा करने के लिए बाकी चरण भरें।</string>
-    <string name="status_detail_waiting">आपका कार्य सहायकों को दिख रहा है। देखते रहिए कि किसी ने लिया या नहीं।</string>
-    <string name="status_detail_assigned">एक सहायक ने ये काम ले लिया है। आप नीचे संदेश भेज सकते हैं।</string>
-    <string name="status_detail_in_progress">सहायक ने काम शुरू कर दिया है।</string>
-    <string name="status_detail_completed">सहायक ने इसे पूरा बताया है।</string>
-    <string name="status_detail_cancelled">आपने ये कार्य रद्द कर दिया।</string>
-    <string name="status_detail_rejected">एक सहायक ने ये नहीं लिया। ये अब भी बाकी सबके लिए खुला है।</string>
+    <string name="status_detail_waiting">आपका काम हेल्परों को दिख रहा है। देखते रहिए कि किसी ने लिया या नहीं।</string>
+    <string name="status_detail_assigned">एक हेल्पर ने ये काम ले लिया है। आप नीचे मैसेज भेज सकते हैं।</string>
+    <string name="status_detail_in_progress">हेल्पर ने काम शुरू कर दिया है।</string>
+    <string name="status_detail_completed">हेल्पर ने इसे पूरा बताया है।</string>
+    <string name="status_detail_confirmed">आपने पक्का किया कि काम पूरा हुआ।</string>
+    <string name="status_detail_cancelled">आपने ये काम रद्द कर दिया।</string>
+    <string name="status_detail_rejected">एक हेल्पर ने ये नहीं लिया। ये अब भी बाकी सबके लिए खुला है।</string>
 
     <plurals name="minutes_ago">
         <item quantity="one">%d मिनट पहले</item>
@@ -306,7 +311,7 @@
 
     <!-- Task flow: location step -->
     <string name="loc_title">आपको कहाँ मदद चाहिए?</string>
-    <string name="loc_subtitle">अपने कार्य के लिए जगह चुनें</string>
+    <string name="loc_subtitle">अपने काम के लिए जगह चुनें</string>
     <string name="loc_search">पता या इलाका खोजें</string>
     <string name="loc_use_current">मेरी मौजूदा जगह इस्तेमाल करें</string>
     <string name="loc_map_preview">नक्शे की झलक — अभी असली नक्शा नहीं है</string>
@@ -315,16 +320,16 @@
     <string name="loc_switch_off">बंद है — ऊपर पता डालें, या इसे चालू करें</string>
     <string name="loc_service_area_title">अपना सेवा क्षेत्र चुनें</string>
     <string name="loc_within_km">%1$d किमी के अंदर</string>
-    <string name="job_radius">%1$d कि.मी. के अंदर सहायक चाहिए</string>
+    <string name="job_radius">%1$d कि.मी. के अंदर हेल्पर चाहिए</string>
     <string name="loc_km_short">%1$d कि.मी.</string>
-    <string name="loc_service_area_body">इस दूरी के अंदर के सहायकों को आपका कार्य दिखेगा।</string>
+    <string name="loc_service_area_body">इस दूरी के अंदर के हेल्परों को आपका काम दिखेगा।</string>
     <string name="loc_safe_title">आपकी जगह हमारे पास सुरक्षित है</string>
-    <string name="loc_safe_body">आपका मकान नंबर और लैंडमार्क सिर्फ़ उसी सहायक को दिखता है जो आपका काम लेता है।</string>
+    <string name="loc_safe_body">आपका मकान नंबर और लैंडमार्क सिर्फ़ उसी हेल्पर को दिखता है जो आपका काम लेता है।</string>
     <string name="loc_address_line_label">मकान / फ़्लैट नं., बिल्डिंग</string>
     <string name="loc_address_line_hint">जैसे: फ़्लैट 4B, शांति अपार्टमेंट</string>
-    <string name="loc_landmark_label">लैंडमार्क (वैकल्पिक)</string>
+    <string name="loc_landmark_label">लैंडमार्क (ज़रूरी नहीं)</string>
     <string name="loc_landmark_hint">जैसे: हनुमान मंदिर के पास</string>
-    <string name="loc_address_private">यह सिर्फ़ वही सहायक देखेगा जो आपका काम लेगा।</string>
+    <string name="loc_address_private">यह सिर्फ़ वही हेल्पर देखेगा जो आपका काम लेगा।</string>
     <string name="job_full_address">पता: %1$s</string>
     <string name="job_address_after_accept">काम लेने के बाद पूरा पता दिखेगा</string>
     <string name="loc_required">पता डालें, या ‘मेरी मौजूदा जगह इस्तेमाल करें’ चालू करें</string>
@@ -335,10 +340,10 @@
     <string name="loc_error_no_address">आपकी जगह मिल गई, पर गली का पता नहीं। कृपया ऊपर लिखें।</string>
 
     <!-- Task flow: photos and details step -->
-    <string name="photos_title">फ़ोटो (वैकल्पिक)</string>
-    <string name="photos_subtitle">फ़ोटो से सहायकों को काम बेहतर समझ आता है।</string>
+    <string name="photos_title">फ़ोटो (ज़रूरी नहीं)</string>
+    <string name="photos_subtitle">फ़ोटो से हेल्परों को काम बेहतर समझ आता है।</string>
     <string name="photos_saving">फ़ोटो सहेजी जा रही हैं…</string>
-    <string name="photos_saving_body">इन्हें ऐप में कॉपी किया जा रहा है ताकि ये आपके कार्य के साथ रहें।</string>
+    <string name="photos_saving_body">इन्हें ऐप में कॉपी किया जा रहा है ताकि ये आपके काम के साथ रहें।</string>
     <string name="photos_upload">फ़ोटो अपलोड करें</string>
     <string name="photos_all_added">सभी %1$d फ़ोटो जुड़ गईं</string>
     <string name="photos_tap_to_select">गैलरी से %1$d तक फ़ोटो चुनें</string>
@@ -347,14 +352,14 @@
     <string name="cd_photo_n_of_m">फ़ोटो %1$d में से %2$d</string>
     <string name="cd_remove_photo_n">फ़ोटो %1$d हटाएँ</string>
     <string name="cd_add_another_photo">एक और फ़ोटो जोड़ें</string>
-    <string name="details_title">कार्य का विवरण</string>
-    <string name="details_subtitle">सहायकों को बताएँ कि क्या काम है। सिर्फ़ शीर्षक ज़रूरी है।</string>
-    <string name="details_field_title">कार्य का शीर्षक *</string>
+    <string name="details_title">काम की जानकारी</string>
+    <string name="details_subtitle">हेल्परों को बताएँ कि क्या काम है। सिर्फ़ नाम ज़रूरी है।</string>
+    <string name="details_field_title">काम का नाम *</string>
     <string name="details_title_hint">जैसे: किचन सिंक साफ़ करना / लकड़ी की दराज ठीक करना</string>
-    <string name="details_title_required">कार्य पोस्ट करने के लिए शीर्षक ज़रूरी है</string>
-    <string name="details_field_description">विवरण</string>
+    <string name="details_title_required">काम पोस्ट करने के लिए नाम ज़रूरी है</string>
+    <string name="details_field_description">काम के बारे में</string>
     <string name="when_title">कब चाहिए?</string>
-    <string name="when_subtitle">सहायक काम लेने से पहले यह देखेंगे।</string>
+    <string name="when_subtitle">हेल्पर काम लेने से पहले यह देखेंगे।</string>
     <string name="when_today">आज</string>
     <string name="when_tomorrow">कल</string>
     <string name="when_pick_date">तारीख चुनें</string>
@@ -368,24 +373,26 @@
     <string name="schedule_past">%1$s (बीत गया)</string>
     <string name="review_when">कब</string>
     <string name="details_description_hint">बताएँ कि कौन से औज़ार चाहिए, कोई खास बात, काम कितना बड़ा है वगैरह।</string>
-    <string name="budget_section_title">बजट (वैकल्पिक)</string>
-    <string name="budget_field_min">न्यूनतम बजट</string>
+    <string name="voice_input">टाइप करने की जगह बोलें</string>
+    <string name="budget_section_title">बजट (ज़रूरी नहीं)</string>
+    <string name="budget_field_min">कम से कम</string>
     <string name="budget_hint_min">जैसे 500</string>
-    <string name="budget_field_max">अधिकतम बजट</string>
+    <string name="budget_field_max">ज़्यादा से ज़्यादा</string>
     <string name="budget_hint_max">जैसे 1500</string>
-    <string name="budget_max_below_min">अधिकतम बजट न्यूनतम से कम नहीं हो सकता</string>
+    <string name="budget_max_below_min">ज़्यादा से ज़्यादा बजट, कम से कम वाले बजट से कम नहीं हो सकता</string>
+    <string name="budget_quick_label">जल्दी चुनें</string>
     <string name="tips_title">बेहतर जवाब पाने के तरीके</string>
     <string name="tips_photos">• साफ़, अच्छी रोशनी वाली फ़ोटो लगाएँ</string>
-    <string name="tips_budget">• सही बजट बताएँ ताकि सहायक जल्दी तय कर सकें</string>
+    <string name="tips_budget">• सही बजट बताएँ ताकि हेल्पर जल्दी तय कर सकें</string>
     <string name="tips_tools">• कोई खास औज़ार चाहिए तो लिखें</string>
 
     <!-- Task flow: review step -->
-    <string name="review_title">अपना कार्य जाँचें</string>
+    <string name="review_title">एक बार देख लें</string>
     <string name="review_subtitle">पोस्ट करने से पहले सारी जानकारी देख लें</string>
-    <string name="review_category">श्रेणी</string>
-    <string name="review_description">कार्य का विवरण</string>
-    <string name="review_no_title">अभी कोई शीर्षक नहीं</string>
-    <string name="review_no_details">कोई विवरण नहीं जोड़ा</string>
+    <string name="review_category">काम का प्रकार</string>
+    <string name="review_description">काम की जानकारी</string>
+    <string name="review_no_title">अभी कोई नाम नहीं</string>
+    <string name="review_no_details">कोई जानकारी नहीं जोड़ी</string>
     <string name="review_location">जगह</string>
     <string name="review_location_no_address">मौजूदा जगह (गली का पता नहीं मिला)</string>
     <string name="review_not_specified">नहीं बताया</string>
@@ -396,30 +403,30 @@
         <item quantity="other">%d फ़ोटो जोड़ी गईं</item>
     </plurals>
     <string name="review_your_budget">बजट</string>
-    <string name="review_budget_note">सहायक कार्य स्वीकार करने से पहले इसे देखेंगे</string>
+    <string name="review_budget_note">हेल्पर काम स्वीकार करने से पहले इसे देखेंगे</string>
     <string name="review_control_title">नियंत्रण आपके पास है</string>
-    <string name="review_control_body">किसी सहायक के स्वीकार करने से पहले आप इसे “मेरे काम” से कभी भी रद्द कर सकते हैं।</string>
-    <string name="review_submit_failed">आपका कार्य इस डिवाइस पर सहेजा नहीं जा सका। कुछ खोया नहीं — “दोबारा कोशिश करें” दबाएँ।</string>
+    <string name="review_control_body">किसी हेल्पर के स्वीकार करने से पहले आप इसे “मेरे काम” से कभी भी रद्द कर सकते हैं।</string>
+    <string name="review_submit_failed">आपका काम इस फ़ोन पर सेव नहीं हो सका। कुछ खोया नहीं — “दोबारा कोशिश करें” दबाएँ।</string>
     <string name="review_posting">पोस्ट हो रहा है…</string>
     <string name="review_try_again">दोबारा कोशिश करें</string>
-    <string name="review_post_task">कार्य पोस्ट करें</string>
+    <string name="review_post_task">काम पोस्ट करें</string>
     <string name="action_edit">बदलें</string>
 
     <!-- Task flow: steps and container -->
-    <string name="step_details">विवरण</string>
+    <string name="step_details">जानकारी</string>
     <string name="step_counter">चरण %1$d / %2$d</string>
     <string name="step_location">जगह</string>
-    <string name="step_category">श्रेणी</string>
-    <string name="step_review">जाँच</string>
-    <string name="discard_title">ये कार्य छोड़ दें?</string>
-    <string name="discard_body">इस कार्य की श्रेणी, विवरण और फ़ोटो हट जाएँगी। ये वापस नहीं आएगा।</string>
+    <string name="step_category">प्रकार</string>
+    <string name="step_review">देख लें</string>
+    <string name="discard_title">ये काम छोड़ दें?</string>
+    <string name="discard_body">इस काम का प्रकार, जानकारी और फ़ोटो हट जाएँगी। ये वापस नहीं आएगा।</string>
     <string name="action_discard">छोड़ दें</string>
     <string name="action_keep_editing">बदलाव जारी रखें</string>
     <string name="flow_i_need_help">मुझे मदद चाहिए</string>
     <string name="cd_back">वापस</string>
-    <string name="success_title">कार्य पोस्ट हो गया</string>
-    <string name="success_body">सहायकों को अब ये दिख रहा है। किसी ने लिया या नहीं, ये My tasks में देखें।</string>
-    <string name="success_view_tasks">मेरे कार्य देखें</string>
+    <string name="success_title">काम पोस्ट हो गया</string>
+    <string name="success_body">हेल्परों को अब ये दिख रहा है। किसी ने लिया या नहीं, ये “मेरे काम” में देखें।</string>
+    <string name="success_view_tasks">मेरे काम देखें</string>
     <string name="success_back_home">होम पर वापस</string>
 
     <!-- Worker: bottom navigation -->
@@ -435,7 +442,7 @@
     <string name="filter_all">सभी</string>
     <string name="map_empty_filtered_title">कोई मेल खाता काम नहीं</string>
     <string name="map_empty_title">अभी कोई खुला काम नहीं</string>
-    <string name="map_empty_filtered_body">दूसरी श्रेणी आज़माएँ, या फ़िल्टर हटा दें।</string>
+    <string name="map_empty_filtered_body">दूसरा प्रकार आज़माएँ, या फ़िल्टर हटा दें।</string>
     <string name="map_empty_body">ग्राहक जैसे ही काम डालेंगे, वे यहाँ दिखने लगेंगे।</string>
     <string name="action_clear_filters">फ़िल्टर हटाएँ</string>
     <string name="map_attribution">© OpenStreetMap योगदानकर्ता</string>
@@ -456,7 +463,7 @@
     <string name="worker_stat_in_progress">चल रहे</string>
     <string name="worker_stat_completed">पूरे हुए</string>
     <string name="worker_stat_declined">मना किए</string>
-    <string name="worker_available_jobs">आस-पास उपलब्ध काम</string>
+    <string name="worker_available_jobs">आस-पास के काम</string>
     <string name="worker_empty_title">अभी आस-पास कोई काम नहीं</string>
     <string name="worker_empty_body">ग्राहक जैसे ही नया काम डालेंगे, वह यहाँ दिखने लगेगा।</string>
     <string name="job_status_open">खुला</string>
@@ -466,7 +473,7 @@
 
     <!-- Worker: my tasks -->
     <string name="worker_tasks_title">मेरे काम</string>
-    <string name="worker_tasks_search_hint">नाम, पता या श्रेणी से खोजें</string>
+    <string name="worker_tasks_search_hint">नाम, पता या काम के प्रकार से खोजें</string>
     <string name="worker_tab_with_count">%1$s (%2$d)</string>
     <string name="worker_tasks_empty_query_title">\"%1$s\" से कुछ मेल नहीं खाता</string>
     <string name="worker_tasks_empty_all_title">अभी कोई काम नहीं</string>
@@ -502,29 +509,51 @@
     <string name="chat_empty_query_body">कोई दूसरा शब्द आज़माएँ, या खोज हटा दें।</string>
     <string name="chat_empty_body">जैसे ही आप कोई काम स्वीकार करेंगे, उस ग्राहक से आपकी चैट यहाँ दिखेगी।</string>
     <string name="cd_back_to_chats">चैट सूची पर वापस</string>
-    <string name="chat_thread_empty_title">अभी कोई संदेश नहीं</string>
-    <string name="chat_thread_empty_body">इस काम के बारे में पहला संदेश भेजें।</string>
-    <string name="chat_input_hint">संदेश लिखें…</string>
-    <string name="cd_send_message">संदेश भेजें</string>
+    <string name="chat_thread_empty_title">अभी कोई मैसेज नहीं</string>
+    <string name="chat_thread_empty_body">इस काम के बारे में पहला मैसेज भेजें।</string>
+    <string name="chat_input_hint">मैसेज लिखें…</string>
+    <string name="cd_send_message">मैसेज भेजें</string>
 
     <!-- Customer: my tasks -->
     <string name="mytasks_empty_title">अभी कोई काम नहीं</string>
-    <string name="mytasks_empty_body">आप जो भी काम डालेंगे वह यहाँ दिखेगा — उसकी स्थिति के साथ, और जो मददगार उसे लेगा उससे बात करने का तरीका भी।</string>
+    <string name="mytasks_empty_body">आप जो भी काम डालेंगे वह यहाँ दिखेगा — उसकी स्थिति के साथ, और जो हेल्पर उसे लेगा उससे बात करने का तरीका भी।</string>
     <string name="mytasks_post_a_task">काम डालें</string>
     <string name="mytasks_posted_ago">%1$s डाला गया</string>
-    <string name="mytasks_tap_to_message">मददगार से बात करने के लिए टैप करें</string>
+    <string name="mytasks_tap_to_message">हेल्पर से बात करने के लिए टैप करें</string>
     <string name="mytasks_cancel_title">यह काम रद्द करें?</string>
-    <string name="mytasks_cancel_body">यह मददगारों को दिखना बंद हो जाएगा। इसे वापस नहीं किया जा सकता — दोबारा डालना पड़ेगा।</string>
+    <string name="mytasks_cancel_body">यह हेल्परों को दिखना बंद हो जाएगा। इसे वापस नहीं किया जा सकता — दोबारा डालना पड़ेगा।</string>
     <string name="mytasks_cancel_confirm">काम रद्द करें</string>
     <string name="mytasks_cancel_keep">रहने दें</string>
     <string name="cd_back_to_my_tasks">मेरे काम पर वापस</string>
-    <string name="mytasks_chat_locked">कोई मददगार यह काम लेगा, तभी बातचीत शुरू हो पाएगी।</string>
-    <string name="mytasks_chat_empty">अभी कोई संदेश नहीं। अपने मददगार को नमस्ते कहें।</string>
-    <string name="mytasks_chat_hint">अपने मददगार को संदेश भेजें</string>
+    <string name="mytasks_chat_locked">कोई हेल्पर यह काम लेगा, तभी बातचीत शुरू हो पाएगी।</string>
+    <string name="helper_card_title">आपका हेल्पर</string>
+    <string name="helper_guest_name">बिना खाते वाला हेल्पर</string>
+    <string name="helper_fallback_name">हेल्पर</string>
+    <string name="helper_no_ratings">नया, अभी कोई रेटिंग नहीं</string>
+    <string name="cd_call_name">%1$s को कॉल करें</string>
+    <string name="confirm_title">क्या काम पूरा हो गया?</string>
+    <string name="confirm_body">%1$s ने यह काम पूरा बताया है। अगर सच में पूरा है, तो पक्का करें और रेटिंग दें। आपकी रेटिंग दूसरे ग्राहक भी देखेंगे।</string>
+    <string name="review_hint">कुछ और कहना है? (ज़रूरी नहीं)</string>
+    <string name="action_not_done">अभी पूरा नहीं</string>
+    <string name="action_confirm_rate">पक्का करें</string>
+    <string name="cd_rate_stars">5 में से %1$d स्टार</string>
+    <string name="your_rating">आपकी रेटिंग</string>
+    <string name="status_confirm_needed">काम पक्का करें</string>
+    <string name="cancel_reason_label">वजह बताएँ (ज़रूरी नहीं)</string>
+    <string name="cancel_reason_found_someone">कोई और मिल गया</string>
+    <string name="cancel_reason_not_needed">अब ज़रूरत नहीं</string>
+    <string name="cancel_reason_no_response">किसी ने काम नहीं लिया</string>
+    <string name="cancel_reason_wrong_details">जानकारी गलत थी</string>
+    <string name="cancel_reason_other">कोई और वजह</string>
+    <string name="cancel_reason_shown">वजह: %1$s</string>
+    <string name="worker_awaiting_confirmation">ग्राहक के पक्का करने का इंतज़ार</string>
+    <string name="worker_rated">ग्राहक ने %1$d ★ दिए</string>
+    <string name="mytasks_chat_empty">अभी कोई मैसेज नहीं। अपने हेल्पर को नमस्ते कहें।</string>
+    <string name="mytasks_chat_hint">अपने हेल्पर को मैसेज भेजें</string>
     <string name="mytasks_cancel_action">यह काम रद्द करें</string>
-    <string name="mytasks_delete_action">कार्य हटाएँ</string>
-    <string name="mytasks_delete_title">यह कार्य हटाएँ?</string>
-    <string name="mytasks_delete_body">कार्य, उसकी फ़ोटो और चैट इस फ़ोन से हट जाएँगी। इसे वापस नहीं लाया जा सकता।</string>
+    <string name="mytasks_delete_action">काम हटाएँ</string>
+    <string name="mytasks_delete_title">यह काम हटाएँ?</string>
+    <string name="mytasks_delete_body">काम, उसकी फ़ोटो और चैट इस फ़ोन से हट जाएँगी। इसे वापस नहीं लाया जा सकता।</string>
     <string name="mytasks_delete_confirm">हटाएँ</string>
 
     <!-- In-app update -->
@@ -533,7 +562,7 @@
     <string name="update_title_downloading">अपडेट डाउनलोड हो रहा है</string>
     <string name="update_title_ready">इंस्टॉल के लिए तैयार</string>
     <string name="update_title_current">आप अप-टू-डेट हैं</string>
-    <string name="update_title_failed">अपडेट जाँच विफल</string>
+    <string name="update_title_failed">अपडेट नहीं देख पाए</string>
     <string name="update_body_available">वर्ज़न %1$s उपलब्ध है। आपके पास %2$s है।\n\nडाउनलोड साइज़: %3$s। आपका अकाउंट और डाले हुए काम जैसे हैं वैसे ही रहेंगे।</string>
     <string name="update_body_permission">यह ऐप खुद को अपडेट कर सके, इसके लिए Android को आपकी अनुमति चाहिए। अगली स्क्रीन पर \"इस स्रोत से अनुमति दें\" चालू करें और वापस आ जाएँ — डाउनलोड अपने आप शुरू हो जाएगा।</string>
     <string name="update_body_starting">डाउनलोड शुरू हो रहा है…</string>
@@ -562,4 +591,8 @@
     <string name="customer_tab_post">काम डालें</string>
     <string name="customer_tab_my_tasks">मेरे काम</string>
     <string name="action_please_wait">कृपया प्रतीक्षा करें…</string>
+    <plurals name="rating_summary">
+        <item quantity="one">%1$s ★ · %2$d रेटिंग</item>
+        <item quantity="other">%1$s ★ · %2$d रेटिंग</item>
+    </plurals>
 </resources>

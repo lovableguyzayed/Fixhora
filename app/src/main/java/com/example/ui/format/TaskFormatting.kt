@@ -1,5 +1,6 @@
 package com.example.ui.format
 
+import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
 
 /**
@@ -196,3 +197,42 @@ fun localTodayEpochDay(nowMillis: Long = System.currentTimeMillis(), zone: java.
 fun epochDayToUtcMillis(epochDay: Long): Long = epochDay * DAY
 
 fun utcMillisToEpochDay(utcMillis: Long): Long = utcMillis.floorDiv(DAY)
+
+// ------------------------------------------------------------------ ratings
+
+/** What customers have said about a helper, in stars. */
+data class RatingSummary(val average: Double, val count: Int)
+
+/**
+ * The average of [ratings], or null when there are none.
+ *
+ * Out-of-range values are ignored rather than trusted: a rating is always written as 1 to 5, and
+ * one corrupt row must not drag a helper's average to zero.
+ */
+fun ratingSummaryOf(ratings: List<Int>): RatingSummary? {
+  val valid = ratings.filter { it in 1..5 }
+  if (valid.isEmpty()) return null
+  return RatingSummary(average = valid.average(), count = valid.size)
+}
+
+/** "4.5": one decimal, which is all a five-star scale can honestly say. */
+fun formatRatingAverage(average: Double): String {
+  val tenths = Math.round(average * 10)
+  return "${tenths / 10}.${tenths % 10}"
+}
+
+/**
+ * Whether the customer still has to confirm the work: the helper marked it done, and the customer
+ * has neither confirmed nor rated it.
+ */
+fun awaitsCustomerConfirmation(task: TaskEntity): Boolean =
+  task.status == TaskStatus.COMPLETED && task.confirmedAt == null
+
+// ------------------------------------------------------------------ people
+
+/** Up to two initials, from the first and last words of a name. */
+fun initialsOf(name: String): String {
+  val words = name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+  val picked = if (words.size > 1) listOf(words.first(), words.last()) else words
+  return picked.mapNotNull { it.firstOrNull()?.uppercaseChar() }.joinToString("")
+}

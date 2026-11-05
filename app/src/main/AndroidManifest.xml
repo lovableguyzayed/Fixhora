@@ -24,6 +24,14 @@
         android:name="android.hardware.location.gps"
         android:required="false" />
 
+    <!-- Android 11 and later hide other apps unless the manifest says which kinds this one looks
+         for. Without these, the voice button could never tell a speech recogniser was there. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.action.RECOGNIZE_SPEECH" />
+        </intent>
+    </queries>
+
     <application
         android:name="com.example.FixhoraApplication"
         android:allowBackup="true"

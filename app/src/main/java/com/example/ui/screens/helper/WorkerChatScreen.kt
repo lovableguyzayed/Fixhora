@@ -153,7 +153,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 relativeTimeText(task.createdAt),
-                fontSize = 12.sp,
+                fontSize = 13.sp,
                 color = FixTheme.colors.textSecondary
             )
         }

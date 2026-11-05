@@ -50,7 +50,7 @@ fun MessageBubble(text: String, isSender: Boolean, time: String) {
             }
             Spacer(modifier = Modifier.height(4.dp))
             // No delivery ticks: nothing tracks whether a message was delivered or read.
-            Text(time, fontSize = 11.sp, color = FixTheme.colors.textSecondary)
+            Text(time, fontSize = 12.sp, color = FixTheme.colors.textSecondary)
         }
     }
 }

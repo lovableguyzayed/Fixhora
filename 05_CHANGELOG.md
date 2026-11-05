@@ -1,5 +1,27 @@
 # Changelog
 
+## Batch 17 — Who is coming, how it went, and an app that is easier to use
+
+Phase C of the design review: what a customer and a helper need to trust each other once a job is
+taken, and the changes that make the app easier for someone new to apps, on a budget phone, in
+Hindi.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| The customer sees who took their job: name, initials, their real rating ("4.6 ★ · 12 ratings", or "New, no ratings yet"), the work they offer, a line about them, and a call button | The task said only "A helper has taken this on". The customer could not tell who would arrive or ring them if they were late. Pinned above the chat so it is always on screen. | None. Reads existing rows; the call opens the dialler (`ACTION_DIAL`, no phone permission). |
+| A helper can call the customer from an accepted or in-progress job card | Chat was the only way to reach someone who was about to let you into their home. | None. |
+| When the helper marks a job done, the customer confirms it and gives 1–5 stars and an optional review, or says "Not done yet", which puts it back in progress | "Done" was whatever the helper said, and nobody could ever say how it went. Only the customer can rate, and only a job they have not yet confirmed. The helper's card shows "Waiting for the customer to confirm" or the stars they got; their Completed tile shows their average. | Low. Uses the `rating`, `review` and `confirmedAt` columns added in v4. |
+| Cancelling asks why, in one tap (found someone else, not needed, nobody took it, details were wrong, something else), and the reason shows on the task | Optional; stored as a fixed key so it reads the same in either language. | None. Uses `cancelReason` from v4. |
+| Edit profile asks a helper what work they do and for a line about themselves | That is what the customer sees on the helper card. Only when editing, so sign-up stays short. | None. Uses `skills` and `about` from v4. |
+| "Speak instead of typing" under the task description | Saying what is wrong is far easier than typing it for many users, in Hindi especially. Hands off to the phone's own speech recogniser in the app's language (`hi-IN` or `en-IN`); hidden on phones without one. Declared in `<queries>` so Android 11+ can see the recogniser. | None. No new permission; no audio passes through the app. |
+| Budget quick picks: up to ₹500, ₹500–1000, ₹1000–2000, ₹2000–5000 | One tap for the usual ranges. They fill the fields and claim nothing about what the work costs. | None. |
+| Every tab in the bottom bar shows its name, not just the active one | A map outline or a clipboard means little to someone new to apps. | None. |
+| Small text raised a step: captions 13→14sp, tags and labels 12→13sp, the smallest 11→12sp | Budgets, times and status tags were hard to read on budget phones, outdoors, and in Devanagari. | Low. Checked on every screen in both languages. |
+| Hindi: one word for helper (हेल्पर, not सहायक / मददगार), काम for task, everyday words for review (देख लें), appearance (थीम), min/max budget (कम से कम / ज़्यादा से ज़्यादा), optional (ज़रूरी नहीं), category (प्रकार), message (मैसेज), and a helper role that does not assume a gender (मुझे काम चाहिए) | The Hindi read as formal, written Hindi and used three words for the same person. | None. Text only. |
+| "Directions" opens the maps app on Android 11 and later, and searches the full address | It checked `resolveActivity`, which returns nothing on Android 11+ without a manifest query, so the button silently did nothing on most phones. | None. |
+
+**Destructive operations: none.** No schema change; this batch fills columns v4 already added.
+
 ## Batch 16 — Design review fixes, when and where, Profile & settings
 
 The first two phases of the owner's design review, looked at from an Indian user's point of view.

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.repository.AuthResult
 import com.example.data.repository.UserRepository
+import com.example.data.room.skillIds
 import com.example.data.session.SessionManager
 import com.example.util.FieldError
 import com.example.util.Validators
@@ -59,6 +60,9 @@ data class ProfileState(
   val state: String = "",
   val pinCode: String = "",
   val preferredLanguage: String = "",
+  /** Category ids this person offers as a helper. Only asked for when editing the profile. */
+  val skills: Set<String> = emptySet(),
+  val about: String = "",
   val fullNameError: FieldError? = null,
   val pinCodeError: FieldError? = null,
   val isSubmitting: Boolean = false,
@@ -239,9 +243,13 @@ class AuthViewModel(
     state: String = _profile.value.state,
     pinCode: String = _profile.value.pinCode,
     preferredLanguage: String = _profile.value.preferredLanguage,
+    skills: Set<String> = _profile.value.skills,
+    about: String = _profile.value.about,
   ) {
     _profile.update {
       it.copy(
+        skills = skills,
+        about = about.take(MAX_ABOUT_LENGTH),
         fullName = fullName,
         gender = gender,
         dateOfBirth = dateOfBirth,
@@ -270,6 +278,8 @@ class AuthViewModel(
           pinCode = it.pinCode.ifEmpty { user.pinCode },
           // Without this, saving from "Edit profile" reset the stored language to English.
           preferredLanguage = it.preferredLanguage.ifEmpty { user.preferredLanguage },
+          skills = it.skills.ifEmpty { user.skillIds().toSet() },
+          about = it.about.ifEmpty { user.about.orEmpty() },
         )
       }
     }
@@ -299,12 +309,19 @@ class AuthViewModel(
           state = state.state,
           pinCode = state.pinCode,
           preferredLanguage = state.preferredLanguage.ifEmpty { "en" },
+          skills = state.skills.toList(),
+          about = state.about,
         )
       }
       // With no session there is nothing to attach the profile to; the user still moves on rather
       // than being trapped on this screen.
       _profile.update { it.copy(isSubmitting = false, saved = true) }
     }
+  }
+
+  companion object {
+    /** Two or three lines: enough to say what you do, short enough to read on a card. */
+    const val MAX_ABOUT_LENGTH = 200
   }
 
   class Factory(

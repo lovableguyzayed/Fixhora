@@ -3,6 +3,7 @@ package com.example.data.repository
 import android.database.sqlite.SQLiteConstraintException
 import com.example.data.room.UserDao
 import com.example.data.room.UserEntity
+import com.example.data.room.joinSkillIds
 import com.example.data.security.PasswordHasher
 import com.example.util.normalizeMobile
 import java.util.UUID
@@ -137,6 +138,8 @@ class UserRepository(private val userDao: UserDao) {
     state: String,
     pinCode: String,
     preferredLanguage: String,
+    skills: List<String> = emptyList(),
+    about: String = "",
   ): Boolean {
     val existing = userDao.findById(userId) ?: return false
     userDao.update(
@@ -148,6 +151,8 @@ class UserRepository(private val userDao: UserDao) {
         state = state.trim(),
         pinCode = pinCode.trim(),
         preferredLanguage = preferredLanguage,
+        skills = skills.joinSkillIds(),
+        about = about.trim().ifEmpty { null },
       )
     )
     return true

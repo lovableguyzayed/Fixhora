@@ -203,8 +203,8 @@ private fun CategoryTile(category: Category, isSelected: Boolean, onClick: () ->
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = stringResource(category.subtitleRes),
-                fontSize = 11.sp,
-                lineHeight = 14.sp,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
                 color = bento.onFillSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 2,

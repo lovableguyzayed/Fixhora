@@ -1,4 +1,4 @@
-package com.example.ui.screens.settings
+package com.example.ui.format
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

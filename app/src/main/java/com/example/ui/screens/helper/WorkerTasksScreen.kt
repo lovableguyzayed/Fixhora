@@ -1,5 +1,6 @@
 package com.example.ui.screens.helper
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.*
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.data.room.fullAddress
 import com.example.ui.components.BentoAction
 import com.example.ui.components.BentoActionRow
 import com.example.ui.components.EmptyState
@@ -27,8 +29,10 @@ import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
 import com.example.ui.components.SearchField
 import com.example.ui.components.StatusTone
+import com.example.ui.format.awaitsCustomerConfirmation
 import com.example.ui.format.posterText
 import com.example.ui.theme.*
+import com.example.util.dialMobile
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +42,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
     val selectedTab by viewModel.selectedTab.collectAsState()
     val allTasks by viewModel.allTasks.collectAsState()
     val ownerNames by viewModel.ownerNames.collectAsState()
+    val ownerMobiles by viewModel.ownerMobiles.collectAsState()
     val helperId by viewModel.helperId.collectAsState()
     val context = LocalContext.current
 
@@ -107,12 +112,14 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
                         WorkerTaskCard(
                             task = task,
                             posterName = posterText(task.ownerId, ownerNames),
+                            customerMobile = ownerMobiles[task.ownerId],
                             onAccept = { viewModel.acceptTask(task) },
                             onDecline = { viewModel.rejectTask(task) },
                             onStart = { viewModel.startTask(task) },
                             onComplete = { viewModel.completeTask(task) },
                             onChat = { onOpenChat(task.id) },
-                            onNavigate = { context.openDirectionsTo(task) }
+                            onNavigate = { context.openDirectionsTo(task) },
+                            onCall = { mobile -> context.dialMobile(mobile) }
                         )
                     }
                 }
@@ -124,19 +131,27 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
 /**
  * Hands the address to whatever maps app the device has.
  *
- * The "Navigate" button used to do nothing. A `geo:` intent needs no API key and works with any
- * installed maps app; if there is none, the tap is a no-op rather than a crash.
+ * A `geo:` intent needs no API key and works with any installed maps app. It used to be guarded
+ * by `resolveActivity`, which returns null for every app on Android 11 and later unless the
+ * manifest declares the query, so the button silently did nothing on most phones. Starting it and
+ * catching the failure has no such blind spot. The house number and landmark go into the search,
+ * since this helper holds the job by the time the button is shown.
  */
 private fun android.content.Context.openDirectionsTo(task: TaskEntity) {
+    val place = listOfNotNull(fullAddress(task), task.locationQuery.ifBlank { null }).joinToString(", ")
     val destination =
         when {
             task.latitude != null && task.longitude != null ->
-                "geo:${task.latitude},${task.longitude}?q=${Uri.encode(task.locationQuery.ifBlank { getString(R.string.map_query_fallback) })}"
-            task.locationQuery.isNotBlank() -> "geo:0,0?q=${Uri.encode(task.locationQuery)}"
+                "geo:${task.latitude},${task.longitude}?q=${Uri.encode(place.ifBlank { getString(R.string.map_query_fallback) })}"
+            place.isNotBlank() -> "geo:0,0?q=${Uri.encode(place)}"
             else -> return
         }
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(destination)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    if (intent.resolveActivity(packageManager) != null) startActivity(intent)
+    try {
+        startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        // No maps app installed.
+    }
 }
 
 @Composable
@@ -148,7 +163,9 @@ fun WorkerTaskCard(
     onStart: () -> Unit,
     onComplete: () -> Unit,
     onChat: () -> Unit,
-    onNavigate: () -> Unit
+    onNavigate: () -> Unit,
+    customerMobile: String? = null,
+    onCall: (String) -> Unit = {}
 ) {
     // Chat exists from acceptance onwards; before that there is nobody to talk to yet.
     val canChat = task.status == TaskStatus.ACCEPTED ||
@@ -161,7 +178,9 @@ fun WorkerTaskCard(
         onChat = if (canChat) onChat else null,
         chatLabel = stringResource(R.string.action_chat),
         // Only once the helper holds the job — the same rule as the chat.
-        showFullAddress = canChat
+        showFullAddress = canChat,
+        onCall = customerMobile?.takeIf { task.status.isActiveEngagement }?.let { mobile -> { onCall(mobile) } },
+        callLabel = stringResource(R.string.cd_call_name, posterName)
     ) { bento ->
         // Each state offers only actions that actually do something in this build.
         when (task.status) {
@@ -185,8 +204,13 @@ fun WorkerTaskCard(
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
+                val rating = task.rating
                 Text(
-                    stringResource(R.string.worker_finished),
+                    when {
+                        rating != null && rating in 1..5 -> stringResource(R.string.worker_rated, rating)
+                        awaitsCustomerConfirmation(task) -> stringResource(R.string.worker_awaiting_confirmation)
+                        else -> stringResource(R.string.worker_finished)
+                    },
                     color = bento.onFill,
                     style = MaterialTheme.typography.labelLarge
                 )

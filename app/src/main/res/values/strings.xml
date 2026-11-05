@@ -71,6 +71,10 @@
     <string name="settings_delete_confirm">Delete everything</string>
     <string name="settings_delete_failed">Your account could not be deleted. Please try again.</string>
     <string name="profile_edit_subtitle">Keep your details up to date so people know who they are dealing with.</string>
+    <string name="profile_skills_title">If you help others</string>
+    <string name="profile_skills_body">Customers see the work you do and a line about you when you take their job.</string>
+    <string name="profile_about_label">About you (optional)</string>
+    <string name="profile_about_hint">e.g. Electrician, 6 years\' experience, own tools</string>
     <string name="action_save">Save</string>
     <string name="help_title">Help &amp; questions</string>
     <string name="help_s1_title">How do I get a job done?</string>
@@ -299,6 +303,7 @@
     <string name="status_detail_assigned">A helper has taken this on. You can message them below.</string>
     <string name="status_detail_in_progress">The helper has started work.</string>
     <string name="status_detail_completed">The helper marked this done.</string>
+    <string name="status_detail_confirmed">You confirmed the work was done.</string>
     <string name="status_detail_cancelled">You cancelled this task.</string>
     <string name="status_detail_rejected">A helper passed on this one. It is still open to everybody else.</string>
 
@@ -381,12 +386,14 @@
     <string name="schedule_past">%1$s (passed)</string>
     <string name="review_when">When</string>
     <string name="details_description_hint">Provide details like what tools are needed, special requests, size of work etc.</string>
+    <string name="voice_input">Speak instead of typing</string>
     <string name="budget_section_title">Budget (optional)</string>
     <string name="budget_field_min">Min budget</string>
     <string name="budget_hint_min">e.g. 500</string>
     <string name="budget_field_max">Max budget</string>
     <string name="budget_hint_max">e.g. 1500</string>
     <string name="budget_max_below_min">Max budget can\'t be less than the min</string>
+    <string name="budget_quick_label">Quick pick</string>
     <string name="tips_title">Tips for better responses</string>
     <string name="tips_photos">• Add clear, well-lit photos</string>
     <string name="tips_budget">• A realistic budget helps helpers decide quickly</string>
@@ -532,6 +539,28 @@
     <string name="mytasks_cancel_keep">Keep it</string>
     <string name="cd_back_to_my_tasks">Back to my tasks</string>
     <string name="mytasks_chat_locked">Messaging opens once a helper takes this task on.</string>
+    <string name="helper_card_title">Your helper</string>
+    <string name="helper_guest_name">A helper without an account</string>
+    <string name="helper_fallback_name">The helper</string>
+    <string name="helper_no_ratings">New, no ratings yet</string>
+    <string name="cd_call_name">Call %1$s</string>
+    <string name="confirm_title">Is the work done?</string>
+    <string name="confirm_body">%1$s marked this job as finished. If it is, confirm and rate the work. Other customers will see your rating.</string>
+    <string name="review_hint">Anything to add? (optional)</string>
+    <string name="action_not_done">Not done yet</string>
+    <string name="action_confirm_rate">Confirm &amp; rate</string>
+    <string name="cd_rate_stars">%1$d of 5 stars</string>
+    <string name="your_rating">Your rating</string>
+    <string name="status_confirm_needed">Confirm the work</string>
+    <string name="cancel_reason_label">Tell us why (optional)</string>
+    <string name="cancel_reason_found_someone">Found someone else</string>
+    <string name="cancel_reason_not_needed">Not needed any more</string>
+    <string name="cancel_reason_no_response">Nobody took it</string>
+    <string name="cancel_reason_wrong_details">Details were wrong</string>
+    <string name="cancel_reason_other">Something else</string>
+    <string name="cancel_reason_shown">Reason: %1$s</string>
+    <string name="worker_awaiting_confirmation">Waiting for the customer to confirm</string>
+    <string name="worker_rated">Customer rated it %1$d ★</string>
     <string name="mytasks_chat_empty">No messages yet. Say hello to your helper.</string>
     <string name="mytasks_chat_hint">Message your helper</string>
     <string name="mytasks_cancel_action">Cancel this task</string>
@@ -575,4 +604,8 @@
     <string name="customer_tab_post">Post a task</string>
     <string name="customer_tab_my_tasks">My tasks</string>
     <string name="action_please_wait">Please wait…</string>
+    <plurals name="rating_summary">
+        <item quantity="one">%1$s ★ · %2$d rating</item>
+        <item quantity="other">%1$s ★ · %2$d ratings</item>
+    </plurals>
 </resources>
