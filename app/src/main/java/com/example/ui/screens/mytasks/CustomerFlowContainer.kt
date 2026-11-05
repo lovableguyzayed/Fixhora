@@ -47,6 +47,7 @@ private enum class CustomerTab(@StringRes val labelRes: Int, val icon: ImageVect
 fun CustomerFlowContainer(
   viewModel: MyTasksViewModel,
   onBackToRoles: () -> Unit,
+  onOpenSettings: () -> Unit = {},
 ) {
   var tab by remember { mutableStateOf(CustomerTab.POST) }
   val tasks by viewModel.tasks.collectAsStateWithLifecycle()
@@ -99,6 +100,7 @@ fun CustomerFlowContainer(
             onOpenTask = viewModel::openTask,
             onPostTask = { tab = CustomerTab.POST },
             onBack = onBackToRoles,
+            onOpenSettings = onOpenSettings,
           )
       }
     }

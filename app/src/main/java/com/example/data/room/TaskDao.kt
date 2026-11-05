@@ -29,6 +29,14 @@ interface TaskDao {
   @Query("SELECT * FROM tasks WHERE ownerId = :ownerId AND status != 'draft' ORDER BY createdAt DESC, id DESC")
   fun getTasksForOwner(ownerId: String): Flow<List<TaskEntity>>
 
+  /** Every row one user owns, drafts included: what deleting their account has to remove. */
+  @Query("SELECT * FROM tasks WHERE ownerId = :ownerId")
+  suspend fun allTasksOwnedBy(ownerId: String): List<TaskEntity>
+
+  /** Every job one helper has taken, in any state. */
+  @Query("SELECT * FROM tasks WHERE acceptedByHelperId = :helperId")
+  suspend fun tasksAcceptedBy(helperId: String): List<TaskEntity>
+
   @Query("SELECT * FROM tasks WHERE id = :id") fun observeTask(id: Int): Flow<TaskEntity?>
 
   /** A customer has at most one draft in flight at a time. */

@@ -41,7 +41,13 @@ import com.example.ui.components.FixCard
 import com.example.ui.theme.*
 
 @Composable
-fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) {
+fun ProfileSetupScreen(
+  viewModel: AuthViewModel,
+  onProfileComplete: () -> Unit,
+  /** Set when opened from settings to change existing details, rather than at sign-up. */
+  onBack: (() -> Unit)? = null,
+) {
+  val editing = onBack != null
   val state by viewModel.profile.collectAsState()
   // Localized by LocalizedContent, so validation messages honour the chosen language.
   val context = LocalContext.current
@@ -52,8 +58,13 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
     if (state.saved) onProfileComplete()
   }
 
-  AuthScreen(onBack = null) {
-    AuthHeader(stringResource(R.string.profile_title), stringResource(R.string.profile_subtitle), colors = Bento.Cream, icon = Icons.Default.Person)
+  AuthScreen(onBack = onBack) {
+    AuthHeader(
+      stringResource(if (editing) R.string.settings_edit_profile else R.string.profile_title),
+      stringResource(if (editing) R.string.profile_edit_subtitle else R.string.profile_subtitle),
+      colors = Bento.Cream,
+      icon = Icons.Default.Person,
+    )
     Spacer(modifier = Modifier.height(Spacing.xxl))
 
     AuthTextField(
@@ -141,7 +152,7 @@ fun ProfileSetupScreen(viewModel: AuthViewModel, onProfileComplete: () -> Unit) 
 
     Spacer(modifier = Modifier.height(Spacing.xxl))
     SubmitButton(
-      text = stringResource(R.string.action_continue),
+      text = stringResource(if (editing) R.string.action_save else R.string.action_continue),
       isSubmitting = state.isSubmitting,
       onClick = { viewModel.submitProfile() },
     )

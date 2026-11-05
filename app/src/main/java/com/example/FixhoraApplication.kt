@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.example.data.location.LocationProvider
 import com.example.data.media.TaskPhotoStore
+import com.example.data.repository.AccountRepository
 import com.example.data.repository.ChatRepository
 import com.example.data.repository.TaskRepository
 import com.example.data.repository.UserRepository
@@ -36,6 +37,9 @@ class FixhoraApplication : Application() {
     private set
 
   lateinit var sessionManager: SessionManager
+    private set
+
+  lateinit var accountRepository: AccountRepository
     private set
 
   lateinit var taskPhotoStore: TaskPhotoStore
@@ -75,6 +79,7 @@ class FixhoraApplication : Application() {
     chatRepository = ChatRepository(database.chatDao())
     userRepository = UserRepository(database.userDao())
     sessionManager = SessionManager(this)
+    accountRepository = AccountRepository(database)
     taskPhotoStore = TaskPhotoStore(this)
     locationProvider = LocationProvider(this)
     updateRepository = UpdateRepository()

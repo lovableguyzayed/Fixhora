@@ -46,6 +46,7 @@ import com.example.ui.components.BentoTag
 import com.example.ui.components.EmptyState
 import com.example.ui.components.FixTopBar
 import com.example.ui.components.PillChip
+import com.example.ui.components.SettingsButton
 import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.relativeTimeText
@@ -71,6 +72,7 @@ fun MyTasksScreen(
   onOpenTask: (Int) -> Unit,
   onPostTask: () -> Unit,
   onBack: () -> Unit = {},
+  onOpenSettings: () -> Unit = {},
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
     // This tab had no heading and no way back to the role choice except the system back gesture.
@@ -84,9 +86,10 @@ fun MyTasksScreen(
             selected = true,
             onClick = onPostTask,
             icon = Icons.Default.Add,
-            modifier = Modifier.padding(end = Spacing.lg),
+            modifier = Modifier.padding(end = Spacing.sm),
           )
         }
+        SettingsButton(onClick = onOpenSettings)
       },
     )
 

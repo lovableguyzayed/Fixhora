@@ -1,5 +1,36 @@
 # Changelog
 
+## Batch 16 — Design review fixes, when and where, Profile & settings
+
+The first two phases of the owner's design review, looked at from an Indian user's point of view.
+Phase A fixes behaviour that was wrong or promised something the app does not do; phase B adds the
+three things a job request cannot do without: a time, a full address, and a place to manage your
+account.
+
+| Changed | Reason | Risk |
+| :--- | :--- | :--- |
+| Declining a job hides it from that helper only (`declinedBy`) | "Not for me" set the task to `REJECTED` for everyone, so one helper's no took the job away from every other helper and told the customer it was declined. Legacy `REJECTED` rows stay hidden as before. | Low. Covered by new `TaskFiltersTest` cases. |
+| Accepting records who accepted (`acceptedByHelperId`); the helper's tabs and counts show only their own jobs | Every helper saw every accepted job as theirs, and the counts added up other people's work. | Low. A row with no helper recorded still shows, so nothing already accepted disappears. |
+| A question asked before accepting reaches the customer: the task's chat opens as soon as it has a message, and the helper's chat list includes those threads | The helper could "Ask a question", but the customer's chat only appeared after acceptance, so the question was never seen. | None. New read-only query `taskIdsWithMessages`. |
+| Notification permission request and its promise removed | The app sends no notifications, so asking for the permission and saying "we'll let you know" was untrue. `POST_NOTIFICATIONS` is gone from the manifest. | None. |
+| Terms of Service and Privacy Policy pages, in English and Hindi, linked from welcome and sign-up | Sign-up required agreeing to both documents, and neither existed. The text describes this build as it is: data stays on the phone, no SMS, no payments. | None. |
+| Job cards say "Wants a helper within 5 km" | "5 km" alone read as the job's distance from the helper, which the app does not know. | None. |
+| "When do you need it?" on the details step: Today, Tomorrow, a picked date or Any day, and Morning / Afternoon / Evening / Any time | Tasks had no time at all, so a leak for tonight looked the same as a wall that can wait two weeks. Shown on review, My tasks, the task detail and every job card. Past dates cannot be picked; a date that has passed is labelled. | None. Both fields optional. |
+| House / flat and landmark on the location step, shown to a helper only after they accept | An area name is not enough to find a house. Before accepting, job cards say the address is shared after accepting. | None. |
+| Profile & settings (gear on the role screen, My tasks and Find work): edit profile, language, theme, Help & questions, Terms, Privacy, version and "Check for updates", sign out, delete account | There was nowhere to change your details, no help, and no way to delete an account, which the privacy policy promises. The role screen keeps the language choice and loses the theme, version and sign-out rows it had collected. | Medium for delete — see below. |
+| Editing the profile keeps the stored language | `loadProfileFromSession` did not load it, so saving would have reset it to English. | None. |
+
+**Schema: version 3 → 4.** `MIGRATION_3_4` only adds nullable columns (`tasks`: `declinedBy`,
+`scheduledDate`, `timeSlot`, `addressLine`, `landmark`, `cancelReason`, `rating`, `review`,
+`confirmedAt`; `users`: `skills`, `about`). Every existing row is kept; the new fields start empty.
+`AppDatabaseMigrationTest` migrates a populated v3 database and round-trips the new columns.
+
+**Destructive operations:** "Delete account", behind a confirmation dialog. In one transaction it
+removes the user, every task they own (drafts included) and those tasks' chats; unfinished jobs they
+had accepted go back to open and lose their chat; finished jobs and other people's data are left
+alone. Photo files are removed afterwards. If the transaction fails nothing is removed and the user
+stays signed in. `AccountRepositoryTest` covers all three cases.
+
 ## Batch 15 — Redesign, completed across every screen
 
 Batch 14 restyled the home, list and category screens but left the rest of the app on the old

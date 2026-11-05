@@ -45,6 +45,36 @@
     <string name="legal_privacy_s5_body">ऐप सिर्फ़ GitHub पर अपडेट देखने, OpenStreetMap के मैप लोड करने और आपके फ़ोन पर पता खोजने के लिए इंटरनेट इस्तेमाल करता है।</string>
     <string name="legal_privacy_s6_title">आपके विकल्प</string>
     <string name="legal_privacy_s6_body">प्रोफ़ाइल और सेटिंग्स में आप अपनी जानकारी बदल सकते हैं, और अपना खाता उसके डाले गए सब कुछ के साथ मिटा सकते हैं।</string>
+    <string name="settings_title">प्रोफ़ाइल और सेटिंग्स</string>
+    <string name="settings_edit_profile">प्रोफ़ाइल बदलें</string>
+    <string name="settings_guest_title">आप मेहमान के रूप में ऐप चला रहे हैं</string>
+    <string name="settings_guest_body">साइन इन करें, ताकि आपके काम आपके नाम से रहें।</string>
+    <string name="settings_sign_in">साइन इन करें या खाता बनाएँ</string>
+    <string name="settings_section_help">मदद और नियम</string>
+    <string name="settings_help">मदद और आम सवाल</string>
+    <string name="settings_section_about">ऐप के बारे में</string>
+    <string name="settings_check_updates">अपडेट देखें</string>
+    <string name="settings_version">वर्ज़न %1$s (%2$d)</string>
+    <string name="settings_delete_account">खाता हटाएँ</string>
+    <string name="settings_delete_title">अपना खाता हटाएँ?</string>
+    <string name="settings_delete_body">इससे आपका खाता और आपके डाले सभी काम, उनकी फ़ोटो और चैट के साथ, हट जाएँगे और आप साइन आउट हो जाएँगे। जो काम आपने लिए थे पर पूरे नहीं किए, वे फिर से खुल जाएँगे। यह वापस नहीं हो सकता।</string>
+    <string name="settings_delete_confirm">सब कुछ हटाएँ</string>
+    <string name="settings_delete_failed">खाता हटाया नहीं जा सका। कृपया फिर से कोशिश करें।</string>
+    <string name="profile_edit_subtitle">अपनी जानकारी सही रखें, ताकि लोग जानें कि वे किससे बात कर रहे हैं।</string>
+    <string name="action_save">सेव करें</string>
+    <string name="help_title">मदद और आम सवाल</string>
+    <string name="help_s1_title">मैं कोई काम कैसे करवाऊँ?</string>
+    <string name="help_s1_body">“मुझे मदद चाहिए” चुनें, काम का प्रकार चुनें, काम बताएँ, कब और कहाँ चाहिए बताएँ, बजट डालें और पोस्ट करें। जो हेल्पर काम लेगा, वह काम की चैट में आपको मैसेज कर सकता है।</string>
+    <string name="help_s2_title">मुझे काम कैसे मिलेगा?</string>
+    <string name="help_s2_body">“मैं मदद करना चाहता हूँ” चुनें, खुले काम देखें और जो काम ठीक लगे उस पर ‘स्वीकार करें’ दबाएँ। जो काम आप मना करते हैं, वह सिर्फ़ आपसे छिपता है।</string>
+    <string name="help_s3_title">मेरा काम और पता कौन देख सकता है?</string>
+    <string name="help_s3_body">इस प्रीव्यू में सब कुछ इसी फ़ोन पर रहता है, इसलिए आपका काम सिर्फ़ वही लोग देखते हैं जो इस फ़ोन पर ऐप चलाते हैं। आपका मकान नंबर और लैंडमार्क हेल्पर को काम लेने के बाद ही दिखता है।</string>
+    <string name="help_s4_title">पैसे कैसे दूँ?</string>
+    <string name="help_s4_body">काम पूरा होने पर हेल्पर को सीधे नकद या UPI से पैसे दें। ऐप कभी आपके कार्ड, बैंक या UPI की जानकारी नहीं माँगता।</string>
+    <string name="help_s5_title">मुझे SMS से OTP क्यों नहीं आया?</string>
+    <string name="help_s5_body">यह प्रीव्यू अभी SMS नहीं भेजता। कोड स्क्रीन पर ही दिखता है, ताकि आप फिर भी साइन इन कर सकें।</string>
+    <string name="help_s6_title">ऐप अपडेट कैसे करूँ?</string>
+    <string name="help_s6_body">प्रोफ़ाइल और सेटिंग्स खोलें और ‘अपडेट देखें’ दबाएँ। ऐप हर कुछ घंटों में खुद भी जाँचता है।</string>
     <string name="action_read_terms">शर्तें</string>
     <string name="action_read_privacy">गोपनीयता</string>
 
@@ -69,7 +99,6 @@
     <string name="theme_dark">डार्क</string>
 
     <!-- The version and the build number stay as they are; only the instruction is translated. -->
-    <string name="version_footer_tap_to_check">v%1$s (%2$d) · अपडेट देखने के लिए टैप करें</string>
 
     <!-- Field labels. Used both on the input itself and inside "X is required". -->
     <string name="field_mobile_number">मोबाइल नंबर</string>
@@ -338,7 +367,6 @@
     <string name="schedule_not_set">कोई भी दिन, कोई भी समय</string>
     <string name="schedule_past">%1$s (बीत गया)</string>
     <string name="review_when">कब</string>
-    <string name="cd_pick_date">दिन चुनें</string>
     <string name="details_description_hint">बताएँ कि कौन से औज़ार चाहिए, कोई खास बात, काम कितना बड़ा है वगैरह।</string>
     <string name="budget_section_title">बजट (वैकल्पिक)</string>
     <string name="budget_field_min">न्यूनतम बजट</string>

@@ -25,7 +25,7 @@ import com.example.ui.theme.FixTheme
 import com.example.ui.theme.Spacing
 
 /**
- * The two documents sign-up asks the user to agree to.
+ * The two documents sign-up asks the user to agree to, and the help page, which has the same shape.
  *
  * Sign-up required ticking "I agree to the Terms & Privacy Policy" while neither document existed.
  * The text describes what this build actually does — local storage, no server, no SMS, no
@@ -35,6 +35,8 @@ enum class LegalDocument(
   val route: String,
   @StringRes val titleRes: Int,
   val sections: List<Pair<Int, Int>>,
+  /** Agreements carry the date they last changed; help answers do not need one. */
+  val showsUpdatedDate: Boolean = true,
 ) {
   TERMS(
     "terms",
@@ -59,6 +61,19 @@ enum class LegalDocument(
       R.string.legal_privacy_s5_title to R.string.legal_privacy_s5_body,
       R.string.legal_privacy_s6_title to R.string.legal_privacy_s6_body,
     ),
+  ),
+  HELP(
+    "help",
+    R.string.help_title,
+    listOf(
+      R.string.help_s1_title to R.string.help_s1_body,
+      R.string.help_s2_title to R.string.help_s2_body,
+      R.string.help_s3_title to R.string.help_s3_body,
+      R.string.help_s4_title to R.string.help_s4_body,
+      R.string.help_s5_title to R.string.help_s5_body,
+      R.string.help_s6_title to R.string.help_s6_body,
+    ),
+    showsUpdatedDate = false,
   );
 
   companion object {
@@ -77,15 +92,17 @@ fun LegalScreen(document: LegalDocument, onBack: () -> Unit) {
           .verticalScroll(rememberScrollState())
           .padding(horizontal = Spacing.xl, vertical = Spacing.sm)
     ) {
-      BentoCard(colors = Bento.Cream, modifier = Modifier.fillMaxWidth()) {
-        Text(
-          stringResource(R.string.legal_updated),
-          style = MaterialTheme.typography.labelMedium,
-          color = Bento.Cream.onFillSecondary,
-        )
+      if (document.showsUpdatedDate) {
+        BentoCard(colors = Bento.Cream, modifier = Modifier.fillMaxWidth()) {
+          Text(
+            stringResource(R.string.legal_updated),
+            style = MaterialTheme.typography.labelMedium,
+            color = Bento.Cream.onFillSecondary,
+          )
+        }
       }
-      document.sections.forEach { (title, body) ->
-        Spacer(Modifier.height(Spacing.xl))
+      document.sections.forEachIndexed { index, (title, body) ->
+        if (index > 0 || document.showsUpdatedDate) Spacer(Modifier.height(Spacing.xl))
         Text(
           stringResource(title),
           style = MaterialTheme.typography.titleLarge,

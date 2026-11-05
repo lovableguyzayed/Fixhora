@@ -38,6 +38,8 @@ import com.example.ui.screens.legal.LegalDocument
 import com.example.ui.screens.legal.LegalScreen
 import com.example.ui.screens.mytasks.CustomerFlowContainer
 import com.example.ui.screens.mytasks.MyTasksViewModel
+import com.example.ui.screens.settings.SettingsScreen
+import com.example.ui.screens.settings.SettingsViewModel
 import com.example.ui.screens.update.UpdateDialog
 import com.example.ui.screens.update.UpdateViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -65,6 +67,10 @@ sealed class Screen(val route: String) {
   object PermissionRequest : Screen("permission_request")
 
   object RoleSelection : Screen("role_selection")
+
+  object Settings : Screen("settings")
+
+  object EditProfile : Screen("edit_profile")
 
   object TaskFlow : Screen("task_flow")
 
@@ -248,25 +254,22 @@ private fun AppNavHost(
     }
 
     composable(Screen.RoleSelection.route) {
-      var signedInName by remember { mutableStateOf<String?>(null) }
-      LaunchedEffect(Unit) {
-        val userId = application.sessionManager.current().userId
-        signedInName = userId?.let { application.userRepository.findById(it)?.fullName }
-      }
       // Read from the session, not from local state: the pill used to forget the choice as soon as
       // you left the screen, because it only ever wrote to `remember`.
       val session by
         application.sessionManager.session.collectAsStateWithLifecycle(initialValue = Session())
+      var signedInName by remember { mutableStateOf<String?>(null) }
+      LaunchedEffect(session.userId) {
+        signedInName = session.userId?.let { application.userRepository.findById(it)?.fullName }
+      }
 
       RoleSelectionScreen(
         signedInName = signedInName,
-        onCheckForUpdates = onCheckForUpdates,
+        onOpenSettings = { navController.navigate(Screen.Settings.route) },
         language = session.language,
         onLanguageChange = { chosen ->
           scope.launch { application.sessionManager.setLanguage(chosen) }
         },
-        theme = session.theme,
-        onThemeChange = { chosen -> scope.launch { application.sessionManager.setTheme(chosen) } },
         onRoleSelected = { role ->
           scope.launch { application.sessionManager.setActiveRole(role) }
           when (role) {
@@ -274,12 +277,42 @@ private fun AppNavHost(
             UserRole.HELPER -> navController.navigate(Screen.HelperFlow.route)
           }
         },
-        onSignOut = {
-          scope.launch {
-            application.sessionManager.signOut()
-            navController.navigateClearingBackStack(Screen.Welcome.route)
-          }
-        },
+      )
+    }
+
+    composable(Screen.Settings.route) {
+      val settingsViewModel: SettingsViewModel =
+        viewModel(
+          factory =
+            SettingsViewModel.Factory(
+              application.userRepository,
+              application.sessionManager,
+              application.accountRepository,
+              application.taskPhotoStore,
+            )
+        )
+      val state by settingsViewModel.state.collectAsStateWithLifecycle()
+      val toWelcome = { navController.navigateClearingBackStack(Screen.Welcome.route) }
+      SettingsScreen(
+        state = state,
+        onBack = { navController.popBackStack() },
+        onEditProfile = { navController.navigate(Screen.EditProfile.route) },
+        onSignIn = toWelcome,
+        onLanguageChange = settingsViewModel::setLanguage,
+        onThemeChange = settingsViewModel::setTheme,
+        onOpenDocument = { navController.navigate(Screen.Legal.createRoute(it)) },
+        onCheckForUpdates = onCheckForUpdates,
+        onSignOut = { settingsViewModel.signOut(onSignedOut = toWelcome) },
+        onDeleteAccount = { settingsViewModel.deleteAccount(onDeleted = toWelcome) },
+        onDismissDeleteError = settingsViewModel::dismissDeleteError,
+      )
+    }
+
+    composable(Screen.EditProfile.route) {
+      ProfileSetupScreen(
+        viewModel = authViewModel(application),
+        onProfileComplete = { navController.popBackStack() },
+        onBack = { navController.popBackStack() },
       )
     }
 
@@ -297,6 +330,7 @@ private fun AppNavHost(
       CustomerFlowContainer(
         viewModel = myTasksViewModel,
         onBackToRoles = { navController.popBackStack() },
+        onOpenSettings = { navController.navigate(Screen.Settings.route) },
       )
     }
 
@@ -313,6 +347,7 @@ private fun AppNavHost(
         )
       HelperFlowContainer(
         onBackToRoles = { navController.popBackStack() },
+        onOpenSettings = { navController.navigate(Screen.Settings.route) },
         viewModel = helperViewModel,
       )
     }

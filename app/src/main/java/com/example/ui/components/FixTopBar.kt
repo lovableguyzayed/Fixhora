@@ -3,6 +3,8 @@ package com.example.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -73,5 +75,18 @@ fun FixTopBar(
         containerColor = colors.background,
         scrolledContainerColor = colors.background,
       ),
+  )
+}
+
+/** The gear that opens Profile & settings, for the end of a [FixTopBar]. */
+@Composable
+fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+  CircleIconButton(
+    icon = Icons.Default.Settings,
+    contentDescription = stringResource(R.string.settings_title),
+    onClick = onClick,
+    container = FixTheme.colors.surfaceAlt,
+    content = FixTheme.colors.textPrimary,
+    modifier = modifier.padding(end = Spacing.lg),
   )
 }

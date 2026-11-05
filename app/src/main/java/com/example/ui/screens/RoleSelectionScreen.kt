@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -13,22 +12,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,14 +32,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.BuildConfig
 import com.example.R
-import com.example.ui.components.BentoCard
 import com.example.data.session.AppLanguage
-import com.example.data.session.ThemePreference
 import com.example.data.session.UserRole
+import com.example.ui.components.BentoCard
 import com.example.ui.components.BrandLogo
 import com.example.ui.components.BrandWordmark
+import com.example.ui.components.CircleIconButton
 import com.example.ui.components.CustomerArtAspect
 import com.example.ui.components.PopOutCircleShape
 import com.example.ui.components.WorkerArtAspect
@@ -60,12 +54,9 @@ import com.example.ui.theme.*
 fun RoleSelectionScreen(
     signedInName: String?,
     onRoleSelected: (UserRole) -> Unit,
-    onSignOut: () -> Unit,
-    onCheckForUpdates: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     language: AppLanguage = AppLanguage.ENGLISH,
     onLanguageChange: (AppLanguage) -> Unit = {},
-    theme: ThemePreference = ThemePreference.SYSTEM,
-    onThemeChange: (ThemePreference) -> Unit = {}
 ) {
     val colors = FixTheme.colors
 
@@ -80,6 +71,18 @@ fun RoleSelectionScreen(
             // Brand and question, over a faint skyline that fades into the page.
             Box(modifier = Modifier.fillMaxWidth()) {
                 SkylineBackground(modifier = Modifier.matchParentSize())
+                // Profile, theme, help, the terms, the update check and signing out all live in
+                // settings now, instead of being stacked under the role choice.
+                CircleIconButton(
+                    icon = Icons.Default.Settings,
+                    contentDescription = stringResource(R.string.settings_title),
+                    onClick = onOpenSettings,
+                    container = colors.surface,
+                    content = colors.textPrimary,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = Spacing.md, end = Spacing.lg)
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -150,32 +153,20 @@ fun RoleSelectionScreen(
 
             Spacer(modifier = Modifier.height(Spacing.xl))
 
-            // Makes the session visible. Without this there was no way to tell whether the app
-            // considered you signed in, and no way to sign out.
+            // Makes the session visible: without it there was no way to tell whether the app
+            // considered you signed in.
             if (signedInName != null) {
-                Row(
+                Text(
+                    text = stringResource(R.string.signed_in_as, signedInName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = Spacing.xl),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.signed_in_as, signedInName),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.textSecondary,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    TextButton(onClick = onSignOut) {
-                        Text(
-                            text = stringResource(R.string.action_sign_out),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = colors.primary
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(Spacing.lg))
+                        .padding(horizontal = Spacing.xl)
+                )
+                Spacer(modifier = Modifier.height(Spacing.xl))
             }
 
             // Language
@@ -206,61 +197,7 @@ fun RoleSelectionScreen(
                 )
             }
 
-            // Appearance. The theme setting was stored and applied but had no control anywhere,
-            // so the app could only ever follow the phone.
-            Column(modifier = Modifier.padding(horizontal = Spacing.xl)) {
-                Spacer(modifier = Modifier.height(Spacing.xl))
-                SectionDividerTitle(text = stringResource(R.string.theme_heading))
-                Spacer(modifier = Modifier.height(Spacing.lg))
-                Row(horizontalArrangement = Arrangement.spacedBy(Spacing.sm)) {
-                    ThemeOption(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.BrightnessAuto,
-                        text = stringResource(R.string.theme_system),
-                        isSelected = theme == ThemePreference.SYSTEM,
-                        onClick = { onThemeChange(ThemePreference.SYSTEM) }
-                    )
-                    ThemeOption(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.LightMode,
-                        text = stringResource(R.string.theme_light),
-                        isSelected = theme == ThemePreference.LIGHT,
-                        onClick = { onThemeChange(ThemePreference.LIGHT) }
-                    )
-                    ThemeOption(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.DarkMode,
-                        text = stringResource(R.string.theme_dark),
-                        isSelected = theme == ThemePreference.DARK,
-                        onClick = { onThemeChange(ThemePreference.DARK) }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(Spacing.sm))
-
-            // Which build is actually on the device. Without this there is no way to tell
-            // whether an update landed, short of reading the system app info screen.
-            // Tapping it forces an update check: the automatic one only runs every six hours,
-            // so this is how you ask right after a new build is published.
-            Text(
-                text =
-                    stringResource(
-                        R.string.version_footer_tap_to_check,
-                        BuildConfig.VERSION_NAME,
-                        BuildConfig.VERSION_CODE
-                    ),
-                style = MaterialTheme.typography.labelMedium,
-                color = colors.textMuted,
-                textAlign = TextAlign.Center,
-                // The bottom spacing sits *before* the clickable so it stays spacing; the
-                // symmetric padding after it is what grows the 12sp line into a 48dp target.
-                modifier = Modifier
-                    .padding(bottom = Spacing.lg)
-                    .clip(RoundedCornerShape(Radius.sm))
-                    .clickable(role = Role.Button, onClick = onCheckForUpdates)
-                    .padding(horizontal = Spacing.lg, vertical = Spacing.lg)
-            )
+            Spacer(modifier = Modifier.height(Spacing.xxl))
         }
     }
 }
@@ -359,49 +296,6 @@ private fun SectionDividerTitle(text: String) {
         )
         Box(modifier = Modifier.padding(end = Spacing.md).size(4.dp).clip(CircleShape).background(colors.primary))
         HorizontalDivider(modifier = Modifier.weight(1f), color = colors.border)
-    }
-}
-
-/** One theme choice: icon over label, so three fit side by side in either language. */
-@Composable
-private fun ThemeOption(
-    icon: ImageVector,
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = FixTheme.colors
-    val shape = RoundedCornerShape(Radius.lg)
-    Surface(
-        modifier = modifier
-            .heightIn(min = 72.dp)
-            .clip(shape)
-            .selectable(selected = isSelected, role = Role.RadioButton, onClick = onClick),
-        shape = shape,
-        color = if (isSelected) colors.primarySurface else colors.surface,
-        border = BorderStroke(if (isSelected) 1.5.dp else 1.dp, if (isSelected) colors.primary else colors.border)
-    ) {
-        Column(
-            modifier = Modifier.padding(vertical = Spacing.md, horizontal = Spacing.xs),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (isSelected) colors.primary else colors.textSecondary,
-                modifier = Modifier.size(22.dp)
-            )
-            Spacer(modifier = Modifier.height(Spacing.xs))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isSelected) colors.primary else colors.textPrimary,
-                textAlign = TextAlign.Center,
-                maxLines = 1
-            )
-        }
     }
 }
 

@@ -43,7 +43,8 @@ val helperBottomNavItems = listOf(
 @Composable
 fun HelperFlowContainer(
     onBackToRoles: () -> Unit,
-    viewModel: HelperViewModel
+    viewModel: HelperViewModel,
+    onOpenSettings: () -> Unit = {},
 ) {
     // Search matches the category names the user can actually see, so the ViewModel is told what
     // they say in the active language. Recomposes when the language changes, because
@@ -97,7 +98,12 @@ fun HelperFlowContainer(
             }
 
             composable(HelperScreen.Home.route) {
-                WorkerHomeScreen(viewModel = viewModel, onOpenChat = ::openChat, onBack = onBackToRoles)
+                WorkerHomeScreen(
+                    viewModel = viewModel,
+                    onOpenChat = ::openChat,
+                    onBack = onBackToRoles,
+                    onOpenSettings = onOpenSettings,
+                )
             }
             composable(HelperScreen.Map.route) {
                 WorkerMapScreen(viewModel = viewModel, onOpenChat = ::openChat, onBack = onBackToRoles)

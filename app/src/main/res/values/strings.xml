@@ -55,6 +55,36 @@
     <string name="legal_privacy_s5_body">The app goes online only to check for updates on GitHub, to load OpenStreetMap map tiles, and for address search on your phone.</string>
     <string name="legal_privacy_s6_title">Your choices</string>
     <string name="legal_privacy_s6_body">In Profile &amp; settings you can change your details, and delete your account together with everything it posted.</string>
+    <string name="settings_title">Profile &amp; settings</string>
+    <string name="settings_edit_profile">Edit profile</string>
+    <string name="settings_guest_title">You\'re using the app as a guest</string>
+    <string name="settings_guest_body">Sign in so your tasks stay under your own name.</string>
+    <string name="settings_sign_in">Sign in or create account</string>
+    <string name="settings_section_help">Help &amp; legal</string>
+    <string name="settings_help">Help &amp; questions</string>
+    <string name="settings_section_about">About this app</string>
+    <string name="settings_check_updates">Check for updates</string>
+    <string name="settings_version">Version %1$s (%2$d)</string>
+    <string name="settings_delete_account">Delete account</string>
+    <string name="settings_delete_title">Delete your account?</string>
+    <string name="settings_delete_body">This deletes your account and every task you posted, with its photos and chats, and signs you out. Jobs you took but did not finish go back to being open. This cannot be undone.</string>
+    <string name="settings_delete_confirm">Delete everything</string>
+    <string name="settings_delete_failed">Your account could not be deleted. Please try again.</string>
+    <string name="profile_edit_subtitle">Keep your details up to date so people know who they are dealing with.</string>
+    <string name="action_save">Save</string>
+    <string name="help_title">Help &amp; questions</string>
+    <string name="help_s1_title">How do I get a job done?</string>
+    <string name="help_s1_body">Choose “I need help”, pick the kind of work, describe it, say when and where, add a budget and post it. A helper who takes it can message you in the task\'s chat.</string>
+    <string name="help_s2_title">How do I find work?</string>
+    <string name="help_s2_body">Choose “I want to help”, look through the open jobs and tap Accept on one that suits you. A job you decline is hidden only from you.</string>
+    <string name="help_s3_title">Who can see my task and address?</string>
+    <string name="help_s3_body">In this preview everything stays on this phone, so only people using the app on this phone see your task. Your house number and landmark are shown to a helper only after they take the job.</string>
+    <string name="help_s4_title">How do I pay?</string>
+    <string name="help_s4_body">Pay the helper directly, in cash or by UPI, once the work is done. The app never asks for your card, bank or UPI details.</string>
+    <string name="help_s5_title">Why did I not get an OTP by SMS?</string>
+    <string name="help_s5_body">This preview does not send SMS yet. The code is shown on the screen instead, so you can still sign in.</string>
+    <string name="help_s6_title">How do I update the app?</string>
+    <string name="help_s6_body">Open Profile &amp; settings and tap Check for updates. The app also checks by itself every few hours.</string>
     <string name="action_read_terms">Terms</string>
     <string name="action_read_privacy">Privacy</string>
 
@@ -82,7 +112,6 @@
     <string name="language_hindi" translatable="false">हिंदी</string>
 
     <!-- Build version footer. The version itself is never translated. -->
-    <string name="version_footer_tap_to_check">v%1$s (%2$d) · tap to check for updates</string>
 
     <!-- Field labels. Used both on the input itself and inside "X is required". -->
     <string name="field_mobile_number">Mobile Number</string>
@@ -351,7 +380,6 @@
     <string name="schedule_not_set">Any day, any time</string>
     <string name="schedule_past">%1$s (passed)</string>
     <string name="review_when">When</string>
-    <string name="cd_pick_date">Choose a day</string>
     <string name="details_description_hint">Provide details like what tools are needed, special requests, size of work etc.</string>
     <string name="budget_section_title">Budget (optional)</string>
     <string name="budget_field_min">Min budget</string>

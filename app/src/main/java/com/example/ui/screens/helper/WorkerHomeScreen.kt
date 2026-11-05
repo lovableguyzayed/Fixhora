@@ -23,13 +23,19 @@ import com.example.ui.components.BentoStat
 import com.example.ui.components.EmptyState
 import com.example.ui.components.FixTopBar
 import com.example.ui.components.SectionHeader
+import com.example.ui.components.SettingsButton
 import com.example.ui.components.SkeletonBox
 import com.example.ui.format.posterText
 import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBack: () -> Unit = {}) {
+fun WorkerHomeScreen(
+    viewModel: HelperViewModel,
+    onOpenChat: (Int) -> Unit,
+    onBack: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+) {
     val tasks by viewModel.availableTasks.collectAsState()
     val stats by viewModel.stats.collectAsState()
     val ownerNames by viewModel.ownerNames.collectAsState()
@@ -45,7 +51,11 @@ fun WorkerHomeScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onBa
             // The greeting with a hardcoded "Alex Worker", the online/offline pill that changed
             // nothing, and the notification bell with a "2" badge are all gone: none of them was
             // connected to anything.
-            FixTopBar(title = stringResource(R.string.worker_home_title), onBack = onBack)
+            FixTopBar(
+                title = stringResource(R.string.worker_home_title),
+                onBack = onBack,
+                actions = { SettingsButton(onClick = onOpenSettings) },
+            )
         },
         containerColor = FixTheme.colors.background
     ) { paddingValues ->

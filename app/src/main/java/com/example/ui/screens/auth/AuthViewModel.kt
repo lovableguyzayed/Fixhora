@@ -268,6 +268,8 @@ class AuthViewModel(
           city = it.city.ifEmpty { user.city },
           state = it.state.ifEmpty { user.state },
           pinCode = it.pinCode.ifEmpty { user.pinCode },
+          // Without this, saving from "Edit profile" reset the stored language to English.
+          preferredLanguage = it.preferredLanguage.ifEmpty { user.preferredLanguage },
         )
       }
     }
