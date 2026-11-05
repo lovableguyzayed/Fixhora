@@ -14,24 +14,26 @@ that one choice, so the honest ordering is "what a local app still owes its user
 
 | Gap | Why it matters | Priority |
 | :--- | :--- | :--- |
-| **Full i18n** | The Hindi/English pill sets a stored preference and changes nothing else. Strings are hardcoded in Compose files, so nothing is translatable yet. Extracting to `strings.xml` is step one and only pays off with step two. | Must-have |
 | **Compose UI tests** | Batch 9 covered Room: the migration, the DAOs and the repository transactions now run under Robolectric (16 files, 113 tests). What is still untested is the UI — nothing exercises a Compose screen, so every layout, navigation and accessibility claim rests on the manual script. | Should-have |
-| **Real map** | `WorkerMapScreen` is a category browser and says so. A real map needs `maps-compose` and a Maps SDK key. | Should-have |
-| **Notifications** | Nothing tells a worker a job was posted while the app was closed. Local notifications could cover the on-device cases; anything cross-device cannot work without a server. | Should-have |
+| **Notifications** | Nothing tells a worker a job was posted while the app was closed. Local notifications could cover the on-device cases; anything cross-device cannot work without a server. See `07_BACKEND_HANDOVER.md`. | Should-have |
 | **Tablet / landscape layout** | Single-column layouts stretch rather than reflow. Window size classes would fix it. | Nice-to-have |
 
-**Built since:** customer task history and the customer half of chat both landed in Batch 8.
+**Built since:** customer task history and the customer half of chat (Batch 8); every string in
+English and Hindi; an OpenStreetMap jobs map (Batch 13); scheduling, full address, Profile &
+settings and account deletion (Batch 16); helper contact, confirm-and-rate and cancel reasons
+(Batch 17).
 
 ## 2. Missing, and blocked on a backend that does not exist
 
-Listed so the boundary is explicit — not as a plan.
+Listed so the boundary is explicit. The plan, and what the owner has to set up first, is in
+`07_BACKEND_HANDOVER.md`.
 
 | Gap | What it would take |
 | :--- | :--- |
 | **Multi-device sync** | Every account and task lives only on the device that created it. Reinstalling loses everything. This is the single biggest consequence of local-only. |
 | **Real OTP** | There is no SMS gateway. The OTP screen says "Demo mode — no SMS is sent" and shows the code in debug builds rather than pretending one was sent. |
 | **Bidding / offers** | "Place Bid" was removed rather than faked. A marketplace needs a server to arbitrate. |
-| **Ratings and reviews** | Removed from the worker dashboard for the same reason — a 4.9★ with nothing behind it is worse than no rating. |
+| **Ratings that hold across phones** | Customers now rate confirmed jobs and helpers' cards show the real average (Batch 17), but only from ratings on this phone. Server-side ratings stop a rating being edited and let it travel. |
 | **Payments** | Not started. The budget fields are a number the customer types, nothing more. |
 | **Server-side identity** | Passwords are hashed correctly (PBKDF2, 100k iterations, per-user salt) but only locally. There is no account recovery beyond the on-device reset. |
 
