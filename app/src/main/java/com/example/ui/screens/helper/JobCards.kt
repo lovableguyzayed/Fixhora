@@ -124,7 +124,9 @@ fun JobBentoCard(
     Spacer(Modifier.height(Spacing.md))
     JobMeta(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null), bento)
     Spacer(Modifier.height(Spacing.xs))
-    JobMeta(Icons.Default.MyLocation, stringResource(R.string.loc_within_km, task.selectedDistance), bento)
+    // The customer's search radius, worded as theirs: "Within 5 km" read as the helper's own
+    // distance from the job, which the app does not know.
+    JobMeta(Icons.Default.MyLocation, stringResource(R.string.job_radius, task.selectedDistance), bento)
 
     Spacer(Modifier.height(Spacing.md))
     // Who and how much, on a white strip — the one place a helper's eye goes first.

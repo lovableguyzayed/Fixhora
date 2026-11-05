@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
+import com.example.ui.screens.legal.LegalDocument
 import com.example.ui.theme.*
 
 @Composable
@@ -148,6 +149,7 @@ fun CreateAccountScreen(
   onCreateSuccess: () -> Unit,
   onMobileOtpClick: () -> Unit,
   onBack: () -> Unit,
+  onOpenLegal: (LegalDocument) -> Unit = {},
 ) {
   val state by viewModel.signUp.collectAsState()
   var passwordVisible by remember { mutableStateOf(false) }
@@ -280,6 +282,8 @@ fun CreateAccountScreen(
       Spacer(modifier = Modifier.width(Spacing.md))
       Text(stringResource(R.string.terms_agree), style = MaterialTheme.typography.bodyMedium, color = FixTheme.colors.textPrimary)
     }
+    // What is being agreed to is one tap away; it used to be nowhere at all.
+    LegalLinks(onOpenLegal, modifier = Modifier.padding(start = Spacing.xxl))
     if (state.termsNotAccepted) {
       Text(
         stringResource(R.string.terms_required),

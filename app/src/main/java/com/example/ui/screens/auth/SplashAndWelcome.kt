@@ -31,6 +31,7 @@ import com.example.ui.components.CustomerArtAspect
 import com.example.ui.components.FixButton
 import com.example.ui.components.FixButtonStyle
 import com.example.ui.components.WorkerArtAspect
+import com.example.ui.screens.legal.LegalDocument
 import com.example.ui.theme.*
 import kotlinx.coroutines.delay
 
@@ -91,7 +92,8 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
 fun WelcomeScreen(
     onSignInClick: () -> Unit,
     onCreateAccountClick: () -> Unit,
-    onGuestClick: () -> Unit
+    onGuestClick: () -> Unit,
+    onOpenLegal: (LegalDocument) -> Unit = {}
 ) {
     val colors = FixTheme.colors
     Column(
@@ -178,7 +180,8 @@ fun WelcomeScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.lg)
         )
-        Spacer(modifier = Modifier.height(Spacing.xl))
+        LegalLinks(onOpenLegal, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Spacer(modifier = Modifier.height(Spacing.lg))
     }
 }
 

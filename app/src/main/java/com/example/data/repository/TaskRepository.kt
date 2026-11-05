@@ -78,6 +78,11 @@ class TaskRepository(private val database: AppDatabase) {
     }
   }
 
+  /** Writes [task] as given — for changes beyond the status, such as who took it. */
+  suspend fun updateTask(task: TaskEntity) {
+    taskDao.updateTask(task)
+  }
+
   suspend fun updateTaskStatus(task: TaskEntity, newStatus: TaskStatus) {
     taskDao.updateTask(task.copy(status = newStatus))
   }

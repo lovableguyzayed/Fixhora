@@ -9,6 +9,8 @@ class ChatRepository(private val chatDao: ChatDao) {
   fun getMessagesForTask(taskId: Int): Flow<List<ChatMessageEntity>> =
     chatDao.getMessagesForTask(taskId)
 
+  val taskIdsWithMessages: Flow<List<Int>> = chatDao.taskIdsWithMessages()
+
   suspend fun sendMessage(taskId: Int, senderId: String, text: String) {
     chatDao.insertMessage(ChatMessageEntity(taskId = taskId, senderId = senderId, text = text))
   }

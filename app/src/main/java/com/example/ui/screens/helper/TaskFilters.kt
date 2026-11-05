@@ -2,6 +2,7 @@ package com.example.ui.screens.helper
 
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.data.room.declinedHelperIds
 
 /**
  * The tabs on the worker's task list, each backed by a real [TaskStatus].
@@ -40,17 +41,64 @@ fun TaskEntity.matchesQuery(query: String, categoryTitles: Map<String, String> =
   }
 }
 
-/** Applies the selected tab and the search box together. */
+/**
+ * Still open, and not turned down by this helper.
+ *
+ * `REJECTED` counts as open: builds before v4 marked a task `REJECTED` when one helper declined,
+ * which hid it from everybody. Declining is now recorded per helper in `declinedBy` instead.
+ */
+fun TaskEntity.isOpenFor(helperId: String): Boolean =
+  (status == TaskStatus.SUBMITTED || status == TaskStatus.REJECTED) && !isDeclinedBy(helperId)
+
+/**
+ * Taken by this helper. Builds before v4 never recorded who accepted a task, and on the one phone
+ * the app runs on such a task can only have been taken by whoever is using it now.
+ */
+fun TaskEntity.isTakenBy(helperId: String): Boolean =
+  (status.isActiveEngagement || status == TaskStatus.COMPLETED) &&
+    (acceptedByHelperId == null || acceptedByHelperId == helperId)
+
+/** Turned down by this helper — or, for a pre-v4 `REJECTED` row that recorded nobody, by whoever declined it on this phone. */
+fun TaskEntity.isDeclinedBy(helperId: String): Boolean =
+  helperId in declinedHelperIds() || (status == TaskStatus.REJECTED && declinedBy == null)
+
+/**
+ * Applies the selected tab and the search box together.
+ *
+ * With a [helperId], each tab shows that helper's view: open jobs they have not declined, jobs they
+ * took, and jobs they turned down. Without one it filters on status alone.
+ */
 fun List<TaskEntity>.filterFor(
   tab: TaskTab,
   query: String,
   categoryTitles: Map<String, String> = emptyMap(),
+  helperId: String? = null,
 ): List<TaskEntity> =
-  filter { (tab.status == null || it.status == tab.status) && it.matchesQuery(query, categoryTitles) }
+  filter { task ->
+    val inTab =
+      if (helperId == null) {
+        tab.status == null || task.status == tab.status
+      } else {
+        when (tab) {
+          TaskTab.ALL -> task.isOpenFor(helperId) || task.isTakenBy(helperId) || task.isDeclinedBy(helperId)
+          TaskTab.NEW -> task.isOpenFor(helperId)
+          TaskTab.DECLINED -> task.isDeclinedBy(helperId) && !task.isTakenBy(helperId)
+          else -> task.isTakenBy(helperId) && task.status == tab.status
+        }
+      }
+    inTab && task.matchesQuery(query, categoryTitles)
+  }
 
 /** Tasks with a live engagement, which are the ones a helper can be in a conversation about. */
 fun List<TaskEntity>.conversations(): List<TaskEntity> =
   filter { it.status.isActiveEngagement || it.status == TaskStatus.COMPLETED }
+
+/**
+ * This helper's conversations: jobs they took, and open jobs they have asked a question about —
+ * [withMessages] being the ids of tasks that have any message at all.
+ */
+fun List<TaskEntity>.conversationsFor(helperId: String, withMessages: Set<Int>): List<TaskEntity> =
+  filter { it.isTakenBy(helperId) || (it.isOpenFor(helperId) && it.id in withMessages) }
 
 /** Counts per status, for the summary row. */
 data class HelperStats(
@@ -71,4 +119,14 @@ fun List<TaskEntity>.toHelperStats() =
     inProgress = count { it.status == TaskStatus.IN_PROGRESS },
     completed = count { it.status == TaskStatus.COMPLETED },
     declined = count { it.status == TaskStatus.REJECTED },
+  )
+
+/** One helper's own numbers: what is open to them, and what they took or turned down. */
+fun List<TaskEntity>.toHelperStats(helperId: String) =
+  HelperStats(
+    availableNow = count { it.isOpenFor(helperId) },
+    accepted = count { it.isTakenBy(helperId) && it.status == TaskStatus.ACCEPTED },
+    inProgress = count { it.isTakenBy(helperId) && it.status == TaskStatus.IN_PROGRESS },
+    completed = count { it.isTakenBy(helperId) && it.status == TaskStatus.COMPLETED },
+    declined = count { it.isDeclinedBy(helperId) && !it.isTakenBy(helperId) },
   )

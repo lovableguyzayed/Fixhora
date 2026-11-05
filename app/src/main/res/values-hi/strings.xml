@@ -18,6 +18,35 @@
     <string name="action_create_account">खाता बनाएँ</string>
     <string name="action_continue_as_guest">बिना खाते के आगे बढ़ें</string>
     <string name="welcome_terms_notice">आगे बढ़ने पर आप हमारी सेवा शर्तों और गोपनीयता नीति से सहमत होते हैं।</string>
+    <string name="legal_terms_title">सेवा की शर्तें</string>
+    <string name="legal_privacy_title">गोपनीयता नीति</string>
+    <string name="legal_updated">पिछला अपडेट: 5 नवंबर 2026</string>
+    <string name="legal_terms_s1_title">FixoraX क्या है</string>
+    <string name="legal_terms_s1_body">FixoraX लोगों को छोटे काम पोस्ट करने और आस-पास के सहायकों को वे काम ढूँढने में मदद करता है। FixoraX सहायकों को नौकरी पर नहीं रखता और ग्राहक व सहायक के बीच के समझौते का हिस्सा नहीं है।</string>
+    <string name="legal_terms_s2_title">आपका खाता</string>
+    <string name="legal_terms_s2_body">अपना असली नाम और मोबाइल नंबर इस्तेमाल करें। आपके फ़ोन पर आपके खाते से जो भी किया जाता है, उसकी ज़िम्मेदारी आपकी है।</string>
+    <string name="legal_terms_s3_title">काम डालना और लेना</string>
+    <string name="legal_terms_s3_body">काम की सही जानकारी दें और सिर्फ़ क़ानूनी काम डालें। कौन-सा काम लेना है, यह सहायक खुद तय करते हैं। काम शुरू होने से पहले कीमत और समय आपस में तय कर लें।</string>
+    <string name="legal_terms_s4_title">भुगतान</string>
+    <string name="legal_terms_s4_body">FixoraX पैसों का लेन-देन नहीं करता। काम पूरा होने पर ग्राहक सहायक को सीधे नकद या UPI से भुगतान करता है।</string>
+    <string name="legal_terms_s5_title">सुरक्षा</string>
+    <string name="legal_terms_s5_body">अपना पासवर्ड या OTP कभी किसी को न बताएँ। जो ठीक से व्यवहार न करे, उससे लेन-देन बंद कर दें। आपात स्थिति में 112 पर कॉल करें।</string>
+    <string name="legal_terms_s6_title">यह संस्करण</string>
+    <string name="legal_terms_s6_body">यह एक प्रीव्यू संस्करण है। खाते और काम सिर्फ़ इसी फ़ोन पर रहते हैं, OTP SMS से नहीं भेजा जाता, और ऐप जैसा है वैसा ही, बिना किसी गारंटी के दिया जाता है।</string>
+    <string name="legal_privacy_s1_title">क्या सहेजा जाता है</string>
+    <string name="legal_privacy_s1_body">आपका नाम और मोबाइल नंबर, और अगर आप दें तो ईमेल, लिंग, जन्म वर्ष, शहर, राज्य और पिन कोड। साथ ही आपके डाले गए काम, उनकी फ़ोटो और पते, और आपके चैट संदेश।</string>
+    <string name="legal_privacy_s2_title">यह कहाँ रहता है</string>
+    <string name="legal_privacy_s2_body">सब कुछ इसी फ़ोन पर ऐप की निजी स्टोरेज में रहता है। FixoraX के किसी सर्वर पर कुछ नहीं भेजा जाता; अभी कोई सर्वर है ही नहीं। ऐप हटाने पर सब मिट जाता है।</string>
+    <string name="legal_privacy_s3_title">लोकेशन</string>
+    <string name="legal_privacy_s3_body">आपकी अनुमति से ऐप आपकी लोकेशन पढ़ता है ताकि काम का पता भरा जा सके और काम मैप पर दिखें। इसके लिए यह आपके फ़ोन की पता खोज सेवा और OpenStreetMap के मैप का इस्तेमाल करता है।</string>
+    <string name="legal_privacy_s4_title">कौन क्या देख सकता है</string>
+    <string name="legal_privacy_s4_body">इस फ़ोन पर ऐप इस्तेमाल करने वाला कोई भी व्यक्ति इस पर डाले गए काम देख सकता है। आपका मकान नंबर और लैंडमार्क सहायक को तभी दिखता है जब वह आपका काम ले लेता है।</string>
+    <string name="legal_privacy_s5_title">इंटरनेट का इस्तेमाल</string>
+    <string name="legal_privacy_s5_body">ऐप सिर्फ़ GitHub पर अपडेट देखने, OpenStreetMap के मैप लोड करने और आपके फ़ोन पर पता खोजने के लिए इंटरनेट इस्तेमाल करता है।</string>
+    <string name="legal_privacy_s6_title">आपके विकल्प</string>
+    <string name="legal_privacy_s6_body">प्रोफ़ाइल और सेटिंग्स में आप अपनी जानकारी बदल सकते हैं, और अपना खाता उसके डाले गए सब कुछ के साथ मिटा सकते हैं।</string>
+    <string name="action_read_terms">शर्तें</string>
+    <string name="action_read_privacy">गोपनीयता</string>
 
     <!-- Role selection. Carried over from the inline Hindi that was already on this screen. -->
     <string name="role_heading">आप कैसे शुरुआत\nकरना चाहेंगे?</string>
@@ -124,10 +153,8 @@
     <string name="action_dont_ask_again">दोबारा न पूछें</string>
     <string name="perm_location_title">स्थान</string>
     <string name="perm_title">अनुमति दें</string>
-    <string name="perm_subtitle">इन्हें चालू करने पर FixoraX सबसे अच्छा काम करता है। अगले चरण में आप तय करें।</string>
-    <string name="perm_location_body">आपके आस-पास के कार्य और सहायक दिखाने के लिए, और आपके कार्य का पता भरने के लिए।</string>
-    <string name="perm_notifications_title">सूचनाएँ</string>
-    <string name="perm_notifications_body">जब कोई आपका कार्य स्वीकार करे या संदेश भेजे, तब आपको बताने के लिए।</string>
+    <string name="perm_subtitle">लोकेशन चालू रखने पर FixoraX सबसे अच्छा काम करता है। अगले चरण में आप तय करें।</string>
+    <string name="perm_location_body">काम का पता भरने और काम मैप पर दिखाने के लिए।</string>
     <string name="perm_denied_notice">इस ऐप के लिए अनुमतियाँ बंद हैं। आप इन्हें सेटिंग्स में चालू कर सकते हैं, या बिना इनके आगे बढ़ सकते हैं।</string>
     <string name="action_open_settings">सेटिंग्स खोलें</string>
     <string name="action_allow_permissions">अनुमतियाँ दें</string>
@@ -259,6 +286,7 @@
     <string name="loc_switch_off">बंद है — ऊपर पता डालें, या इसे चालू करें</string>
     <string name="loc_service_area_title">अपना सेवा क्षेत्र चुनें</string>
     <string name="loc_within_km">%1$d किमी के अंदर</string>
+    <string name="job_radius">%1$d कि.मी. के अंदर सहायक चाहिए</string>
     <string name="loc_km_short">%1$d कि.मी.</string>
     <string name="loc_service_area_body">इस दूरी के अंदर के सहायकों को आपका कार्य दिखेगा।</string>
     <string name="loc_safe_title">आपकी जगह हमारे पास सुरक्षित है</string>

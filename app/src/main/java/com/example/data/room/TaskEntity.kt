@@ -34,14 +34,44 @@ data class TaskEntity(
    */
   val photoUris: String,
   val createdAt: Long = System.currentTimeMillis(),
+  /**
+   * Helpers who chose "Not for me", joined by [ID_SEPARATOR]. Declining hides the task from that
+   * helper only; the task stays open for everyone else.
+   */
+  val declinedBy: String? = null,
+  /** The day the customer wants the work done, as an epoch day; null when they did not say. */
+  val scheduledDate: Long? = null,
+  /** Part of that day — one of the [TimeSlot] storage values; null when they did not say. */
+  val timeSlot: String? = null,
+  /** House or flat number and building. Shown to a helper only once they have taken the job. */
+  val addressLine: String? = null,
+  val landmark: String? = null,
+  /** Why the customer called the task off, when they did. */
+  val cancelReason: String? = null,
+  /** The customer's 1–5 rating of the helper, given when they confirm the job is done. */
+  val rating: Int? = null,
+  val review: String? = null,
+  /** When the customer confirmed the work was done; null until then. */
+  val confirmedAt: Long? = null,
 ) {
   companion object {
     /** Owner id used for tasks created before signing in ("Continue as Guest"). */
     const val GUEST_OWNER_ID = "guest"
 
     const val PHOTO_URI_SEPARATOR = "\n"
+
+    /** Separator for [declinedBy]. Account ids are UUIDs or [GUEST_OWNER_ID], never a newline. */
+    const val ID_SEPARATOR = "\n"
   }
 }
+
+/** Ids of the helpers who declined this task. */
+fun TaskEntity.declinedHelperIds(): Set<String> =
+  declinedBy.orEmpty().split(TaskEntity.ID_SEPARATOR).filter { it.isNotBlank() }.toSet()
+
+/** This task with [helperId] added to the helpers who declined it. */
+fun TaskEntity.declinedByHelper(helperId: String): TaskEntity =
+  copy(declinedBy = (declinedHelperIds() + helperId).joinToString(TaskEntity.ID_SEPARATOR))
 
 /** Splits [TaskEntity.photoUris] back into individual URIs, dropping empties. */
 fun TaskEntity.photoUriList(): List<String> =

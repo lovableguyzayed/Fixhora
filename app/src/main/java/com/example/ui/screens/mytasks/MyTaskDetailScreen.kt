@@ -101,7 +101,9 @@ fun MyTaskDetailScreen(
       },
     )
   }
-  val chatOpen = hasAssignedHelper(task.status)
+  // A helper may ask a question before taking the job. That thread used to be invisible here until
+  // someone accepted, so the question went unanswered; any message now opens the conversation.
+  val chatOpen = hasAssignedHelper(task.status) || messages.isNotEmpty()
 
   if (confirmingCancel) {
     AlertDialog(

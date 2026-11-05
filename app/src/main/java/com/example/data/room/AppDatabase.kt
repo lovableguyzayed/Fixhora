@@ -15,7 +15,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  */
 @Database(
   entities = [TaskEntity::class, ChatMessageEntity::class, UserEntity::class],
-  version = 3,
+  version = 4,
   exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -113,6 +113,35 @@ abstract class AppDatabase : RoomDatabase() {
           db.execSQL("ALTER TABLE `tasks_new` RENAME TO `tasks`")
           db.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_status` ON `tasks` (`status`)")
           db.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_ownerId` ON `tasks` (`ownerId`)")
+        }
+      }
+
+    /**
+     * v3 -> v4: when the work is wanted, the full address, per-helper declines, cancellation
+     * reasons, the customer's confirmation and rating, and a helper's skills.
+     *
+     * Every new column is nullable with no DEFAULT, so `ALTER TABLE ... ADD COLUMN` produces
+     * exactly the schema Room generates from the entities — the DEFAULT problem described on
+     * [MIGRATION_2_3] does not arise — and every existing row keeps its data, reading as "not
+     * given" for the new fields.
+     */
+    val MIGRATION_3_4 =
+      object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+          listOf(
+              "`declinedBy` TEXT",
+              "`scheduledDate` INTEGER",
+              "`timeSlot` TEXT",
+              "`addressLine` TEXT",
+              "`landmark` TEXT",
+              "`cancelReason` TEXT",
+              "`rating` INTEGER",
+              "`review` TEXT",
+              "`confirmedAt` INTEGER",
+            )
+            .forEach { db.execSQL("ALTER TABLE `tasks` ADD COLUMN $it") }
+          db.execSQL("ALTER TABLE `users` ADD COLUMN `skills` TEXT")
+          db.execSQL("ALTER TABLE `users` ADD COLUMN `about` TEXT")
         }
       }
   }

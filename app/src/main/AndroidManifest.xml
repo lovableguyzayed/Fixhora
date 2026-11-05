@@ -8,8 +8,6 @@
          neighbourhood; fine is requested alongside it for map accuracy. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- Runtime permission only from Android 13. -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- The app is sideloaded from GitHub Releases, so it installs its own updates. Without this
          the system refuses to open the installer at all, and from Android 8 the user must also

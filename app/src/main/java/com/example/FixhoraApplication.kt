@@ -57,7 +57,7 @@ class FixhoraApplication : Application() {
 
     database =
       Room.databaseBuilder(applicationContext, AppDatabase::class.java, AppDatabase.DATABASE_NAME)
-        .addMigrations(AppDatabase.MIGRATION_2_3)
+        .addMigrations(AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
         .apply {
           if (BuildConfig.DEBUG) {
             // Schema churn is expected while developing, and a wipe is preferable to a crash loop.

@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -19,7 +20,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.FixhoraApplication
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.session.Session
 import com.example.data.session.UserRole
 import com.example.ui.screens.auth.AuthViewModel
@@ -34,6 +34,8 @@ import com.example.ui.screens.auth.SplashScreen
 import com.example.ui.screens.auth.WelcomeScreen
 import com.example.ui.screens.helper.HelperFlowContainer
 import com.example.ui.screens.helper.HelperViewModel
+import com.example.ui.screens.legal.LegalDocument
+import com.example.ui.screens.legal.LegalScreen
 import com.example.ui.screens.mytasks.CustomerFlowContainer
 import com.example.ui.screens.mytasks.MyTasksViewModel
 import com.example.ui.screens.update.UpdateDialog
@@ -51,6 +53,12 @@ sealed class Screen(val route: String) {
   object MobileLogin : Screen("mobile_login")
 
   object ForgotPassword : Screen("forgot_password")
+
+  object Legal : Screen("legal/{doc}") {
+    const val ARG_DOC = "doc"
+
+    fun createRoute(document: LegalDocument) = "legal/${document.route}"
+  }
 
   object ProfileSetup : Screen("profile_setup")
 
@@ -142,6 +150,17 @@ private fun AppNavHost(
         // Guests keep Welcome on the stack: backing out of role selection should return here,
         // where signing in is still offered.
         onGuestClick = { navController.navigate(Screen.RoleSelection.route) },
+        onOpenLegal = { navController.navigate(Screen.Legal.createRoute(it)) },
+      )
+    }
+
+    composable(
+      route = Screen.Legal.route,
+      arguments = listOf(navArgument(Screen.Legal.ARG_DOC) { type = NavType.StringType }),
+    ) { backStackEntry ->
+      LegalScreen(
+        document = LegalDocument.fromRoute(backStackEntry.arguments?.getString(Screen.Legal.ARG_DOC)),
+        onBack = { navController.popBackStack() },
       )
     }
 
@@ -201,6 +220,7 @@ private fun AppNavHost(
         onCreateSuccess = { navController.navigate(Screen.ProfileSetup.route) },
         onMobileOtpClick = { navController.navigate(Screen.MobileLogin.route) },
         onBack = { navController.popBackStack() },
+        onOpenLegal = { navController.navigate(Screen.Legal.createRoute(it)) },
       )
     }
 
@@ -288,6 +308,7 @@ private fun AppNavHost(
               application.taskRepository,
               application.chatRepository,
               application.userRepository,
+              application.sessionManager,
             )
         )
       HelperFlowContainer(

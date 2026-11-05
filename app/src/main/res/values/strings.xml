@@ -28,6 +28,35 @@
     <string name="action_create_account">Create Account</string>
     <string name="action_continue_as_guest">Continue as Guest</string>
     <string name="welcome_terms_notice">By continuing, you agree to our Terms of Service and Privacy Policy.</string>
+    <string name="legal_terms_title">Terms of Service</string>
+    <string name="legal_privacy_title">Privacy Policy</string>
+    <string name="legal_updated">Last updated: 5 November 2026</string>
+    <string name="legal_terms_s1_title">What FixoraX is</string>
+    <string name="legal_terms_s1_body">FixoraX helps people post small jobs and helps local helpers find them. FixoraX does not employ helpers and is not part of the agreement between a customer and a helper.</string>
+    <string name="legal_terms_s2_title">Your account</string>
+    <string name="legal_terms_s2_body">Use your real name and mobile number. You are responsible for what is done with your account on your phone.</string>
+    <string name="legal_terms_s3_title">Posting and taking jobs</string>
+    <string name="legal_terms_s3_body">Describe the work honestly and post only legal work. Helpers choose which jobs to take. Agree the price and the time with each other before the work starts.</string>
+    <string name="legal_terms_s4_title">Payment</string>
+    <string name="legal_terms_s4_body">FixoraX does not handle money. The customer pays the helper directly, in cash or by UPI, once the work is done.</string>
+    <string name="legal_terms_s5_title">Safety</string>
+    <string name="legal_terms_s5_body">Never share your password or an OTP. Stop dealing with anyone who behaves badly. In an emergency, call 112.</string>
+    <string name="legal_terms_s6_title">This version</string>
+    <string name="legal_terms_s6_body">This build is a preview. Accounts and tasks are kept only on this phone, OTP codes are not sent by SMS, and the app is provided as it is, without any guarantee.</string>
+    <string name="legal_privacy_s1_title">What is stored</string>
+    <string name="legal_privacy_s1_body">Your name and mobile number, and if you give them, your email, gender, birth year, city, state and PIN code. Also the tasks you post, their photos and addresses, and your chat messages.</string>
+    <string name="legal_privacy_s2_title">Where it is kept</string>
+    <string name="legal_privacy_s2_body">Everything stays in the app\'s private storage on this phone. Nothing is sent to a FixoraX server; there is none yet. Uninstalling the app deletes it all.</string>
+    <string name="legal_privacy_s3_title">Location</string>
+    <string name="legal_privacy_s3_body">With your permission the app reads your location to fill in a task\'s address and to show jobs on the map. To do this it uses your phone\'s address lookup and OpenStreetMap\'s map tiles.</string>
+    <string name="legal_privacy_s4_title">Who can see what</string>
+    <string name="legal_privacy_s4_body">Anyone using the app on this phone can see the tasks posted on it. Your house number and landmark are shown to a helper only after they take your job.</string>
+    <string name="legal_privacy_s5_title">Internet use</string>
+    <string name="legal_privacy_s5_body">The app goes online only to check for updates on GitHub, to load OpenStreetMap map tiles, and for address search on your phone.</string>
+    <string name="legal_privacy_s6_title">Your choices</string>
+    <string name="legal_privacy_s6_body">In Profile &amp; settings you can change your details, and delete your account together with everything it posted.</string>
+    <string name="action_read_terms">Terms</string>
+    <string name="action_read_privacy">Privacy</string>
 
     <!-- Role selection -->
     <string name="role_heading">How would you\nlike to get started?</string>
@@ -137,10 +166,8 @@
     <string name="action_dont_ask_again">Don\'t ask again</string>
     <string name="perm_location_title">Location</string>
     <string name="perm_title">Allow access</string>
-    <string name="perm_subtitle">FixoraX works best with these turned on. You choose in the next step.</string>
-    <string name="perm_location_body">Used to show tasks and helpers near you, and to fill in your task address.</string>
-    <string name="perm_notifications_title">Notifications</string>
-    <string name="perm_notifications_body">Used to tell you when someone accepts your task or sends a message.</string>
+    <string name="perm_subtitle">FixoraX works best with location turned on. You choose in the next step.</string>
+    <string name="perm_location_body">Used to fill in your task address and to show jobs on the map.</string>
     <string name="perm_denied_notice">Permissions were turned off for this app. You can enable them in Settings, or continue without them.</string>
     <string name="action_open_settings">Open Settings</string>
     <string name="action_allow_permissions">Allow Permissions</string>
@@ -272,6 +299,7 @@
     <string name="loc_switch_off">Off — enter an address above, or turn this on</string>
     <string name="loc_service_area_title">Set your service area</string>
     <string name="loc_within_km">Within %1$d km</string>
+    <string name="job_radius">Wants a helper within %1$d km</string>
     <string name="loc_km_short">%1$d km</string>
     <string name="loc_service_area_body">Helpers within this distance will see your task.</string>
     <string name="loc_safe_title">Your location is safe with us</string>

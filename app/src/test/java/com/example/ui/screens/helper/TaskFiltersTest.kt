@@ -2,6 +2,7 @@ package com.example.ui.screens.helper
 
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.data.room.declinedByHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -141,5 +142,68 @@ class TaskFiltersTest {
 
     assertEquals(HelperStats(), stats)
     assertEquals(0, stats.activeNow)
+  }
+
+  // ------------------------------------------------------------------ one helper's view
+
+  private val open = task(10, TaskStatus.SUBMITTED, title = "Fix tap")
+  private val declinedByMe = task(11, TaskStatus.SUBMITTED, title = "Paint door").declinedByHelper("me")
+  private val declinedByOther = task(12, TaskStatus.SUBMITTED, title = "Move sofa").declinedByHelper("other")
+  private val mine = task(13, TaskStatus.ACCEPTED, title = "Clean flat").copy(acceptedByHelperId = "me")
+  private val someoneElses = task(14, TaskStatus.IN_PROGRESS, title = "Wire lamp").copy(acceptedByHelperId = "other")
+  private val legacyAccepted = task(15, TaskStatus.COMPLETED, title = "Old job")
+  private val legacyRejected = task(16, TaskStatus.REJECTED, title = "Old decline")
+  private val world = listOf(open, declinedByMe, declinedByOther, mine, someoneElses, legacyAccepted, legacyRejected)
+
+  /** The bug: one helper's "Not for me" set the task to REJECTED and hid it from everyone. */
+  @Test
+  fun `declining hides a job from that helper only`() {
+    assertFalse(declinedByMe.isOpenFor("me"))
+    assertTrue(declinedByMe.isOpenFor("other"))
+    assertTrue(declinedByOther.isOpenFor("me"))
+    assertEquals(TaskStatus.SUBMITTED, declinedByMe.status)
+  }
+
+  @Test
+  fun `the new tab shows only jobs open to this helper`() {
+    assertEquals(listOf(10, 12), world.filterFor(TaskTab.NEW, "", helperId = "me").map { it.id })
+  }
+
+  @Test
+  fun `a job someone else took is not on this helper's lists`() {
+    val all = world.filterFor(TaskTab.ALL, "", helperId = "me").map { it.id }
+    assertFalse(14 in all)
+    assertTrue(13 in all)
+  }
+
+  /** Builds before v4 recorded no helper; on one phone such a job is the current helper's. */
+  @Test
+  fun `a job accepted before helpers were recorded counts as this helper's`() {
+    assertTrue(legacyAccepted.isTakenBy("me"))
+    assertEquals(listOf(15), world.filterFor(TaskTab.COMPLETED, "", helperId = "me").map { it.id })
+  }
+
+  @Test
+  fun `the declined tab shows what this helper turned down`() {
+    assertEquals(listOf(11, 16), world.filterFor(TaskTab.DECLINED, "", helperId = "me").map { it.id })
+  }
+
+  @Test
+  fun `a helper's stats are their own`() {
+    val stats = world.toHelperStats("me")
+
+    assertEquals(2, stats.availableNow) // 10 and 12
+    assertEquals(1, stats.accepted) // 13
+    assertEquals(0, stats.inProgress) // 14 is someone else's
+    assertEquals(1, stats.completed) // 15
+    assertEquals(2, stats.declined) // 11 and 16
+  }
+
+  /** A question asked before accepting is a conversation, so it can be answered. */
+  @Test
+  fun `conversations include open jobs this helper has asked about`() {
+    val ids = world.conversationsFor("me", withMessages = setOf(10, 14)).map { it.id }
+
+    assertEquals(listOf(10, 13, 15), ids)
   }
 }

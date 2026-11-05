@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Pin
 import androidx.compose.material.icons.filled.Shield
@@ -199,20 +197,20 @@ private fun GenderChoice(selected: String, enabled: Boolean, onSelect: (String) 
 fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
   val context = LocalContext.current
   var locationGranted by remember { mutableStateOf(context.hasLocationPermission()) }
-  var notificationsGranted by remember { mutableStateOf(context.hasNotificationPermission()) }
   var deniedPermanently by remember { mutableStateOf(false) }
 
   val launcher =
     rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
       results ->
       locationGranted = context.hasLocationPermission()
-      notificationsGranted = context.hasNotificationPermission()
       // Android reports an immediate denial without showing a dialog once the user has chosen
       // stringResource(R.string.action_dont_ask_again), which is the only case where Settings is the honest next step.
       deniedPermanently = results.isNotEmpty() && results.values.none { it } && !locationGranted
     }
 
-  val allHandled = locationGranted && notificationsGranted
+  // Notifications are no longer asked for: the app sends none, and the old card promised to "tell
+  // you when someone accepts your task". It comes back when there is a server to send them.
+  val allHandled = locationGranted
 
   Column(
     modifier =
@@ -239,15 +237,6 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
       title = stringResource(R.string.perm_location_title),
       description = stringResource(R.string.perm_location_body),
       granted = locationGranted,
-    )
-    Spacer(modifier = Modifier.height(Spacing.md))
-    PermissionRow(
-      icon = Icons.Default.NotificationsActive,
-      iconTint = FixTheme.colors.accentGraphic,
-      background = FixTheme.colors.accentSurface,
-      title = stringResource(R.string.perm_notifications_title),
-      description = stringResource(R.string.perm_notifications_body),
-      granted = notificationsGranted,
     )
 
     if (deniedPermanently) {
@@ -330,23 +319,11 @@ private fun PermissionRow(
 }
 
 private fun requiredPermissions(): Array<String> =
-  buildList {
-      add(Manifest.permission.ACCESS_COARSE_LOCATION)
-      add(Manifest.permission.ACCESS_FINE_LOCATION)
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        add(Manifest.permission.POST_NOTIFICATIONS)
-      }
-    }
-    .toTypedArray()
+  arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
 
 private fun Context.hasLocationPermission(): Boolean =
   checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ||
     checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-
-/** Below Android 13 notifications need no runtime grant, so there is nothing to ask for. */
-private fun Context.hasNotificationPermission(): Boolean =
-  Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-    checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
 
 private fun checkSelfPermission(context: Context, permission: String): Boolean =
   context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED

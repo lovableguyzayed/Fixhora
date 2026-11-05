@@ -16,4 +16,8 @@ interface ChatDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: ChatMessageEntity)
+
+    /** Tasks with at least one message, so a question asked before acceptance has a thread. */
+    @Query("SELECT DISTINCT taskId FROM chat_messages")
+    fun taskIdsWithMessages(): Flow<List<Int>>
 }

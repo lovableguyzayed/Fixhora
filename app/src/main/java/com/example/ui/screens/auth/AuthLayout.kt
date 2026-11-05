@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -53,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.components.BentoCard
 import com.example.ui.components.CircleBackButton
+import com.example.ui.screens.legal.LegalDocument
 import com.example.ui.theme.Bento
 import com.example.ui.theme.BentoColors
 import com.example.ui.theme.FixTheme
@@ -245,4 +247,18 @@ fun OtpCodeInput(
       }
     },
   )
+}
+
+/** "Terms · Privacy" as two real links, each a full touch target. */
+@Composable
+fun LegalLinks(onOpenLegal: (LegalDocument) -> Unit, modifier: Modifier = Modifier) {
+  Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+    TextButton(onClick = { onOpenLegal(LegalDocument.TERMS) }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+      Text(stringResource(R.string.action_read_terms), style = MaterialTheme.typography.labelLarge, color = FixTheme.colors.primary)
+    }
+    Text("·", color = FixTheme.colors.textSecondary)
+    TextButton(onClick = { onOpenLegal(LegalDocument.PRIVACY) }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+      Text(stringResource(R.string.action_read_privacy), style = MaterialTheme.typography.labelLarge, color = FixTheme.colors.primary)
+    }
+  }
 }

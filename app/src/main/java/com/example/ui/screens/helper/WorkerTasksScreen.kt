@@ -38,6 +38,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
     val selectedTab by viewModel.selectedTab.collectAsState()
     val allTasks by viewModel.allTasks.collectAsState()
     val ownerNames by viewModel.ownerNames.collectAsState()
+    val helperId by viewModel.helperId.collectAsState()
     val context = LocalContext.current
 
     Scaffold(
@@ -62,8 +63,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onOpenChat: (Int) -> Unit, onB
             ) {
                 items(TaskTab.entries.toList()) { tab ->
                     val isSelected = selectedTab == tab
-                    val count =
-                        if (tab.status == null) allTasks.size else allTasks.count { it.status == tab.status }
+                    val count = allTasks.filterFor(tab, "", helperId = helperId).size
                     PillChip(
                         text = stringResource(R.string.worker_tab_with_count, stringResource(tab.labelRes), count),
                         selected = isSelected,

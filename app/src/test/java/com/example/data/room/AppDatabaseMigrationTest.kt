@@ -21,7 +21,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Runs [AppDatabase.MIGRATION_2_3] against a real, populated v2 database.
+ * Runs [AppDatabase.MIGRATION_2_3] and [AppDatabase.MIGRATION_3_4] against real, populated older
+ * databases.
  *
  * Until this existed, the migration had never executed anywhere. It is the one code path in the app
  * that can destroy a user's data: it rebuilds `tasks` by hand — CREATE / INSERT…SELECT / DROP /
@@ -141,7 +142,7 @@ class AppDatabaseMigrationTest {
    */
   private fun openMigrated(): AppDatabase =
     Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
-      .addMigrations(AppDatabase.MIGRATION_2_3)
+      .addMigrations(AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
       .build()
 
   /**
@@ -279,6 +280,86 @@ class AppDatabaseMigrationTest {
     try {
       db.userDao().insert(sampleUser(id = "u1", mobile = "9876543210"))
       db.userDao().insert(sampleUser(id = "u2", mobile = "9876543210"))
+    } finally {
+      db.close()
+    }
+  }
+
+  /** The exact schema the v3 builds shipped, from `schemas/.../3.json`, with rows in it. */
+  private fun createPopulatedV3Database() {
+    val db = SQLiteDatabase.openOrCreateDatabase(databaseFile, null)
+    listOf(
+        "CREATE TABLE IF NOT EXISTS `tasks` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `status` TEXT NOT NULL, `ownerId` TEXT NOT NULL, `acceptedByHelperId` TEXT, `categoryId` TEXT, `locationQuery` TEXT NOT NULL, `useCurrentLocation` INTEGER NOT NULL, `latitude` REAL, `longitude` REAL, `selectedDistance` INTEGER NOT NULL, `descriptionTitle` TEXT NOT NULL, `descriptionDetails` TEXT NOT NULL, `minBudget` TEXT NOT NULL, `maxBudget` TEXT NOT NULL, `photoUris` TEXT NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "CREATE INDEX IF NOT EXISTS `index_tasks_status` ON `tasks` (`status`)",
+        "CREATE INDEX IF NOT EXISTS `index_tasks_ownerId` ON `tasks` (`ownerId`)",
+        "CREATE TABLE IF NOT EXISTS `chat_messages` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `taskId` INTEGER NOT NULL, `senderId` TEXT NOT NULL, `text` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `status` TEXT NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS `users` (`id` TEXT NOT NULL, `fullName` TEXT NOT NULL, `mobile` TEXT NOT NULL, `email` TEXT, `passwordHash` TEXT NOT NULL, `passwordSalt` TEXT NOT NULL, `gender` TEXT, `dateOfBirth` TEXT, `city` TEXT NOT NULL, `state` TEXT NOT NULL, `pinCode` TEXT NOT NULL, `preferredLanguage` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_mobile` ON `users` (`mobile`)",
+        """
+        INSERT INTO tasks (id, status, ownerId, acceptedByHelperId, categoryId, locationQuery,
+                           useCurrentLocation, latitude, longitude, selectedDistance,
+                           descriptionTitle, descriptionDetails, minBudget, maxBudget,
+                           photoUris, createdAt)
+        VALUES (7, 'accepted', 'u1', 'h1', 'cleaning', 'Indiranagar, Bengaluru', 0, NULL, NULL, 10,
+                'Deep clean flat', 'Two bedrooms', '1500', '3000', '', 1700000000000)
+        """,
+        """
+        INSERT INTO users (id, fullName, mobile, email, passwordHash, passwordSalt, gender,
+                           dateOfBirth, city, state, pinCode, preferredLanguage, createdAt)
+        VALUES ('u1', 'Anita Sharma', '9876543210', NULL, 'hash', 'salt', NULL, NULL,
+                'Bengaluru', 'Karnataka', '560038', 'en', 1700000000000)
+        """,
+      )
+      .forEach { db.execSQL(it.trimIndent()) }
+    db.version = 3
+    db.close()
+  }
+
+  /** Everyone on a v3 build reaches v4 through this path, so their rows must come through whole. */
+  @Test
+  fun `migrating a populated v3 database keeps every row and adds the new fields empty`() = runBlocking {
+    createPopulatedV3Database()
+
+    val db = openMigrated()
+    try {
+      val task = db.taskDao().getAllPostedTasks().first().single()
+      assertEquals(7, task.id)
+      assertEquals(TaskStatus.ACCEPTED, task.status)
+      assertEquals("h1", task.acceptedByHelperId)
+      assertEquals("Deep clean flat", task.descriptionTitle)
+      assertEquals(null, task.scheduledDate)
+      assertEquals(null, task.addressLine)
+      assertEquals(null, task.rating)
+      assertTrue(task.declinedHelperIds().isEmpty())
+
+      val user = db.userDao().findById("u1")
+      assertNotNull(user)
+      assertEquals("Anita Sharma", user!!.fullName)
+      assertEquals(null, user.skills)
+    } finally {
+      db.close()
+    }
+  }
+
+  /** The new columns are writable and read back, including the per-helper decline list. */
+  @Test
+  fun `the v4 columns round-trip`() = runBlocking {
+    createPopulatedV3Database()
+
+    val db = openMigrated()
+    try {
+      val task = db.taskDao().getAllPostedTasks().first().single()
+      db.taskDao().updateTask(
+        task.declinedByHelper("h2").declinedByHelper("h3")
+          .copy(scheduledDate = 20_000L, timeSlot = "evening", addressLine = "Flat 4B", landmark = "Near the temple", rating = 5)
+      )
+      val updated = db.taskDao().getAllPostedTasks().first().single()
+      assertEquals(setOf("h2", "h3"), updated.declinedHelperIds())
+      assertEquals(20_000L, updated.scheduledDate)
+      assertEquals("evening", updated.timeSlot)
+      assertEquals("Flat 4B", updated.addressLine)
+      assertEquals("Near the temple", updated.landmark)
+      assertEquals(5, updated.rating)
     } finally {
       db.close()
     }

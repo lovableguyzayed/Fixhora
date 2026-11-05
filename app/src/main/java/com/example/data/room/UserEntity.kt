@@ -28,4 +28,8 @@ data class UserEntity(
   val pinCode: String,
   val preferredLanguage: String,
   val createdAt: Long,
+  /** Category ids a helper offers, joined by a newline; empty for someone who only posts. */
+  val skills: String? = null,
+  /** A line or two a helper writes about themselves. */
+  val about: String? = null,
 )
