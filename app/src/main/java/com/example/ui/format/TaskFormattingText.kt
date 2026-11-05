@@ -1,10 +1,16 @@
 package com.example.ui.format
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.R
 import com.example.data.room.TaskStatus
+import com.example.data.room.TimeSlot
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * The words for the decisions in `TaskFormatting.kt`.
@@ -115,3 +121,50 @@ fun customerStatusDetail(status: TaskStatus): String =
       TaskStatus.REJECTED -> R.string.status_detail_rejected
     }
   )
+
+@Composable
+fun TimeSlot.label(): String =
+  stringResource(
+    when (this) {
+      TimeSlot.MORNING -> R.string.slot_morning
+      TimeSlot.AFTERNOON -> R.string.slot_afternoon
+      TimeSlot.EVENING -> R.string.slot_evening
+      TimeSlot.ANY_TIME -> R.string.slot_any_time
+    }
+  )
+
+/** "Today", "Tomorrow" or a short date in the app's language, such as "Wed, 5 Nov". */
+@Composable
+fun wantedDayText(scheduledDate: Long?, todayEpochDay: Long = localTodayEpochDay()): String =
+  when (val day = wantedDay(scheduledDate, todayEpochDay)) {
+    WantedDay.NotSet -> stringResource(R.string.when_any_day)
+    WantedDay.Today -> stringResource(R.string.when_today)
+    WantedDay.Tomorrow -> stringResource(R.string.when_tomorrow)
+    is WantedDay.OnDay -> {
+      val date = shortDate(day.epochDay)
+      if (day.isPast) stringResource(R.string.schedule_past, date) else date
+    }
+  }
+
+/** The day and the part of it together: "Today · Evening (4–8)", or "Any day, any time". */
+@Composable
+fun scheduleText(scheduledDate: Long?, timeSlot: String?): String {
+  val slot = TimeSlot.fromStorage(timeSlot)
+  if (scheduledDate == null && (slot == null || slot == TimeSlot.ANY_TIME)) {
+    return stringResource(R.string.schedule_not_set)
+  }
+  return stringResource(
+    R.string.schedule_with_slot,
+    wantedDayText(scheduledDate),
+    (slot ?: TimeSlot.ANY_TIME).label(),
+  )
+}
+
+@Composable
+private fun shortDate(epochDay: Long): String {
+  // The configuration carries the in-app language, so the month name follows it.
+  val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+  return SimpleDateFormat("EEE, d MMM", locale)
+    .apply { timeZone = TimeZone.getTimeZone("UTC") }
+    .format(Date(epochDayToUtcMillis(epochDay)))
+}

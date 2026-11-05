@@ -35,6 +35,7 @@ import com.example.R
 import com.example.data.repository.ChatRepository
 import com.example.data.room.ChatMessageEntity
 import com.example.data.room.TaskEntity
+import com.example.data.room.fullAddress
 import com.example.ui.components.BentoAction
 import com.example.ui.components.BentoActionRow
 import com.example.ui.components.BentoCard
@@ -49,6 +50,7 @@ import com.example.ui.format.hasAssignedHelper
 import com.example.ui.format.isCancellableByCustomer
 import com.example.ui.format.isDeletableByCustomer
 import com.example.ui.format.relativeTimeText
+import com.example.ui.format.scheduleText
 import com.example.ui.format.taskLocationText
 import com.example.ui.screens.taskflow.categoryBento
 import com.example.ui.theme.FixTheme
@@ -243,10 +245,18 @@ private fun TaskSummary(
 
     Spacer(Modifier.height(Spacing.md))
     Text(
+      text = scheduleText(task.scheduledDate, task.timeSlot),
+      style = MaterialTheme.typography.titleSmall,
+      color = bento.onFill,
+    )
+    Text(
       text = taskLocationText(task.locationQuery, task.latitude != null),
       style = MaterialTheme.typography.bodyMedium,
       color = bento.onFillSecondary,
     )
+    fullAddress(task)?.let {
+      Text(text = it, style = MaterialTheme.typography.bodyMedium, color = bento.onFillSecondary)
+    }
     Text(
       text = budgetText(task.minBudget, task.maxBudget),
       style = MaterialTheme.typography.titleMedium,

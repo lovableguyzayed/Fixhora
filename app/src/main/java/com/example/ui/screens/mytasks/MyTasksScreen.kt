@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Schedule
@@ -48,6 +49,7 @@ import com.example.ui.components.PillChip
 import com.example.ui.format.budgetText
 import com.example.ui.format.customerStatusLabel
 import com.example.ui.format.relativeTimeText
+import com.example.ui.format.scheduleText
 import com.example.ui.format.taskLocationText
 import com.example.ui.screens.taskflow.categoryBento
 import com.example.ui.screens.taskflow.dummyCategories
@@ -155,6 +157,7 @@ private fun MyTaskCard(task: TaskEntity, onClick: () -> Unit) {
       stringResource(R.string.mytasks_posted_ago, relativeTimeText(task.createdAt)),
       bento,
     )
+    MetaRow(Icons.Default.Event, scheduleText(task.scheduledDate, task.timeSlot), bento)
     MetaRow(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null), bento)
 
     Spacer(Modifier.height(Spacing.md))

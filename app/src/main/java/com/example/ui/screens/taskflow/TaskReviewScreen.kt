@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.CurrencyRupee
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Shield
@@ -38,6 +39,7 @@ import com.example.ui.components.FixButton
 import com.example.ui.format.Budget
 import com.example.ui.format.budget
 import com.example.ui.format.budgetText
+import com.example.ui.format.scheduleText
 import com.example.ui.screens.TaskScreen
 import com.example.ui.theme.Bento
 import com.example.ui.theme.BentoColors
@@ -130,6 +132,16 @@ fun TaskReviewScreen(
             }
 
             Spacer(modifier = Modifier.height(Spacing.md))
+            ReviewCard(
+                icon = Icons.Default.Event,
+                bento = Bento.Mint,
+                label = stringResource(R.string.review_when),
+                title = scheduleText(uiState.scheduledDate, uiState.timeSlot?.storageValue),
+                subtitle = null,
+                onEditClick = { onNavigateToStep(TaskScreen.Photos.route) }
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.md))
             // "Current Location (Noida)" used to be printed here whenever the switch was on,
             // regardless of where the user actually was.
             ReviewCard(
@@ -141,11 +153,15 @@ fun TaskReviewScreen(
                     uiState.latitude != null -> stringResource(R.string.review_location_no_address)
                     else -> stringResource(R.string.review_not_specified)
                 },
-                subtitle = if (uiState.useCurrentLocation && uiState.locationQuery.isNotBlank()) {
-                    stringResource(R.string.review_from_current)
-                } else {
-                    null
-                },
+                subtitle = listOfNotNull(
+                    listOf(uiState.addressLine.trim(), uiState.landmark.trim()).filter { it.isNotEmpty() }
+                        .joinToString(", ").ifEmpty { null },
+                    if (uiState.useCurrentLocation && uiState.locationQuery.isNotBlank()) {
+                        stringResource(R.string.review_from_current)
+                    } else {
+                        null
+                    }
+                ).joinToString("\n").ifEmpty { null },
                 onEditClick = { onNavigateToStep(TaskScreen.Location.route) }
             ) { bento ->
                 Row(

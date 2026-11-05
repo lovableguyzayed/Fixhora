@@ -123,6 +123,13 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             )
 
             Spacer(modifier = Modifier.height(Spacing.xl))
+            WhenPicker(
+                scheduledDate = uiState.scheduledDate,
+                timeSlot = uiState.timeSlot,
+                onChange = { date, slot -> viewModel.updateSchedule(date, slot) }
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.xl))
             SectionHeader(
                 title = stringResource(R.string.photos_title),
                 trailing = if (uiState.photoUris.isNotEmpty()) {

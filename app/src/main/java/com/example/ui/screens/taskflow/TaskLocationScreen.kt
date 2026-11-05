@@ -13,8 +13,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Shield
@@ -27,6 +30,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -259,6 +264,29 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(Spacing.lg))
+            // The part of an Indian address a map search never finds: the flat, the building,
+            // and the landmark everyone actually navigates by. Kept from helpers until they take
+            // the job, so posting a task does not publish where someone lives.
+            StepTextField(
+                value = uiState.addressLine,
+                onValueChange = { viewModel.updateAddressDetails(it, uiState.landmark) },
+                label = stringResource(R.string.loc_address_line_label),
+                placeholder = stringResource(R.string.loc_address_line_hint),
+                leadingIcon = Icons.Default.Home,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words, imeAction = ImeAction.Next)
+            )
+            Spacer(modifier = Modifier.height(Spacing.md))
+            StepTextField(
+                value = uiState.landmark,
+                onValueChange = { viewModel.updateAddressDetails(uiState.addressLine, it) },
+                label = stringResource(R.string.loc_landmark_label),
+                placeholder = stringResource(R.string.loc_landmark_hint),
+                leadingIcon = Icons.Default.Flag,
+                supportingText = stringResource(R.string.loc_address_private),
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done)
+            )
 
             Spacer(modifier = Modifier.height(Spacing.xl))
 

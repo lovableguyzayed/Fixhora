@@ -159,7 +159,9 @@ fun WorkerTaskCard(
         posterName = posterName,
         statusLabel = task.status.displayLabel(),
         onChat = if (canChat) onChat else null,
-        chatLabel = stringResource(R.string.action_chat)
+        chatLabel = stringResource(R.string.action_chat),
+        // Only once the helper holds the job — the same rule as the chat.
+        showFullAddress = canChat
     ) { bento ->
         // Each state offers only actions that actually do something in this build.
         when (task.status) {

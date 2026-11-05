@@ -80,3 +80,9 @@ fun TaskEntity.photoUriList(): List<String> =
 /** Joins photo URIs for storage in [TaskEntity.photoUris]. */
 fun List<String>.joinPhotoUris(): String =
   filter { it.isNotBlank() }.joinToString(TaskEntity.PHOTO_URI_SEPARATOR)
+
+/** House line and landmark together, or null when the customer gave neither. */
+fun fullAddress(task: TaskEntity): String? =
+  listOfNotNull(task.addressLine?.trim()?.ifEmpty { null }, task.landmark?.trim()?.ifEmpty { null })
+    .joinToString(", ")
+    .ifEmpty { null }

@@ -1,30 +1,26 @@
 package com.example.ui.screens.helper
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,19 +34,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.R
 import com.example.data.room.TaskEntity
+import com.example.data.room.fullAddress
 import com.example.ui.components.BentoCard
-import com.example.ui.components.BentoAction
-import com.example.ui.components.BentoActionRow
 import com.example.ui.components.BentoTag
 import com.example.ui.components.CircleIconButton
 import com.example.ui.format.budgetText
 import com.example.ui.format.relativeTimeText
+import com.example.ui.format.scheduleText
 import com.example.ui.format.taskLocationText
 import com.example.ui.screens.taskflow.categoryBento
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.BentoColors
 import com.example.ui.theme.FixTheme
-import com.example.ui.theme.MinTouchTarget
 import com.example.ui.theme.Spacing
 
 /** Text on the white info strip inside a job card; the strip is white in both themes. */
@@ -71,6 +66,7 @@ fun JobBentoCard(
   modifier: Modifier = Modifier,
   onChat: (() -> Unit)? = null,
   chatLabel: String = "",
+  showFullAddress: Boolean = false,
   actions: @Composable ColumnScope.(BentoColors) -> Unit,
 ) {
   val bento = categoryBento(task.categoryId)
@@ -122,7 +118,19 @@ fun JobBentoCard(
     }
 
     Spacer(Modifier.height(Spacing.md))
+    // When first: it decides whether a helper can take the job at all.
+    JobMeta(Icons.Default.Event, scheduleText(task.scheduledDate, task.timeSlot), bento, emphasise = true)
+    Spacer(Modifier.height(Spacing.xs))
     JobMeta(Icons.Default.LocationOn, taskLocationText(task.locationQuery, task.latitude != null), bento)
+    val address = fullAddress(task)
+    if (address != null) {
+      Spacer(Modifier.height(Spacing.xs))
+      if (showFullAddress) {
+        JobMeta(Icons.Default.Home, stringResource(R.string.job_full_address, address), bento, emphasise = true)
+      } else {
+        JobMeta(Icons.Default.Lock, stringResource(R.string.job_address_after_accept), bento)
+      }
+    }
     Spacer(Modifier.height(Spacing.xs))
     // The customer's search radius, worded as theirs: "Within 5 km" read as the helper's own
     // distance from the job, which the app does not know.
@@ -171,15 +179,16 @@ fun JobBentoCard(
 }
 
 @Composable
-private fun JobMeta(icon: ImageVector, text: String, colors: BentoColors) {
+private fun JobMeta(icon: ImageVector, text: String, colors: BentoColors, emphasise: Boolean = false) {
   Row(verticalAlignment = Alignment.CenterVertically) {
     Icon(icon, contentDescription = null, tint = colors.onFill, modifier = Modifier.size(16.dp))
     Spacer(Modifier.width(Spacing.sm))
     Text(
       text,
       style = MaterialTheme.typography.bodyMedium,
+      fontWeight = if (emphasise) FontWeight.Bold else FontWeight.Normal,
       color = colors.onFill,
-      maxLines = 1,
+      maxLines = 2,
       overflow = TextOverflow.Ellipsis,
     )
   }

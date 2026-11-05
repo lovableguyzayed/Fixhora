@@ -161,3 +161,38 @@ fun hasAssignedHelper(status: TaskStatus): Boolean =
   status == TaskStatus.ACCEPTED ||
     status == TaskStatus.IN_PROGRESS ||
     status == TaskStatus.COMPLETED
+
+// ------------------------------------------------------------------ when the work is wanted
+
+/**
+ * The day a task is wanted, relative to today. Days are counted as epoch days — whole days since
+ * 1 January 1970 — because `java.time` is not available on the Android 7 devices this app still
+ * supports, and a day count needs nothing else.
+ */
+sealed interface WantedDay {
+  data object NotSet : WantedDay
+
+  data object Today : WantedDay
+
+  data object Tomorrow : WantedDay
+
+  /** A specific day, which may already have passed if the task is old. */
+  data class OnDay(val epochDay: Long, val isPast: Boolean) : WantedDay
+}
+
+fun wantedDay(scheduledDate: Long?, todayEpochDay: Long): WantedDay =
+  when (scheduledDate) {
+    null -> WantedDay.NotSet
+    todayEpochDay -> WantedDay.Today
+    todayEpochDay + 1 -> WantedDay.Tomorrow
+    else -> WantedDay.OnDay(scheduledDate, isPast = scheduledDate < todayEpochDay)
+  }
+
+/** Today in the phone's own time zone, as an epoch day. */
+fun localTodayEpochDay(nowMillis: Long = System.currentTimeMillis(), zone: java.util.TimeZone = java.util.TimeZone.getDefault()): Long =
+  (nowMillis + zone.getOffset(nowMillis)).floorDiv(DAY)
+
+/** Midnight UTC of an epoch day, which is what a date picker hands back and what a formatter set to UTC reads. */
+fun epochDayToUtcMillis(epochDay: Long): Long = epochDay * DAY
+
+fun utcMillisToEpochDay(utcMillis: Long): Long = utcMillis.floorDiv(DAY)

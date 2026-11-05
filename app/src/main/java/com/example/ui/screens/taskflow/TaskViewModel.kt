@@ -11,6 +11,7 @@ import com.example.data.media.TaskPhotoStore
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
 import com.example.data.room.TaskStatus
+import com.example.data.room.TimeSlot
 import com.example.data.room.joinPhotoUris
 import com.example.data.room.photoUriList
 import com.example.data.session.SessionManager
@@ -53,6 +54,12 @@ data class TaskDraftState(
   val minBudget: String = "",
   val maxBudget: String = "",
   val photoUris: List<String> = emptyList(),
+  /** Epoch day the work is wanted, or null for "any day". */
+  val scheduledDate: Long? = null,
+  val timeSlot: TimeSlot? = null,
+  /** House or flat number and building; shown to the helper only once they take the job. */
+  val addressLine: String = "",
+  val landmark: String = "",
 )
 
 class TaskViewModel(
@@ -116,6 +123,10 @@ class TaskViewModel(
             minBudget = draft.minBudget,
             maxBudget = draft.maxBudget,
             photoUris = draft.photoUriList(),
+            scheduledDate = draft.scheduledDate,
+            timeSlot = TimeSlot.fromStorage(draft.timeSlot),
+            addressLine = draft.addressLine.orEmpty(),
+            landmark = draft.landmark.orEmpty(),
           )
         }
     } catch (e: Exception) {
@@ -139,6 +150,10 @@ class TaskViewModel(
       minBudget = state.minBudget,
       maxBudget = state.maxBudget,
       photoUris = state.photoUris.joinPhotoUris(),
+      scheduledDate = state.scheduledDate,
+      timeSlot = state.timeSlot?.storageValue,
+      addressLine = state.addressLine.trim().ifEmpty { null },
+      landmark = state.landmark.trim().ifEmpty { null },
     )
 
   /** Debounced so that typing does not queue a database write per keystroke. */
@@ -190,6 +205,16 @@ class TaskViewModel(
 
   fun updateCategory(categoryId: String) {
     _uiState.update { it.copy(categoryId = categoryId) }
+    saveDraft()
+  }
+
+  fun updateSchedule(scheduledDate: Long?, timeSlot: TimeSlot?) {
+    _uiState.update { it.copy(scheduledDate = scheduledDate, timeSlot = timeSlot) }
+    saveDraft()
+  }
+
+  fun updateAddressDetails(addressLine: String, landmark: String) {
+    _uiState.update { it.copy(addressLine = addressLine, landmark = landmark) }
     saveDraft()
   }
 
@@ -365,7 +390,11 @@ class TaskViewModel(
         descriptionDetails.isNotBlank() ||
         minBudget.isNotBlank() ||
         maxBudget.isNotBlank() ||
-        photoUris.isNotEmpty()
+        photoUris.isNotEmpty() ||
+        scheduledDate != null ||
+        timeSlot != null ||
+        addressLine.isNotBlank() ||
+        landmark.isNotBlank()
     }
 
   /** Abandons the draft: clears the form, deletes the row, and reclaims the copied photos. */

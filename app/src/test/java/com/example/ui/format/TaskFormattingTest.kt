@@ -84,4 +84,34 @@ class TaskFormattingTest {
     assertEquals(TaskLocation.PinnedOnMap, taskLocation("", true))
     assertEquals(TaskLocation.NotGiven, taskLocation("", false))
   }
+
+  @Test
+  fun `the wanted day is told relative to today`() {
+    val today = 20_000L
+    assertEquals(WantedDay.NotSet, wantedDay(null, today))
+    assertEquals(WantedDay.Today, wantedDay(today, today))
+    assertEquals(WantedDay.Tomorrow, wantedDay(today + 1, today))
+    assertEquals(WantedDay.OnDay(today + 5, isPast = false), wantedDay(today + 5, today))
+    assertEquals(WantedDay.OnDay(today - 2, isPast = true), wantedDay(today - 2, today))
+  }
+
+  /**
+   * 11:30 pm on 4 November in India is still the 4th there, though it is already 6 pm UTC on the
+   * 4th — and 1 am IST on the 5th is the 5th, though UTC is still on the 4th. The day must be the
+   * phone's, not UTC's.
+   */
+  @Test
+  fun `today is the phone's local day, not UTC's`() {
+    val ist = java.util.TimeZone.getTimeZone("Asia/Kolkata")
+    val fourthNovUtcMidnight = epochDayToUtcMillis(20_396L)
+    val earlyFifthIst = fourthNovUtcMidnight + 19 * 3_600_000L + 30 * 60_000L // 01:00 IST on the 5th
+    assertEquals(20_396L, localTodayEpochDay(fourthNovUtcMidnight + 18 * 3_600_000L, ist))
+    assertEquals(20_397L, localTodayEpochDay(earlyFifthIst, ist))
+  }
+
+  @Test
+  fun `epoch days and picker millis convert both ways`() {
+    assertEquals(20_396L, utcMillisToEpochDay(epochDayToUtcMillis(20_396L)))
+    assertEquals(0L, utcMillisToEpochDay(0L))
+  }
 }
