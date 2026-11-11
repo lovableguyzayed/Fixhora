@@ -30,7 +30,7 @@ class ScreenshotTest {
         "welcome" to { WelcomeScreen({}, {}, {}) },
         "sign_in" to { SignInScreen({}, {}, {}, {}) },
         "mobile_login" to { MobileLoginScreen({}, {}) },
-        "otp" to { OtpVerificationScreen({}, {}) },
+        "otp" to { OtpVerificationScreen({}, {}, mobile = "9876543210") },
         "profile_setup" to { ProfileSetupScreen({}) },
         "role_selection" to { RoleSelectionScreen({}) },
         "task_category" to { TaskFlowContainer({}) },
