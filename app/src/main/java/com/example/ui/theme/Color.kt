@@ -15,7 +15,9 @@ val LightOrangeBorder = Color(0xFFFFD9BA)
 val LightBackground = Color(0xFFFFFFFF)
 val LightSurface = Color(0xFFFFFFFF) // Requirements say cards have White background
 val LightOnBackground = DarkNavy
-val LightOnSurface = SecondaryGrey
+// Main text on cards/fields is navy (readable in sunlight); grey is for secondary text only.
+val LightOnSurface = DarkNavy
+val LightOnSurfaceVariant = SecondaryGrey
 val LightOutline = BorderGrey
 
 val DarkBackground = Color(0xFF0A1020)
