@@ -19,26 +19,58 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.border
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.example.ui.theme.*
+import com.example.util.IndiaFormat
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Shared layout for the simple auth screens: safe areas, scrolling and keyboard padding. */
 @Composable
-fun MobileLoginScreen(onSendOtp: () -> Unit, onBack: () -> Unit) {
-    var mobile by remember { mutableStateOf("") }
-
+internal fun AuthScreenColumn(
+    modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.padding(top = 16.dp)) {
+            .background(Color.White)
+            .safeDrawingPadding()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        horizontalAlignment = horizontalAlignment,
+        content = content
+    )
+}
+
+@Composable
+fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
+    var mobile by rememberSaveable { mutableStateOf("") }
+    var showError by rememberSaveable { mutableStateOf(false) }
+    val isValid = IndiaFormat.isValidMobile(mobile)
+    val submit = { if (isValid) onSendOtp(mobile) else showError = true }
+
+    AuthScreenColumn {
+        IconButton(onClick = onBack) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Login with Mobile Number",
             fontSize = 28.sp,
+            lineHeight = 34.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
         )
@@ -50,35 +82,40 @@ fun MobileLoginScreen(onSendOtp: () -> Unit, onBack: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(40.dp))
 
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            OutlinedTextField(
-                value = "+91",
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier.width(80.dp),
-                shape = RoundedCornerShape(12.dp)
+        OutlinedTextField(
+            value = mobile,
+            onValueChange = {
+                mobile = IndiaFormat.cleanMobile(it)
+                if (IndiaFormat.isValidMobile(mobile)) showError = false
+            },
+            label = { Text("Mobile number") },
+            prefix = { Text("+91 ", color = DarkNavy, fontWeight = FontWeight.SemiBold) },
+            isError = showError && !isValid,
+            supportingText = {
+                if (showError && !isValid) {
+                    Text(
+                        if (mobile.length == 10) "Mobile number should start with 6, 7, 8 or 9"
+                        else "Enter your 10-digit mobile number"
+                    )
+                }
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { submit() }),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = BluePrimary,
+                unfocusedBorderColor = BorderGrey
             )
-            Spacer(modifier = Modifier.width(16.dp))
-            OutlinedTextField(
-                value = mobile,
-                onValueChange = { mobile = it },
-                label = { Text("Phone Number") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = BluePrimary,
-                    unfocusedBorderColor = BorderGrey
-                )
-            )
-        }
+        )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         Button(
-            onClick = onSendOtp,
+            onClick = submit,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
@@ -87,11 +124,14 @@ fun MobileLoginScreen(onSendOtp: () -> Unit, onBack: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private const val OTP_LENGTH = 6
+private const val RESEND_SECONDS = 30
+
 @Composable
-fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit) {
-    var otpValues by remember { mutableStateOf(List(6) { "" }) }
-    var timer by remember { mutableStateOf(60) }
+fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: String = "") {
+    var otp by rememberSaveable { mutableStateOf("") }
+    var timer by rememberSaveable { mutableStateOf(RESEND_SECONDS) }
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(timer) {
         if (timer > 0) {
@@ -99,98 +139,100 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit) {
             timer--
         }
     }
+    LaunchedEffect(Unit) { runCatching { focusRequester.requestFocus() } }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.padding(top = 16.dp)) {
+    AuthScreenColumn {
+        IconButton(onClick = onBack) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = "Verify Your Mobile Number",
             fontSize = 28.sp,
+            lineHeight = 34.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Enter the 6-digit OTP sent to your mobile.",
+            text = if (mobile.isNotEmpty()) "Enter the 6-digit OTP sent to ${IndiaFormat.displayMobile(mobile)}"
+            else "Enter the 6-digit OTP sent to your mobile.",
             fontSize = 16.sp,
             color = SecondaryGrey
         )
-        Spacer(modifier = Modifier.height(40.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            otpValues.forEachIndexed { index, value ->
-                OutlinedTextField(
-                    value = value,
-                    onValueChange = {
-                        if (it.length <= 1) {
-                            val newValues = otpValues.toMutableList()
-                            newValues[index] = it
-                            otpValues = newValues
-                        }
-                    },
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(56.dp),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, fontSize = 20.sp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BluePrimary,
-                        unfocusedBorderColor = BorderGrey
-                    )
-                )
-            }
-        }
-
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+        // One real text field drawn as 6 boxes: typing, Backspace, paste and keyboard
+        // OTP suggestions all work, and the boxes shrink to fit small phones.
+        BasicTextField(
+            value = otp,
+            onValueChange = { otp = it.filter(Char::isDigit).take(OTP_LENGTH) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { if (otp.length == OTP_LENGTH) onVerified() }),
+            singleLine = true,
+            cursorBrush = SolidColor(Color.Transparent),
+            textStyle = TextStyle(color = Color.Transparent),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .semantics { contentDescription = "6-digit OTP" },
+            decorationBox = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    repeat(OTP_LENGTH) { index ->
+                        val isNext = index == otp.length
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 56.dp)
+                                .border(
+                                    width = if (isNext) 2.dp else 1.dp,
+                                    color = if (isNext || index < otp.length) BluePrimary else BorderGrey,
+                                    shape = RoundedCornerShape(8.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = otp.getOrNull(index)?.toString() ?: "",
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = DarkNavy,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+        TextButton(
+            onClick = { timer = RESEND_SECONDS; otp = "" },
+            enabled = timer == 0,
+            contentPadding = PaddingValues(0.dp)
         ) {
             Text(
                 text = if (timer > 0) "Resend OTP in ${timer}s" else "Resend OTP",
                 color = if (timer > 0) SecondaryGrey else BluePrimary,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable(enabled = timer == 0) { timer = 60 }
-            )
-            Text(
-                text = "Call Me Instead",
-                color = BluePrimary,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.clickable { }
+                fontWeight = FontWeight.SemiBold
             )
         }
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = onVerified,
+            enabled = otp.length == OTP_LENGTH,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
             Text("Verify", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-             Text(
-                text = "Edit Mobile Number",
-                color = SecondaryGrey,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable { onBack() }
-            )
+
+        Spacer(modifier = Modifier.height(8.dp))
+        TextButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            Text("Change mobile number", color = SecondaryGrey, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -198,15 +240,14 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
-    var input by remember { mutableStateOf("") }
-    var step by remember { mutableStateOf(1) } // 1 = Request, 2 = Verify, 3 = Reset
+    var input by rememberSaveable { mutableStateOf("") }
+    var otp by rememberSaveable { mutableStateOf("") }
+    var newPassword by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var step by rememberSaveable { mutableStateOf(1) } // 1 = Request, 2 = Verify, 3 = Reset
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.padding(top = 16.dp)) {
+    AuthScreenColumn {
+        IconButton(onClick = onBack) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -239,7 +280,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 onClick = { step = 2 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
@@ -254,9 +295,11 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(40.dp))
             OutlinedTextField(
-                value = "",
-                onValueChange = { },
+                value = otp,
+                onValueChange = { otp = it.filter(Char::isDigit).take(6) },
                 label = { Text("Enter OTP") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -265,7 +308,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 onClick = { step = 3 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
@@ -280,17 +323,23 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(40.dp))
             OutlinedTextField(
-                value = "",
-                onValueChange = { },
+                value = newPassword,
+                onValueChange = { newPassword = it },
                 label = { Text("New Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = "",
-                onValueChange = { },
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
                 label = { Text("Confirm Password") },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -299,7 +348,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 onClick = onPasswordReset,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .heightIn(min = 56.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {

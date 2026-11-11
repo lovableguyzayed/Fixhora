@@ -24,10 +24,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.R
+import androidx.compose.foundation.background
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import com.example.util.IndiaFormat
 import com.example.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SignInScreen(
     onLoginSuccess: () -> Unit,
@@ -35,14 +38,17 @@ fun SignInScreen(
     onCreateAccountClick: () -> Unit,
     onForgotPasswordClick: () -> Unit
 ) {
-    var mobile by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var keepSignedIn by remember { mutableStateOf(false) }
+    var mobile by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var keepSignedIn by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
+            .safeDrawingPadding()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
@@ -63,7 +69,9 @@ fun SignInScreen(
 
         OutlinedTextField(
             value = mobile,
-            onValueChange = { mobile = it },
+            onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
+            prefix = { Text("+91 ") },
+            singleLine = true,
             label = { Text("Mobile Number") },
             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -97,10 +105,10 @@ fun SignInScreen(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
@@ -120,7 +128,7 @@ fun SignInScreen(
             onClick = onLoginSuccess,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
@@ -132,9 +140,9 @@ fun SignInScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Divider(modifier = Modifier.weight(1f), color = BorderGrey)
+            HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
             Text(" OR ", color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
-            Divider(modifier = Modifier.weight(1f), color = BorderGrey)
+            HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -146,7 +154,7 @@ fun SignInScreen(
         AlternativeLoginButton("Continue with Email", { android.widget.Toast.makeText(context, "Coming soon", android.widget.Toast.LENGTH_SHORT).show() })
 
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
@@ -167,7 +175,7 @@ fun AlternativeLoginButton(text: String, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .heightIn(min = 56.dp),
         shape = RoundedCornerShape(12.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, BorderGrey),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = DarkNavy)
@@ -176,23 +184,26 @@ fun AlternativeLoginButton(text: String, onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CreateAccountScreen(
     onCreateSuccess: () -> Unit,
     onMobileOtpClick: () -> Unit,
     onBack: () -> Unit
 ) {
-    var fullName by remember { mutableStateOf("") }
-    var mobile by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var agreed by remember { mutableStateOf(false) }
+    var fullName by rememberSaveable { mutableStateOf("") }
+    var mobile by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var agreed by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
+            .safeDrawingPadding()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
@@ -209,13 +220,17 @@ fun CreateAccountScreen(
             value = fullName,
             onValueChange = { fullName = it },
             label = { Text("Full Name") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = mobile,
-            onValueChange = { mobile = it },
+            onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
+            prefix = { Text("+91 ") },
+            singleLine = true,
             label = { Text("Mobile Number") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
@@ -266,7 +281,7 @@ fun CreateAccountScreen(
             onClick = onCreateSuccess,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
@@ -278,9 +293,9 @@ fun CreateAccountScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Divider(modifier = Modifier.weight(1f), color = BorderGrey)
+            HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
             Text(" OR ", color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
-            Divider(modifier = Modifier.weight(1f), color = BorderGrey)
+            HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
         }
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -290,7 +305,7 @@ fun CreateAccountScreen(
         AlternativeLoginButton("Sign Up with Google", { android.widget.Toast.makeText(context, "Coming soon", android.widget.Toast.LENGTH_SHORT).show() })
         
         Spacer(modifier = Modifier.height(32.dp))
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {

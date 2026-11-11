@@ -278,7 +278,7 @@ fun WideRoleSelectionCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .heightIn(min = 160.dp) // grows with large font sizes instead of clipping text
             .shadow(
                 elevation = 12.dp,
                 shape = RoundedCornerShape(24.dp),
@@ -292,16 +292,18 @@ fun WideRoleSelectionCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier
                     .weight(1.3f)
+                    .heightIn(min = 128.dp)
                     .padding(end = 8.dp),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
+              Column {
                 Text(
                     text = title,
                     fontSize = 20.sp,
@@ -315,7 +317,8 @@ fun WideRoleSelectionCard(
                     color = SecondaryGrey,
                     lineHeight = 18.sp
                 )
-                Spacer(modifier = Modifier.weight(1f))
+              }
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -338,10 +341,10 @@ fun WideRoleSelectionCard(
             
             Image(
                 painter = painterResource(id = illustrationId),
-                contentDescription = title,
+                contentDescription = null,
                 modifier = Modifier
                     .weight(0.9f)
-                    .fillMaxHeight(),
+                    .height(128.dp),
                 contentScale = ContentScale.Fit
             )
         }
@@ -357,7 +360,7 @@ fun LanguagePill(
 ) {
     Surface(
         modifier = modifier
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(18.dp),
         color = Color.White,
@@ -367,7 +370,7 @@ fun LanguagePill(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {

@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,6 +30,15 @@ sealed class Screen(val route: String) {
 @Composable
 fun FixhoraApp() {
     val navController = rememberNavController()
+    var pendingMobile by rememberSaveable { mutableStateOf("") }
+
+    // After login/sign-up the auth screens are removed, so Back never returns to them.
+    fun enterApp(route: String) {
+        navController.navigate(route) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
     
     NavHost(navController = navController, startDestination = Screen.Splash.route, modifier = Modifier.fillMaxSize()) {
         composable(Screen.Splash.route) {
@@ -45,7 +57,7 @@ fun FixhoraApp() {
         }
         composable(Screen.SignIn.route) {
             com.example.ui.screens.auth.SignInScreen(
-                onLoginSuccess = { navController.navigate(Screen.RoleSelection.route) },
+                onLoginSuccess = { enterApp(Screen.RoleSelection.route) },
                 onMobileLoginClick = { navController.navigate(Screen.MobileLogin.route) },
                 onCreateAccountClick = { navController.navigate(Screen.CreateAccount.route) },
                 onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) }
@@ -53,19 +65,23 @@ fun FixhoraApp() {
         }
         composable(Screen.MobileLogin.route) {
             com.example.ui.screens.auth.MobileLoginScreen(
-                onSendOtp = { navController.navigate(Screen.OtpVerification.route) },
+                onSendOtp = { mobile ->
+                    pendingMobile = mobile
+                    navController.navigate(Screen.OtpVerification.route)
+                },
                 onBack = { navController.popBackStack() }
             )
         }
         composable(Screen.OtpVerification.route) {
             com.example.ui.screens.auth.OtpVerificationScreen(
-                onVerified = { navController.navigate(Screen.ProfileSetup.route) },
-                onBack = { navController.popBackStack() }
+                onVerified = { enterApp(Screen.ProfileSetup.route) },
+                onBack = { navController.popBackStack() },
+                mobile = pendingMobile
             )
         }
         composable(Screen.CreateAccount.route) {
             com.example.ui.screens.auth.CreateAccountScreen(
-                onCreateSuccess = { navController.navigate(Screen.ProfileSetup.route) },
+                onCreateSuccess = { enterApp(Screen.ProfileSetup.route) },
                 onMobileOtpClick = { navController.navigate(Screen.MobileLogin.route) },
                 onBack = { navController.popBackStack() }
             )
@@ -78,14 +94,12 @@ fun FixhoraApp() {
         }
         composable(Screen.ProfileSetup.route) {
             com.example.ui.screens.auth.ProfileSetupScreen(
-                onProfileComplete = { navController.navigate(Screen.PermissionRequest.route) }
+                onProfileComplete = { enterApp(Screen.PermissionRequest.route) }
             )
         }
         composable(Screen.PermissionRequest.route) {
             com.example.ui.screens.auth.PermissionRequestScreen(
-                onPermissionsHandled = { navController.navigate(Screen.RoleSelection.route) {
-                    popUpTo(0) { inclusive = true }
-                } }
+                onPermissionsHandled = { enterApp(Screen.RoleSelection.route) }
             )
         }
         composable(Screen.RoleSelection.route) {

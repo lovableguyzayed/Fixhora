@@ -22,9 +22,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.example.R
 import com.example.ui.theme.*
-import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(onSplashComplete: () -> Unit) {
@@ -33,9 +34,9 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
     LaunchedEffect(Unit) {
         alpha.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 1000)
+            animationSpec = tween(durationMillis = 400)
         )
-        delay(1500)
+        // No artificial waiting: continue as soon as the logo has appeared.
         onSplashComplete()
     }
 
@@ -91,19 +92,28 @@ fun WelcomeScreen(
     onCreateAccountClick: () -> Unit,
     onGuestClick: () -> Unit
 ) {
-    Column(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .safeDrawingPadding()
+    ) {
+    // The picture uses the space left over on tall phones and shrinks on small ones;
+    // the screen scrolls when text is large, so buttons are never pushed off-screen.
+    val imageHeight = (maxHeight - 430.dp).coerceIn(120.dp, 420.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Image(
-            painter = painterResource(id = R.drawable.img_worker), // Assuming worker illustration acts as large welcome image
-            contentDescription = "Welcome Illustration",
+            painter = painterResource(id = R.drawable.img_worker),
+            contentDescription = null,
             modifier = Modifier
-                .weight(1f)
+                .height(imageHeight)
                 .fillMaxWidth(),
             contentScale = ContentScale.Fit
         )
@@ -121,8 +131,10 @@ fun WelcomeScreen(
                 }
             },
             fontSize = 32.sp,
+            lineHeight = 44.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = DarkNavy
+            color = DarkNavy,
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
@@ -137,7 +149,7 @@ fun WelcomeScreen(
             onClick = onSignInClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
@@ -148,7 +160,7 @@ fun WelcomeScreen(
             onClick = onCreateAccountClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary)
@@ -168,5 +180,6 @@ fun WelcomeScreen(
             modifier = Modifier.padding(horizontal = 24.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
+    }
     }
 }
