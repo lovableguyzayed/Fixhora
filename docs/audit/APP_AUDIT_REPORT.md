@@ -21,7 +21,7 @@ password "logs you in". There are no payments and no PDFs in the app at all.
 The screens themselves are a decent base and the brand look is good — the work is to connect them to
 a real backend and remove the fake parts.
 
-### Top 10 issues
+### Top issues
 | # | ID | Problem | Sev |
 |---|----|---------|-----|
 | 1 | ARCH-01 | No backend: tasks, bids and chats live only on one phone; customer and helper can't reach each other | P0 |
@@ -33,7 +33,8 @@ a real backend and remove the fake parts.
 | 7 | BRK-03 | Posting a task can recreate it as a draft; double-tap posts it twice | P1 |
 | 8 | AUTH-09 | After login, Back goes to the login screens again | P1 |
 | 9 | UI-00 / UI-08 | Sign-in, Mobile, OTP, Profile screens show dark text on a **black** background (unreadable); in dark mode status-bar icons vanish | P0 |
-| 10 | AUTH-14 / SEC-06 | No logout, profile, settings, privacy policy, terms, help or delete-account | P1 |
+| 10 | ICON-01 | All 20 app-icon files inside the app were corrupted → blank icon, release build failed | P0 (fixed) |
+| 11 | AUTH-13 / SEC-03 | No logout, profile, settings, privacy policy, terms, help or delete-account | P1 |
 
 ---
 
@@ -155,7 +156,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | AUTH-02 | `SplashAndWelcome.kt:84-108`, `SignInAndSignUp.kt` | Confusing: separate Sign In vs Create Account, passwords, 5 login buttons. Indian users expect one "Continue with mobile number" + "Continue with Google" | Ramesh, Priya | P1 | Single entry screen, new/returning detected automatically; drop passwords | M | Preview (batch 1) |
 | AUTH-03 | `SignInAndSignUp.kt:142,144,288` | Google & Email buttons only show "Coming soon" | Priya, Amit | P1 | Credential Manager "Sign in with Google" once backend chosen | M | Decision |
 | AUTH-04 | `MobileLoginFlow.kt:62`, `SignInAndSignUp.kt:62,213` | Phone field accepts letters, any length, "+91"/"0"/spaces not cleaned; no 6-9 check | Ramesh | P2 | Normalise to 10 digits, validate, disable Send OTP until valid | S | Fixed |
-| AUTH-05 | `MobileLoginFlow.kt:130-151` | OTP: 6 separate boxes — no auto-advance, Backspace doesn't go back, paste impossible, no SMS autofill; 6×48dp overflows a 320dp phone | Ramesh, Amit | P2 | One hidden input drawn as 6 boxes; paste/autofill (`SmsOtpCode`), digits only, fits any width | S | Fixed |
+| AUTH-05 | `MobileLoginFlow.kt:130-151` | OTP: 6 separate boxes — no auto-advance, Backspace doesn't go back, paste impossible, no SMS autofill; 6×48dp overflows a 320dp phone | Ramesh, Amit | P2 | One input drawn as 6 boxes: typing, Backspace, paste, fits any width (V). Automatic SMS read (SMS Retriever) comes with the OTP provider | S | Fixed (auto-read: Preview/Decision) |
 | AUTH-06 | `MobileLoginFlow.kt:94,166-171` | OTP screen doesn't show which number; "Call Me Instead" dead; 60 s timer, no attempt limit | All | P2 | Show "+91 98xxx", 30 s timer; hide Call-me until supported; limits need backend | S | Fixed (UI part) |
 | AUTH-07 | `MobileLoginFlow.kt:176` | Verify: no loading, no wrong/expired message, can double-submit | All | P2 | Comes with real OTP backend; Verify disabled until 6 digits now | S | Fixed (partial) |
 | AUTH-08 | `FixhoraApp.kt:31-44` | No session: every launch starts at Welcome; nothing remembered | All | P1 | Store session (encrypted) once backend exists | M | Decision |
@@ -204,7 +205,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | PERF-01 | `SplashAndWelcome.kt:33-39` | 2.5 s artificial splash on every launch (plus Android 12+ system splash = double splash) | P2 | Removed the 1.5 s hold, fade 400 ms | Fixed |
 | PERF-02 | `WorkerHomeScreen.kt:36-39`, `WorkerMapScreen.kt:37-42` | Fake 1.5 s loading on Home & Map every visit | P2 | Show skeleton only until data really arrives | Fixed |
 | PERF-03 | `res/drawable/*.png` | 3 illustrations = 5.6 MB PNG (1024×1536) shown at ≤160 dp | P2 | Resize + WebP (same look) | Fixed |
-| PERF-04 | `app/build.gradle.kts:32-38,62-101` | Release: no shrinking (R8 off), unused Retrofit/OkHttp/Moshi/Firebase-BOM shipped | P2 | Remove unused libs; enable R8 + resource shrink (D) | Fixed |
+| PERF-04 | `app/build.gradle.kts:32-38,62-101` | Release: no shrinking (R8 off), unused Retrofit/OkHttp/Moshi/Firebase-BOM shipped | P2 | Unused libs off; R8 + resource shrink on → release APK **1.9 MB** (V builds; D run it once on a phone) | Fixed |
 | PERF-05 | `app/build.gradle.kts:28,41` | Build fails on any machine without `debug.keystore` / release env vars | P2 | Use custom keystores only when present | Fixed |
 | PERF-06 | `WorkerHomeScreen.kt:133`, `WorkerTasksScreen.kt:110` | Lists without stable keys | P3 | `key = { it.id }` | Fixed |
 | PERF-07 | `WorkerChatScreen.kt:32-49` | In an open chat, system Back exits the whole helper area instead of closing the chat | P2 | `BackHandler` | Fixed |
@@ -222,25 +223,26 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | SEC-04 | DPDP gaps: no consent notice listing data (name, phone, location, photos), no withdraw-consent, no data view/correct/erase, no grievance contact, no breach plan, no age check (tutoring category ⇒ minors possible) | P1 | Decision (D10) |
 | SEC-05 | Delete account (in-app + web link) missing | P1 | Preview (batch 2) + needs backend |
 | SEC-06 | `allowBackup=true` with empty rules: fine today, but must exclude login tokens once added | P3 | Open |
-| SEC-07 | 16 KB pages: debug APK has **no native .so files** → compliant (V, checked after build) | — | OK |
+| SEC-07 | 16 KB pages: the APK has one native library (`libandroidx.graphics.path.so`, from Compose). All 4 ABIs are aligned to 16 KB (`0x4000`) and `zipalign -c -P 16` passes (V). Still test once on a 16 KB emulator (D) | — | OK |
 | SEC-08 | Package name `com.aistudio.fixhora.xyzkpa` is permanent once uploaded; `namespace com.example` | P1 | Decision (D5) |
 | SEC-09 | Personal Play account → closed test with 12 testers × 14 days before production | Info | — |
 
 ### A7. Broken, fake and half-built features
 | ID | file:line | Problem | Sev | Fix | Status |
 |---|---|---|---|---|---|
+| ICON-01 | `app/src/main/res/mipmap-*/*.png` (20 files) | Launcher icons corrupted (image bytes saved as text; no image tool can open them) → blank app icon; release build fails when PNG processing is on (V) | P0 | Restored from the valid copies in `android/res` | Fixed |
 | ARCH-01 | whole app | No server: tasks/bids/chat only on one phone | P0 | Backend (D1) | Decision |
 | BRK-01 | `TaskRepository.kt:13-35`, `TaskViewModel.kt:32`, `HelperViewModel.kt:23` | Every time a screen opens with < 50 tasks, inserts 100 fake US tasks ("New York, NY"); two screens can do it at once → 200 | P0 | Never in release; debug-only, once, Indian sample data | Fixed |
 | BRK-03 | `TaskViewModel.kt:57-108`, `TaskReviewScreen.kt:131` | Pending auto-save (0.5 s) runs after "Post Task" → posted task comes back as a draft; double-tap posts twice; screen leaves before save finishes | P1 | Cancel pending save, post once, navigate after save | Fixed |
 | BRK-04 | `TaskPhotosScreen.kt:42-50` | Photo links expire → grey boxes after restart | P1 | Copy picked photos into app storage | Fixed |
 | BRK-05 | `TaskPhotosScreen.kt:177-188` | Developer "add sample photos" button shown to users (loads Unsplash) | P2 | Debug builds only | Fixed |
-| BRK-07 | `TaskViewModel.kt:18`, `TaskLocationScreen.kt:189`, `TaskReviewScreen.kt:83` | Current location ON by default, shows/posts fake "Sector 62, Noida" | P1 | Default OFF; no fake address; real GPS needs D7 | Fixed (interim) |
+| BRK-07 | `TaskViewModel.kt:18`, `TaskLocationScreen.kt:189`, `TaskReviewScreen.kt:83` | Current location ON by default, shows/posts fake "Sector 62, Noida" | P1 | Removed the fake GPS switch, fake map box and Noida text; address must be typed. **Visible change** made without preview because it posted wrong data. Real GPS needs D7 | Fixed (interim) |
 | BRK-08 | `TaskLocationScreen.kt:68,224,250` | Locate-me icon, "Within 5 km", "safe" card look tappable but aren't | P2 | Remove fake chevrons/icon; radius picker later | Fixed |
 | BRK-09 | `TaskFlowContainer.kt:34-37` | Step 1 is labelled "Task Details" but only picks a category; details are on step 3 "Photos" | P3 | Labels → Category · Location · Details · Review | Fixed |
 | BRK-11 | `WorkerHomeScreen.kt` | Fake "Alex Worker", "Good Morning" at night, fake badges & stats, dead bell/bid/refresh | P1 | Remove fakes (visible) | Preview (batch 2) |
 | BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Decision |
-| BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "In Progress"/"Cancelled" can never match; search dead | P2 | Correct labels; search filters | Fixed |
-| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Real chat needs backend; show real times now | Fixed (times) / Decision |
+| BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "Pending"/"In Progress"/"Cancelled" chips can never match; search dead | P2 | "Rejected" label + chip; never-matching chips removed; search filters by title/details/place. Top-bar Search/Filter/Sort icons still dead | Fixed (partial) |
+| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Fixed (fakes) / Decision |
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
 | BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Preview (batch 2) |
@@ -325,3 +327,16 @@ reviews; helper verification (KYC); FAQ; app version/about; offline banner + ret
 ## 6. Previews (mockups)
 See `docs/audit/mockups/index.html`. Batch 1 = Login (AUTH-02, -05, -06). Batch 2 = Account screen,
 helper home without fake data, customer "My tasks".
+
+## 7. Verification (after fixes, commit `936a7c6`+)
+| Check | Before | After |
+|---|---|---|
+| `assembleDebug` | ❌ fails (debug.keystore missing) | ✅ |
+| `assembleRelease` (R8 on) | ❌ fails (corrupted icons / keystore) | ✅ 1.9 MB unsigned APK |
+| Unit tests | 1 placeholder test | ✅ 13 pass (number cleaning, ₹ format, IST time, task posting, sample-data seeding, screenshots) |
+| Android Lint | 0 errors, 47 warnings | 0 errors, 47 warnings (40 are "newer library version available") |
+| 16 KB page size | — | ✅ aligned |
+| PDF script | — | 0 PDFs, nothing broken |
+| Screenshots | `mockups/before/` | `mockups/after/` — see `mockups/index.html` |
+
+Not verifiable here (no phone/emulator): everything in `MANUAL_TEST_CHECKLIST.md`.

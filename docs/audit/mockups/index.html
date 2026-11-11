@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FixoraX Previews</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#0B1F44;--mute:#6B7280;--line:#E5E7EB;--blue:#0B57FF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1020;--card:#152033;--ink:#fff;--mute:#a9b4c7;--line:#2D3C5C}}
+:root[data-theme="dark"]{--bg:#0A1020;--card:#152033;--ink:#fff;--mute:#a9b4c7;--line:#2D3C5C}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Roboto,sans-serif;line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding:16px}h1{font-size:24px;margin:8px 0}h2{font-size:19px;margin:32px 0 4px;border-top:1px solid var(--line);padding-top:24px}
+p{color:var(--mute);margin:4px 0 12px}.item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.id{display:inline-block;font-size:12px;font-weight:700;color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:1px 6px;margin-right:6px}
+.pair{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}figure{margin:0;flex:1 1 200px;max-width:300px}figcaption{font-size:12px;font-weight:700;color:var(--mute);text-transform:uppercase;margin-bottom:4px}
+img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block}details{margin-top:10px}summary{cursor:pointer;color:var(--blue);font-weight:600}
+</style></head><body><main>
+<h1>FixoraX — before / after previews</h1>
+<p>Part A needs your OK before I build it. Part B is already fixed (small visual bugs) — shown for your information.</p>
+<h2>Part A — Batch 1: simpler login (waiting for your OK)</h2>
+<p>"Now" is the app as it is on this branch. "Proposed" is a mockup of what I would build. Real OTP and Google sign-in also need the backend decision (D1–D3 in the report).</p>
+<div class="item"><span class="id">AUTH-02</span><b>One simple entry screen</b><p>Replaces Sign In / Create Account / passwords with two equal buttons + guest. Language choice and policy links on the first screen.</p><div class="pair">
+<figure><figcaption>Now</figcaption><img loading="lazy" src="after/welcome_360x800_after.png" alt="One simple entry screen now"></figure>
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-02_welcome_after.png" alt="One simple entry screen proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-02</span><b>Mobile number</b><p>+91 always visible, one-tap SIM number hint, new and returning users use the same screen.</p><div class="pair">
+<figure><figcaption>Now</figcaption><img loading="lazy" src="after/mobile_login_360x800_after.png" alt="Mobile number now"></figure>
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-02_mobile_after.png" alt="Mobile number proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-05</span><b>OTP — auto-read</b><p>OTP read from SMS automatically, 'Change' number link, WhatsApp help.</p><div class="pair">
+<figure><figcaption>Now</figcaption><img loading="lazy" src="after/otp_360x800_after.png" alt="OTP — auto-read now"></figure>
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-05_otp_after.png" alt="OTP — auto-read proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-07</span><b>OTP — wrong code</b><p>Clear message, tries left, input kept.</p><div class="pair">
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-07_otp_error_after.png" alt="OTP — wrong code proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-11</span><b>Name only</b><p>Replaces the 7-field profile form. Single names allowed.</p><div class="pair">
+<figure><figcaption>Now</figcaption><img loading="lazy" src="after/profile_setup_360x800_after.png" alt="Name only now"></figure>
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-11_name_after.png" alt="Name only proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-02</span><b>Welcome — large font</b><p>Buttons wrap, nothing clipped.</p><div class="pair">
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-02_welcome_largefont_after.png" alt="Welcome — large font proposed"></figure></div></div>
+<div class="item"><span class="id">AUTH-02</span><b>Welcome — small phone</b><p>320×568.</p><div class="pair">
+<figure><figcaption>Proposed</figcaption><img loading="lazy" src="AUTH-02_welcome_small320_after.png" alt="Welcome — small phone proposed"></figure></div></div>
+<h2>Part B — already fixed (real screenshots of the app)</h2><p>Rendered from the app code before and after the fixes.</p>
+<div class="item"><span class="id">UI-00</span><b>Sign in</b><p>Navy text on a black screen → white screen, readable text.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/sign_in_360x800_before.png" alt="Sign in before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/sign_in_360x800_after.png" alt="Sign in after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/sign_in_360x800_font200_before.png" alt="Sign in before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/sign_in_360x800_font200_after.png" alt="Sign in after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/sign_in_320x568_before.png" alt="Sign in before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/sign_in_320x568_after.png" alt="Sign in after"></figure></div></details>
+</div>
+<div class="item"><span class="id">UI-00 · AUTH-04</span><b>Mobile number</b><p>Readable; number is cleaned (+91/0/spaces) and must be 10 digits starting 6–9.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/mobile_login_360x800_before.png" alt="Mobile number before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/mobile_login_360x800_after.png" alt="Mobile number after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/mobile_login_360x800_font200_before.png" alt="Mobile number before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/mobile_login_360x800_font200_after.png" alt="Mobile number after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/mobile_login_320x568_before.png" alt="Mobile number before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/mobile_login_320x568_after.png" alt="Mobile number after"></figure></div></details>
+</div>
+<div class="item"><span class="id">AUTH-05 · AUTH-06</span><b>OTP</b><p>One input drawn as 6 boxes (paste + Backspace work), shows the number, 30 s resend, Verify waits for 6 digits.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/otp_360x800_before.png" alt="OTP before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/otp_360x800_after.png" alt="OTP after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/otp_360x800_font200_before.png" alt="OTP before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/otp_360x800_font200_after.png" alt="OTP after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/otp_320x568_before.png" alt="OTP before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/otp_320x568_after.png" alt="OTP after"></figure></div></details>
+</div>
+<div class="item"><span class="id">UI-00 · AUTH-11</span><b>Profile setup</b><p>Readable; PIN code gets the number pad.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/profile_setup_360x800_before.png" alt="Profile setup before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/profile_setup_360x800_after.png" alt="Profile setup after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/profile_setup_360x800_font200_before.png" alt="Profile setup before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/profile_setup_360x800_font200_after.png" alt="Profile setup after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/profile_setup_320x568_before.png" alt="Profile setup before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/profile_setup_320x568_after.png" alt="Profile setup after"></figure></div></details>
+</div>
+<div class="item"><span class="id">UI-02</span><b>Welcome</b><p>Scrolls on small phones / large fonts; nothing pushed off-screen.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/welcome_360x800_before.png" alt="Welcome before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/welcome_360x800_after.png" alt="Welcome after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/welcome_360x800_font200_before.png" alt="Welcome before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/welcome_360x800_font200_after.png" alt="Welcome after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/welcome_320x568_before.png" alt="Welcome before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/welcome_320x568_after.png" alt="Welcome after"></figure></div></details>
+</div>
+<div class="item"><span class="id">UI-05</span><b>Role selection</b><p>Cards grow with text instead of clipping.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/role_selection_360x800_before.png" alt="Role selection before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/role_selection_360x800_after.png" alt="Role selection after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/role_selection_360x800_font200_before.png" alt="Role selection before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/role_selection_360x800_font200_after.png" alt="Role selection after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/role_selection_320x568_before.png" alt="Role selection before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/role_selection_320x568_after.png" alt="Role selection after"></figure></div></details>
+</div>
+<div class="item"><span class="id">BRK-09 · UI-06</span><b>Task category</b><p>Step names fixed (Category · Location · Details · Review); tiles adapt to width and font size.</p>
+<div class="pair"><figure><figcaption>Before · Phone 360×800</figcaption><img loading="lazy" src="before/task_category_360x800_before.png" alt="Task category before"></figure><figure><figcaption>After · Phone 360×800</figcaption><img loading="lazy" src="after/task_category_360x800_after.png" alt="Task category after"></figure></div>
+<details><summary>Largest font size</summary><div class="pair"><figure><figcaption>Before · Largest font size</figcaption><img loading="lazy" src="before/task_category_360x800_font200_before.png" alt="Task category before"></figure><figure><figcaption>After · Largest font size</figcaption><img loading="lazy" src="after/task_category_360x800_font200_after.png" alt="Task category after"></figure></div></details>
+<details><summary>Small phone 320×568</summary><div class="pair"><figure><figcaption>Before · Small phone 320×568</figcaption><img loading="lazy" src="before/task_category_320x568_before.png" alt="Task category before"></figure><figure><figcaption>After · Small phone 320×568</figcaption><img loading="lazy" src="after/task_category_320x568_after.png" alt="Task category after"></figure></div></details>
+</div>
+</main></body></html>
