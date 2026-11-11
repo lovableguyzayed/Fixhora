@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.example.ui.theme.BluePrimary
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,7 +34,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    val useCurrentLocation = uiState.useCurrentLocation
 
     Column(
         modifier = Modifier
@@ -52,7 +53,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Text(
             text = "Set the location for your task",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
         )
@@ -61,13 +62,15 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         OutlinedTextField(
             value = uiState.locationQuery,
-            onValueChange = { 
+            onValueChange = {
                 viewModel.updateLocationQuery(it)
-                if (it.isNotEmpty()) viewModel.updateUseCurrentLocation(false)
+                if (it.isNotBlank()) showError = false
             },
-            placeholder = { Text("Search address or area") },
+            label = { Text("Address") },
+            placeholder = { Text("House no., area, landmark, city") },
+            isError = showError,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-            trailingIcon = { Icon(Icons.Default.MyLocation, contentDescription = null, tint = BluePrimary) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -83,7 +86,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             "Bandra West, Mumbai, Maharashtra 400050",
             "Salt Lake, Kolkata, West Bengal 700091"
         )
-        val filteredSuggestions = if (uiState.locationQuery.isNotBlank() && !useCurrentLocation) {
+        val filteredSuggestions = if (uiState.locationQuery.isNotBlank()) {
             mockSuggestions.filter { it.contains(uiState.locationQuery, ignoreCase = true) && it != uiState.locationQuery }
         } else {
             emptyList()
@@ -104,7 +107,6 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                                 .fillMaxWidth()
                                 .clickable {
                                     viewModel.updateLocationQuery(suggestion)
-                                    viewModel.updateUseCurrentLocation(false)
                                 }
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -125,75 +127,6 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         if (suggestion != filteredSuggestions.last()) {
                             HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
                         }
-                    }
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Mock Map Area
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
-        ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().weight(1f).background(Color(0xFFE8F0FE)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Map Pin
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(BluePrimary.copy(alpha = 0.2f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(16.dp)
-                                .clip(CircleShape)
-                                .background(BluePrimary),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                            )
-                        }
-                    }
-                }
-                
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = BluePrimary,
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Use my current location", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                            Text("Sector 62, Noida, Uttar Pradesh 201309", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        Switch(
-                            checked = useCurrentLocation,
-                            onCheckedChange = { viewModel.updateUseCurrentLocation(it) },
-                            colors = SwitchDefaults.colors(checkedTrackColor = BluePrimary)
-                        )
                     }
                 }
             }
@@ -224,10 +157,9 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Within 5 km", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text("Within ${uiState.selectedDistance} km", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     Text("You will receive offers from helpers nearby", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -253,13 +185,12 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     Text("Your location is safe with us", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     Text("We never share your exact address with anyone.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
         if (showError) {
             Text(
-                text = "Please enter an address or enable 'Use my current location'",
+                text = "Please enter the address where you need help",
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -268,7 +199,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         Button(
             onClick = { 
-                if (useCurrentLocation || uiState.locationQuery.isNotBlank()) {
+                if (uiState.locationQuery.isNotBlank()) {
                     onNext()
                 } else {
                     showError = true
@@ -277,7 +208,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {

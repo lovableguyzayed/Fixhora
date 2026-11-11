@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.BluePrimary
+import com.example.util.IndiaFormat
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
@@ -57,7 +58,7 @@ fun TaskReviewScreen(
         Text(
             text = "Please review all details before posting",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
         )
@@ -95,7 +96,7 @@ fun TaskReviewScreen(
         // Location Card
         ReviewCard(
             label = "Location",
-            title = if (uiState.useCurrentLocation) "Current Location (Noida)" else uiState.locationQuery.ifEmpty { "Not specified" },
+            title = uiState.locationQuery.ifBlank { "Not specified" },
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Location.route) },
             extraContent = {
@@ -123,7 +124,7 @@ fun TaskReviewScreen(
         // Photos Card
         ReviewCard(
             label = "Photos",
-            title = if (uiState.photoUris.isEmpty()) "No photos added" else "${uiState.photoUris.size} photos added",
+            title = if (uiState.photoUris.isEmpty()) "No photos added" else if (uiState.photoUris.size == 1) "1 photo added" else "${uiState.photoUris.size} photos added",
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             extraContent = {
@@ -153,15 +154,7 @@ fun TaskReviewScreen(
         Spacer(modifier = Modifier.height(12.dp))
         
         // Budget Card
-        val budgetTitle = if (uiState.minBudget.isNotBlank() && uiState.maxBudget.isNotBlank()) {
-            "₹${uiState.minBudget} - ₹${uiState.maxBudget}"
-        } else if (uiState.minBudget.isNotBlank()) {
-            "Min ₹${uiState.minBudget}"
-        } else if (uiState.maxBudget.isNotBlank()) {
-            "Max ₹${uiState.maxBudget}"
-        } else {
-            "No budget specified"
-        }
+        val budgetTitle = IndiaFormat.budgetLabel(uiState.minBudget, uiState.maxBudget, none = "No budget set")
         
         ReviewCard(
             label = "Your Budget",
@@ -198,14 +191,12 @@ fun TaskReviewScreen(
         }
         
         Button(
-            onClick = {
-                viewModel.submitTask()
-                onSubmit()
-            },
+            onClick = { viewModel.submitTask(onPosted = onSubmit) },
+            enabled = !uiState.isSubmitting,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {

@@ -34,17 +34,39 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import android.widget.Toast
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import com.example.BuildConfig
+import com.example.util.IndiaFormat
+import com.example.util.PhotoStore
+import kotlinx.coroutines.launch
+
+private const val MAX_PHOTOS = 5
 
 @Composable
 fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
     val uiState by viewModel.uiState.collectAsState()
-    
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 5)
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = MAX_PHOTOS)
     ) { uris ->
-        uris.forEach { uri ->
-            if (uiState.photoUris.size < 5 && !uiState.photoUris.contains(uri.toString())) {
-                viewModel.addPhotoUri(uri.toString())
+        // Copy each picked photo into the app's own storage (picker links expire on restart).
+        scope.launch {
+            var failed = false
+            uris.forEach { uri ->
+                if (viewModel.uiState.value.photoUris.size < MAX_PHOTOS) {
+                    val saved = PhotoStore.copyToAppStorage(context, uri)
+                    if (saved != null) viewModel.addPhotoUri(saved) else failed = true
+                }
+            }
+            if (failed) {
+                Toast.makeText(context, "Could not add a photo. Please check phone storage and try again.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -67,7 +89,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Text(
             text = "Add photos to help helpers understand the task better.",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
         )
@@ -78,7 +100,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 .fillMaxWidth()
                 .height(160.dp)
                 .clickable {
-                    if (uiState.photoUris.size < 5) {
+                    if (uiState.photoUris.size < MAX_PHOTOS) {
                         photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     }
                 },
@@ -115,7 +137,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Added photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text("${uiState.photoUris.size}/5", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("${uiState.photoUris.size}/$MAX_PHOTOS", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         
         Spacer(modifier = Modifier.height(12.dp))
@@ -145,15 +167,18 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             .size(20.dp)
                             .clip(CircleShape)
                             .background(Color.White.copy(alpha = 0.8f))
-                            .clickable { viewModel.removePhotoUri(uriString) },
+                            .clickable {
+                                viewModel.removePhotoUri(uriString)
+                                scope.launch { PhotoStore.delete(context, uriString) }
+                            },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.Black)
+                        Icon(Icons.Default.Close, contentDescription = "Remove photo", modifier = Modifier.size(14.dp), tint = Color.Black)
                     }
                 }
             }
             
-            if (uiState.photoUris.size < 5) {
+            if (uiState.photoUris.size < MAX_PHOTOS) {
                 item {
                     // Add More Button
                     OutlinedCard(
@@ -174,7 +199,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             }
         }
 
-        if (uiState.photoUris.isEmpty()) {
+        // Developer shortcut: only in test (debug) builds, never shown to real users.
+        if (BuildConfig.DEBUG && uiState.photoUris.isEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             TextButton(
                 onClick = {
@@ -204,6 +230,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             label = { Text("Task Title *") },
             placeholder = { Text("e.g. Clean my kitchen sink / fix wood drawer") },
             isError = titleError,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -221,7 +249,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             onValueChange = { viewModel.updateDescription(uiState.descriptionTitle, it) },
             label = { Text("Detailed Description") },
             placeholder = { Text("Provide details like what tools are needed, special requests, size of work etc.") },
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
@@ -234,13 +263,17 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Text("Set Budget Range (Optional)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(12.dp))
 
+        val budgetInvalid = IndiaFormat.isBudgetRangeInvalid(uiState.minBudget, uiState.maxBudget)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
                 value = uiState.minBudget,
-                onValueChange = { viewModel.updateBudget(it, uiState.maxBudget) },
+                onValueChange = { viewModel.updateBudget(IndiaFormat.cleanAmount(it), uiState.maxBudget) },
+                isError = budgetInvalid,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                 label = { Text("Min Budget (₹)") },
                 placeholder = { Text("e.g. 500") },
                 modifier = Modifier.weight(1f),
@@ -252,7 +285,10 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
             OutlinedTextField(
                 value = uiState.maxBudget,
-                onValueChange = { viewModel.updateBudget(uiState.minBudget, it) },
+                onValueChange = { viewModel.updateBudget(uiState.minBudget, IndiaFormat.cleanAmount(it)) },
+                isError = budgetInvalid,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
                 label = { Text("Max Budget (₹)") },
                 placeholder = { Text("e.g. 1500") },
                 modifier = Modifier.weight(1f),
@@ -261,6 +297,10 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 )
             )
+        }
+
+        if (budgetInvalid) {
+            Text("Max budget should be more than min budget", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -294,14 +334,14 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             onClick = {
                 if (uiState.descriptionTitle.isBlank()) {
                     titleError = true
-                } else {
+                } else if (!budgetInvalid) {
                     onNext()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {

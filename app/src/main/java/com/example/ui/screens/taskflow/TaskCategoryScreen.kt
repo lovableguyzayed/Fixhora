@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalConfiguration
 import com.example.ui.theme.BluePrimary
 
 @Composable
@@ -50,7 +51,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Text(
             text = "Choose a category that best fits your task",
             fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
         )
@@ -81,7 +82,8 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            // 3 columns on phones, more on tablets, fewer when the user's font size is large
+            columns = GridCells.Adaptive(minSize = 96.dp * LocalConfiguration.current.fontScale.coerceIn(1f, 1.6f)),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f)
@@ -92,7 +94,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(0.8f)
+                        .heightIn(min = 124.dp) // grows with large font sizes instead of clipping
                         .clickable { 
                             viewModel.updateCategory(category.id) 
                             showError = false
@@ -106,7 +108,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         color = if (isSelected) BluePrimary else MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                     )
                 ) {
-                    Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                         if (isSelected) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
@@ -119,7 +121,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -151,7 +153,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             Text(
                                 text = category.subtitle,
                                 fontSize = 10.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
                                 lineHeight = 12.sp
                             )
@@ -181,7 +183,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 24.dp)
-                .height(56.dp),
+                .heightIn(min = 56.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {

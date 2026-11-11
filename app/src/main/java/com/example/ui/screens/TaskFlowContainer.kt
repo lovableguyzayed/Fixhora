@@ -31,9 +31,9 @@ import com.example.ui.screens.taskflow.TaskViewModel
 import com.example.FixhoraApplication
 
 sealed class TaskScreen(val route: String, val index: Int, val title: String) {
-    object Category : TaskScreen("category", 1, "Task Details")
+    object Category : TaskScreen("category", 1, "Category")
     object Location : TaskScreen("location", 2, "Location")
-    object Photos : TaskScreen("photos", 3, "Photos")
+    object Photos : TaskScreen("photos", 3, "Details")
     object Review : TaskScreen("review", 4, "Review")
 }
 
@@ -166,7 +166,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                             Spacer(modifier = Modifier.height(48.dp))
                             Button(
                                 onClick = onBackToRoles,
-                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                             ) {
@@ -234,6 +234,9 @@ fun StepProgressBar(currentStep: Int) {
                     fontSize = 12.sp,
                     color = if (index + 1 <= currentStep) BluePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
             }

@@ -22,15 +22,17 @@ class HelperViewModel(
 
     init {
         viewModelScope.launch {
-            repository.insertDummyData()
+            // Sample jobs only in test (debug) builds; real users never see fake jobs.
+            if (com.example.BuildConfig.DEBUG) repository.seedDemoTasksIfEmpty()
         }
     }
 
-    val availableTasks: StateFlow<List<TaskEntity>> = repository.completedTasks
+    /** Jobs open for helpers. `null` means "still loading" (so screens can show a skeleton). */
+    val availableTasks: StateFlow<List<TaskEntity>?> = repository.completedTasks
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            initialValue = null
         )
 
     val allTasks: StateFlow<List<TaskEntity>> = repository.allTasks

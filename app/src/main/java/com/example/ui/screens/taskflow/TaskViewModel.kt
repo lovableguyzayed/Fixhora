@@ -3,6 +3,7 @@ package com.example.ui.screens.taskflow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.BuildConfig
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,13 +16,15 @@ data class TaskDraftState(
     val categoryId: String? = null,
     val searchCategoryQuery: String = "",
     val locationQuery: String = "",
-    val useCurrentLocation: Boolean = true,
+    // Off by default: the app cannot read GPS yet, so the customer must type the address.
+    val useCurrentLocation: Boolean = false,
     val selectedDistance: Int = 5,
     val descriptionTitle: String = "",
     val descriptionDetails: String = "",
     val minBudget: String = "",
     val maxBudget: String = "",
-    val photoUris: List<String> = emptyList()
+    val photoUris: List<String> = emptyList(),
+    val isSubmitting: Boolean = false
 )
 
 class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
@@ -30,16 +33,13 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.insertDummyData()
-        }
-        viewModelScope.launch {
             try {
                 val draft = repository.getDraftTask()
                 if (draft != null) {
                     _uiState.value = TaskDraftState(
                         categoryId = draft.categoryId,
                         locationQuery = draft.locationQuery,
-                        useCurrentLocation = draft.useCurrentLocation,
+                        useCurrentLocation = false, // GPS is not available yet; address must be typed
                         selectedDistance = draft.selectedDistance,
                         descriptionTitle = draft.descriptionTitle,
                         descriptionDetails = draft.descriptionDetails,
@@ -49,7 +49,7 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
                     )
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (BuildConfig.DEBUG) e.printStackTrace()
             }
         }
     }
@@ -77,32 +77,41 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
                     )
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (BuildConfig.DEBUG) e.printStackTrace()
             }
         }
     }
 
-    fun submitTask() {
+    /**
+     * Posts the task once. Any pending draft auto-save is cancelled first (otherwise it would
+     * re-create the posted task as a draft). [onPosted] runs only after the task is saved.
+     */
+    fun submitTask(onPosted: () -> Unit) {
         val currentState = _uiState.value
+        if (currentState.isSubmitting) return // ignore double taps
+        saveJob?.cancel()
+        _uiState.update { it.copy(isSubmitting = true) }
         viewModelScope.launch {
             try {
                 repository.submitTask(
                     TaskEntity(
                         status = "submitted",
                         categoryId = currentState.categoryId,
-                        locationQuery = currentState.locationQuery,
+                        locationQuery = currentState.locationQuery.trim(),
                         useCurrentLocation = currentState.useCurrentLocation,
                         selectedDistance = currentState.selectedDistance,
-                        descriptionTitle = currentState.descriptionTitle,
-                        descriptionDetails = currentState.descriptionDetails,
+                        descriptionTitle = currentState.descriptionTitle.trim(),
+                        descriptionDetails = currentState.descriptionDetails.trim(),
                         minBudget = currentState.minBudget,
                         maxBudget = currentState.maxBudget,
                         photoUris = currentState.photoUris.joinToString(",")
                     )
                 )
                 clearDraft()
+                onPosted()
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (BuildConfig.DEBUG) e.printStackTrace()
+                _uiState.update { it.copy(isSubmitting = false) }
             }
         }
     }
