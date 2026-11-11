@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.util.IndiaFormat
 import com.example.data.room.TaskEntity
 import com.example.ui.screens.taskflow.dummyCategories
 
@@ -32,7 +33,8 @@ import com.example.ui.screens.taskflow.dummyCategories
 fun WorkerTasksScreen(viewModel: HelperViewModel) {
     val allTasks by viewModel.allTasks.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    val tabs = listOf("All Tasks", "New Requests", "Pending", "Accepted", "In Progress", "Completed", "Cancelled")
+    // Only statuses that really exist are offered as filters.
+    val tabs = listOf("All Tasks", "New Requests", "Accepted", "Completed", "Rejected")
     var selectedTab by remember { mutableStateOf("All Tasks") }
 
     Scaffold(
@@ -60,7 +62,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search tasks, customers, locations...", color = SecondaryGrey, fontSize = 14.sp) },
+                placeholder = { Text("Search tasks or locations", color = SecondaryGrey, fontSize = 14.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = SecondaryGrey) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -107,15 +109,20 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
             }
 
             // Task List
-            val filteredTasks = if (selectedTab == "All Tasks") allTasks else allTasks.filter {
+            val query = searchQuery.trim()
+            val filteredTasks = allTasks.filter { task ->
                 val statusMatch = when (selectedTab) {
-                    "New Requests" -> it.status == "submitted"
-                    "Pending" -> it.status == "pending"
-                    "Accepted" -> it.status == "accepted"
-                    "Completed" -> it.status == "completed"
-                    else -> false
+                    "New Requests" -> task.status == "submitted"
+                    "Accepted" -> task.status == "accepted"
+                    "Completed" -> task.status == "completed"
+                    "Rejected" -> task.status == "rejected"
+                    else -> true
                 }
-                statusMatch
+                val searchMatch = query.isEmpty() ||
+                    task.descriptionTitle.contains(query, ignoreCase = true) ||
+                    task.descriptionDetails.contains(query, ignoreCase = true) ||
+                    task.locationQuery.contains(query, ignoreCase = true)
+                statusMatch && searchMatch
             }
 
             if (filteredTasks.isEmpty()) {
@@ -150,7 +157,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredTasks) { task ->
+                    items(filteredTasks, key = { it.id }) { task ->
                         WorkerTaskCard(
                             task = task,
                             onAccept = { viewModel.acceptTask(task) },
@@ -167,12 +174,13 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
 @Composable
 fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit) {
     val category = dummyCategories.find { it.id == task.categoryId }?.title ?: "General Service"
-    val budgetText = if (task.minBudget.isNotBlank() && task.maxBudget.isNotBlank()) "₹${task.minBudget} - ₹${task.maxBudget}" else if (task.minBudget.isNotBlank()) "Min ₹${task.minBudget}" else if (task.maxBudget.isNotBlank()) "Max ₹${task.maxBudget}" else "Budget Negotiable"
+    val budgetText = IndiaFormat.budgetLabel(task.minBudget, task.maxBudget)
     val displayStatus = when (task.status) {
         "submitted" -> "New"
         "pending" -> "Pending"
         "accepted" -> "Accepted"
         "completed" -> "Completed"
+        "rejected" -> "Rejected"
         else -> "Draft"
     }
 
@@ -257,7 +265,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                 Column(modifier = Modifier.weight(1f)) {
                     TaskMetaRow(Icons.Default.Category, category)
                     Spacer(modifier = Modifier.height(4.dp))
-                    TaskMetaRow(Icons.Default.LocationOn, if (task.useCurrentLocation) "Current Location" else task.locationQuery.ifEmpty { "Not specified" })
+                    TaskMetaRow(Icons.Default.LocationOn, task.locationQuery.ifBlank { "Location not shared" })
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     TaskMetaRow(Icons.Default.AccountBalanceWallet, budgetText)

@@ -23,23 +23,20 @@ import androidx.compose.ui.unit.sp
 import com.example.data.room.TaskEntity
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
+import com.example.util.IndiaFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkerMapScreen(viewModel: HelperViewModel) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("All") }
-    val tasks by viewModel.availableTasks.collectAsState()
+    val loadedTasks by viewModel.availableTasks.collectAsState()
+    val isLoading = loadedTasks == null
+    val tasks = loadedTasks.orEmpty()
     
     var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
     var showBidSheet by remember { mutableStateOf(false) }
 
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1500)
-        isLoading = false
-    }
 
     val categories = listOf("All", "🔥 Trending", "⭐ Recommended", "🛠 Electrician", "🚰 Plumber", "🎨 Painter", "🧹 Cleaner", "🔧 Mechanic")
 
@@ -233,7 +230,7 @@ fun MapMarker(task: TaskEntity, onClick: () -> Unit) {
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Text(
-                text = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Bid",
+                text = IndiaFormat.rupeesOrNull(task.maxBudget) ?: "Bid",
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp
@@ -321,7 +318,7 @@ fun JobDetailsContent(
             JobDetailItem(
                 icon = Icons.Default.AccountBalanceWallet,
                 title = "Budget",
-                value = if (task.maxBudget.isNotEmpty()) "₹${task.maxBudget}" else "Negotiable",
+                value = IndiaFormat.rupeesOrNull(task.maxBudget) ?: "Negotiable",
                 valueColor = DarkNavy,
                 valueWeight = FontWeight.Bold
             )
@@ -403,7 +400,8 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
         
         OutlinedTextField(
             value = bidAmount,
-            onValueChange = { bidAmount = it },
+            onValueChange = { bidAmount = IndiaFormat.cleanAmount(it) },
+            singleLine = true,
             label = { Text("Bid Amount (₹)") },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),

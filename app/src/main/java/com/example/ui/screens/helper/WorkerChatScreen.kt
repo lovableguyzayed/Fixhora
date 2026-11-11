@@ -24,6 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.util.IndiaFormat
+import androidx.activity.compose.BackHandler
 import com.example.data.room.TaskEntity
 import com.example.ui.screens.taskflow.dummyCategories
 
@@ -32,6 +34,9 @@ fun WorkerChatScreen(viewModel: HelperViewModel) {
     val allTasks by viewModel.allTasks.collectAsState()
     val activeTasks = allTasks.filter { it.status == "accepted" || it.status == "completed" }
     var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
+
+    // System Back closes the open conversation first (instead of leaving the helper area).
+    BackHandler(enabled = selectedTask != null) { selectedTask = null }
 
     if (selectedTask == null) {
         WorkerChatListScreen(
@@ -122,7 +127,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(tasks) { task ->
+                items(tasks, key = { it.id }) { task ->
                     ChatListItem(task = task, onClick = { onChatClick(task) })
                 }
             }
@@ -164,7 +169,6 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                 }
-                Text("Just now", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Normal)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -217,7 +221,6 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                         }
-                        Text("Online", fontSize = 12.sp, color = Color(0xFF4CAF50))
                     }
                 }
             },
@@ -251,7 +254,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             ) {
                 Column {
                     Text("Job: ${task.descriptionTitle.ifEmpty { category }}", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = DarkNavy)
-                    Text("Budget: ₹${task.minBudget} - ₹${task.maxBudget}", fontSize = 12.sp, color = SecondaryGrey)
+                    Text(IndiaFormat.budgetLabel(task.minBudget, task.maxBudget), fontSize = 12.sp, color = SecondaryGrey)
                 }
                 TextButton(onClick = { /* View Details */ }) {
                     Text("View Details", fontSize = 12.sp)
@@ -267,11 +270,8 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
             item {
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            items(messages) { message ->
-                MessageBubble(text = message.text, isSender = message.senderId == "worker", time = "Just now")
-            }
-            item {
-                MessageBubble(text = "Hello! I saw your job request for ${task.descriptionTitle.ifEmpty { category }}. I'm available today.", isSender = false, time = "10:28 AM")
+            items(messages, key = { it.id }) { message ->
+                MessageBubble(text = message.text, isSender = message.senderId == "worker", time = IndiaFormat.chatTime(message.timestamp))
             }
         }
 

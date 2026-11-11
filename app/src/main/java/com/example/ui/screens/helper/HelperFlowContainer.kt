@@ -87,23 +87,12 @@ fun HelperFlowContainer(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                if (screen == HelperScreen.Chat) {
-                                    BadgedBox(badge = { Badge { Text("3") } }) {
-                                        Icon(
-                                            screen.icon,
-                                            contentDescription = screen.title,
-                                            tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
-                                            modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                                        )
-                                    }
-                                } else {
-                                    Icon(
-                                        screen.icon,
-                                        contentDescription = screen.title,
-                                        tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
-                                        modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
-                                    )
-                                }
+                                Icon(
+                                    screen.icon,
+                                    contentDescription = screen.title,
+                                    tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
+                                    modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
+                                )
                                 if (isSelected) {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(

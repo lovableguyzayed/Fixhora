@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.*
+import com.example.util.IndiaFormat
 
 import com.example.data.room.TaskEntity
 import com.example.ui.screens.taskflow.dummyCategories
@@ -28,14 +29,11 @@ import com.example.ui.screens.taskflow.dummyCategories
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkerHomeScreen(viewModel: HelperViewModel) {
-    val tasks by viewModel.availableTasks.collectAsState()
+    val loadedTasks by viewModel.availableTasks.collectAsState()
     var isOnline by remember { mutableStateOf(true) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1500)
-        isLoading = false
-    }
+    // Skeleton is shown only while the list is really loading (no artificial delay).
+    val isLoading = loadedTasks == null
+    val tasks = loadedTasks.orEmpty()
 
     Scaffold(
         topBar = {
@@ -75,9 +73,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     IconButton(onClick = { /* Notifications */ }) {
-                        BadgedBox(badge = { Badge { Text("2") } }) {
-                            Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = DarkNavy)
-                        }
+                        Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = DarkNavy)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 },
@@ -160,7 +156,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                     }
                 }
             } else {
-                items(tasks) { task ->
+                items(tasks, key = { it.id }) { task ->
                     WorkerJobCard(
                         task = task, 
                         onSubmitProposalClick = { /* Handle Proposal */ },
@@ -218,7 +214,7 @@ fun PerformanceOverviewCard() {
                 PerformanceStat("Response Time", "< 5m")
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Divider(color = Color.White.copy(alpha = 0.1f))
+            HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
             Spacer(modifier = Modifier.height(20.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 ProgressStat("Acceptance", 0.95f, "95%")
@@ -362,10 +358,10 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                     Icon(Icons.Default.LocationOn, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (task.useCurrentLocation) "2.5 km away" else task.locationQuery.ifEmpty { "Not specified" }, color = SecondaryGrey, fontSize = 13.sp)
+                    Text(task.locationQuery.ifBlank { "Location not shared" }, color = SecondaryGrey, fontSize = 13.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.AccessTime, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
@@ -376,7 +372,7 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            val budgetText = if (task.minBudget.isNotBlank() && task.maxBudget.isNotBlank()) "₹${task.minBudget} - ₹${task.maxBudget}" else if (task.minBudget.isNotBlank()) "Min ₹${task.minBudget}" else if (task.maxBudget.isNotBlank()) "Max ₹${task.maxBudget}" else "Budget Negotiable"
+            val budgetText = IndiaFormat.budgetLabel(task.minBudget, task.maxBudget)
             
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = DarkNavy, modifier = Modifier.size(16.dp))
