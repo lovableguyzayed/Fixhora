@@ -70,10 +70,9 @@ fun SignInScreen(
         OutlinedTextField(
             value = mobile,
             onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
-            prefix = { Text("+91 ") },
-            singleLine = true,
+                        singleLine = true,
             label = { Text("Mobile Number") },
-            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
+            leadingIcon = { Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 12.dp, end = 4.dp)) { Icon(Icons.Default.Phone, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -229,9 +228,9 @@ fun CreateAccountScreen(
         OutlinedTextField(
             value = mobile,
             onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
-            prefix = { Text("+91 ") },
-            singleLine = true,
+                        singleLine = true,
             label = { Text("Mobile Number") },
+            leadingIcon = { Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 4.dp)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)

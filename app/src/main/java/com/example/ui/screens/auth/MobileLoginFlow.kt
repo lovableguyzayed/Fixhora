@@ -89,7 +89,7 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
                 if (IndiaFormat.isValidMobile(mobile)) showError = false
             },
             label = { Text("Mobile number") },
-            prefix = { Text("+91 ", color = DarkNavy, fontWeight = FontWeight.SemiBold) },
+            leadingIcon = { Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 4.dp)) },
             isError = showError && !isValid,
             supportingText = {
                 if (showError && !isValid) {
