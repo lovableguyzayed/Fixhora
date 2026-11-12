@@ -1,0 +1,116 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FixoraX batch 2 mockups</title>
+<style>
+:root{--blue:#0B57FF;--orange:#FF6B00;--navy:#0B1F44;--grey:#6B7280;--border:#E5E7EB;--bg:#F8F9FA;--green:#2E7D32;--red:#C62828}
+*{box-sizing:border-box;margin:0}
+body{font-family:Roboto,"Noto Sans","Noto Sans Devanagari",system-ui,sans-serif;background:#fff;color:var(--navy);width:100vw;min-height:100vh}
+.scr{display:none;flex-direction:column;min-height:100vh;padding-top:28px;padding-bottom:84px}.scr.on{display:flex}
+.bar{position:fixed;top:0;left:0;right:0;height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:12px;font-weight:600;background:#fff;z-index:2}
+.top{display:flex;align-items:center;gap:12px;padding:14px 16px;font-size:20px;font-weight:700}
+.pad{padding:0 16px}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px}
+.row{display:flex;align-items:center;gap:14px;padding:14px 16px;min-height:56px;border-bottom:1px solid var(--border);font-size:16px}
+.row .i{width:36px;height:36px;border-radius:50%;background:#EEF4FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.row .t{flex:1}.row .s{display:block;font-size:13px;color:var(--grey);margin-top:2px}
+.row .chev{color:var(--grey)}
+.sec{font-size:13px;font-weight:700;color:var(--grey);text-transform:uppercase;letter-spacing:.04em;padding:18px 16px 6px}
+.av{width:56px;height:56px;border-radius:50%;background:#FFE7D6;color:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;flex:none}
+.danger{color:var(--red)}
+.tabs{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--border);background:#fff;padding:8px 0 14px}
+.tab{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--grey);gap:2px;min-width:64px}.tab b{font-size:20px;font-weight:400}
+.tab.on{color:var(--blue);font-weight:700}
+.stats{display:flex;gap:10px}.stat{flex:1;border-radius:14px;padding:12px;background:#EEF4FF}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--grey)}
+.job{margin-top:12px}.job h3{font-size:16px;margin:6px 0 4px}.job p{font-size:14px;color:var(--grey)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--grey);margin-top:10px}
+.money{font-weight:700;color:var(--navy);font-size:15px}
+.btns{display:flex;gap:10px;margin-top:12px}.btn{flex:1;min-height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+.p{background:var(--blue);color:#fff}.o{border:1px solid var(--blue);color:var(--blue)}
+.badge{font-size:12px;font-weight:700;padding:3px 8px;border-radius:8px}
+.b-new{background:#E8F5E9;color:var(--green)}.b-off{background:#FFF3E0;color:#E65100}.b-acc{background:#E3F2FD;color:var(--blue)}
+.chips{display:flex;gap:8px;padding:8px 16px;overflow:hidden}.chip{padding:7px 14px;border-radius:18px;border:1px solid var(--border);font-size:14px;white-space:nowrap}.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.offer{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--border)}.offer .av{width:40px;height:40px;font-size:16px}
+.note{font-size:13px;color:var(--grey);background:var(--bg);border-radius:12px;padding:12px;margin-top:12px}
+.fab{position:fixed;right:16px;bottom:84px;background:var(--orange);color:#fff;border-radius:16px;padding:14px 18px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.online{display:flex;align-items:center;gap:6px;background:#E8F5E9;color:var(--green);font-weight:700;font-size:13px;border-radius:16px;padding:6px 12px}
+</style></head><body>
+<div class="bar"><span>9:41</span><span>▮▮▮ 4G ▰</span></div>
+
+<!-- ACCOUNT -->
+<section class="scr" id="account">
+  <div class="top">Account</div>
+  <div class="pad"><div class="card" style="display:flex;gap:14px;align-items:center">
+    <div class="av">R</div><div style="flex:1"><b style="font-size:18px">Ramesh</b><div style="color:var(--grey);font-size:14px">+91 98765 43210</div></div><span class="chev" style="color:var(--blue);font-weight:600">Edit</span>
+  </div></div>
+  <div class="sec">App</div>
+  <div class="row"><span class="i">🌐</span><span class="t">Language / भाषा<span class="s">English</span></span><span class="chev">›</span></div>
+  <div class="row"><span class="i">🔄</span><span class="t">Switch to “I want to help”<span class="s">Earn by helping people nearby</span></span><span class="chev">›</span></div>
+  <div class="sec">Help</div>
+  <div class="row"><span class="i" style="background:#E8F5E9">💬</span><span class="t">Help on WhatsApp<span class="s">Reply in Hindi or English</span></span><span class="chev">›</span></div>
+  <div class="row"><span class="i">📞</span><span class="t">Call support<span class="s">10 am – 7 pm, Mon–Sat</span></span><span class="chev">›</span></div>
+  <div class="row"><span class="i">❓</span><span class="t">Common questions</span><span class="chev">›</span></div>
+  <div class="sec">Legal</div>
+  <div class="row"><span class="i">🔒</span><span class="t">Privacy Policy</span><span class="chev">›</span></div>
+  <div class="row"><span class="i">📄</span><span class="t">Terms</span><span class="chev">›</span></div>
+  <div class="row"><span class="i">🚪</span><span class="t">Log out</span></div>
+  <div class="row danger"><span class="i" style="background:#FFEBEE">🗑️</span><span class="t">Delete my account<span class="s">Removes your profile, tasks and chats</span></span></div>
+  <div style="text-align:center;color:var(--grey);font-size:12px;padding:14px">FixoraX version 1.0</div>
+  <div class="tabs"><span class="tab"><b>🏠</b>Home</span><span class="tab"><b>📋</b>My tasks</span><span class="tab"><b>💬</b>Chats</span><span class="tab on"><b>👤</b>Account</span></div>
+</section>
+
+<!-- DELETE CONFIRM -->
+<section class="scr" id="delete" style="background:rgba(11,31,68,.45);position:fixed;inset:0">
+  <div style="margin:auto 20px;background:#fff;border-radius:20px;padding:22px">
+    <b style="font-size:20px">Delete your account?</b>
+    <p style="color:var(--grey);margin:10px 0;font-size:15px;line-height:1.5">This permanently removes your profile, posted tasks, photos and chats. This cannot be undone.</p>
+    <p style="color:var(--grey);font-size:13px;line-height:1.5">Payment records (if any) are kept for 8 years as required by Indian tax law.</p>
+    <div class="btns" style="margin-top:18px"><span class="btn o" style="border-color:var(--border);color:var(--navy)">Cancel</span><span class="btn" style="background:var(--red);color:#fff">Delete</span></div>
+  </div>
+</section>
+
+<!-- HELPER HOME, HONEST -->
+<section class="scr" id="helperhome" style="background:var(--bg)">
+  <div class="top" style="background:#fff;justify-content:space-between"><span><span style="display:block;font-size:13px;font-weight:400;color:var(--grey)">Namaste,</span>Suresh</span><span class="online">● Online</span></div>
+  <div class="pad" style="margin-top:14px">
+    <div class="stats"><div class="stat"><b>3</b><span>Jobs near you</span></div><div class="stat" style="background:#E8F5E9"><b>1</b><span>Accepted</span></div><div class="stat" style="background:#FFF3E0"><b>0</b><span>Completed</span></div></div>
+    <div class="note">⭐ Ratings and earnings will show here after your first completed job.</div>
+    <b style="display:block;font-size:18px;margin:18px 0 0">Jobs near you</b>
+    <div class="card job"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--grey)">🔧 Home Repairs · 20 min ago</span><span class="badge b-new">New</span></div>
+      <h3>Kitchen tap is leaking</h3><p>Water drips all night. Need a plumber today evening.</p>
+      <div class="meta"><span>📍 Civil Lines, Kanpur</span><span class="money">₹300 – ₹800</span></div>
+      <div class="btns"><span class="btn o">Send offer</span><span class="btn p">Accept ₹800</span></div></div>
+    <div class="card job"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--grey)">🧹 Cleaning · 1 hr ago</span><span class="badge b-new">New</span></div>
+      <h3>Full house cleaning before Diwali</h3><p>2BHK, ground floor. Bring own supplies.</p>
+      <div class="meta"><span>📍 Gomti Nagar, Lucknow</span><span class="money">₹1,500 – ₹2,500</span></div></div>
+  </div>
+  <div class="tabs" style="margin-top:14px"><span class="tab on"><b>🏠</b>Home</span><span class="tab"><b>📋</b>My jobs</span><span class="tab"><b>💬</b>Chats</span><span class="tab"><b>👤</b>Account</span></div>
+</section>
+
+<!-- CUSTOMER MY TASKS -->
+<section class="scr" id="mytasks" style="background:var(--bg)">
+  <div class="top" style="background:#fff">My tasks</div>
+  <div class="chips" style="background:#fff"><span class="chip on">Active (2)</span><span class="chip">Done (1)</span><span class="chip">Cancelled</span></div>
+  <div class="pad" style="margin-top:12px">
+    <div class="card"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--grey)">Posted today, 10:15 am</span><span class="badge b-off">3 offers</span></div>
+      <h3 style="font-size:16px;margin:6px 0 2px">Kitchen tap is leaking</h3><div style="font-size:13px;color:var(--grey)">📍 Civil Lines, Kanpur · Budget ₹300 – ₹800</div>
+      <div class="offer" style="margin-top:10px"><div class="av">S</div><div style="flex:1"><b>Suresh Kumar</b><div style="font-size:13px;color:var(--grey)">Can come today 6 pm</div></div><span class="money">₹650</span></div>
+      <div class="offer"><div class="av" style="background:#E3F2FD;color:var(--blue)">A</div><div style="flex:1"><b>Anil</b><div style="font-size:13px;color:var(--grey)">Tomorrow morning</div></div><span class="money">₹500</span></div>
+      <div class="btns"><span class="btn o">See all 3 offers</span></div></div>
+    <div class="card" style="margin-top:12px"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--grey)">Posted 09/11/2026</span><span class="badge b-acc">Helper coming</span></div>
+      <h3 style="font-size:16px;margin:6px 0 2px">Paint one bedroom</h3><div style="font-size:13px;color:var(--grey)">Raju (painter) · ₹4,500 agreed</div>
+      <div class="btns"><span class="btn o">📞 Call</span><span class="btn p">💬 Chat</span></div></div>
+  </div>
+  <span class="fab">＋ Post a task</span>
+  <div class="tabs" style="margin-top:20px"><span class="tab"><b>🏠</b>Home</span><span class="tab on"><b>📋</b>My tasks</span><span class="tab"><b>💬</b>Chats</span><span class="tab"><b>👤</b>Account</span></div>
+</section>
+
+<!-- MY TASKS EMPTY -->
+<section class="scr" id="mytasks_empty" style="background:var(--bg)">
+  <div class="top" style="background:#fff">My tasks</div>
+  <div style="margin:auto 32px;text-align:center"><div style="font-size:56px">📋</div><b style="font-size:18px;display:block;margin:10px 0 6px">No tasks yet</b>
+    <p style="color:var(--grey);font-size:15px;line-height:1.5">Post a task and helpers near you will send offers. Free to post.</p>
+    <div class="btns" style="margin-top:18px"><span class="btn p">＋ Post a task</span></div></div>
+  <div class="tabs"><span class="tab"><b>🏠</b>Home</span><span class="tab on"><b>📋</b>My tasks</span><span class="tab"><b>💬</b>Chats</span><span class="tab"><b>👤</b>Account</span></div>
+</section>
+<script>
+const q=new URLSearchParams(location.search);document.getElementById(q.get('s')).classList.add('on');
+</script></body></html>
