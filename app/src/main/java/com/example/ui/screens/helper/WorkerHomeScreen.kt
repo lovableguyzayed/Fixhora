@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +30,7 @@ import com.example.ui.screens.taskflow.dummyCategories
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkerHomeScreen(viewModel: HelperViewModel) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val loadedTasks by viewModel.availableTasks.collectAsState()
     var isOnline by remember { mutableStateOf(true) }
     // Skeleton is shown only while the list is really loading (no artificial delay).
@@ -72,7 +74,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                         }
                     }
                     Spacer(modifier = Modifier.width(12.dp))
-                    IconButton(onClick = { /* Notifications */ }) {
+                    IconButton(onClick = { android.widget.Toast.makeText(context, "No notifications yet", android.widget.Toast.LENGTH_SHORT).show() }) {
                         Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = DarkNavy)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -102,7 +104,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    item { SummaryCard("Today's Tasks", "3", Icons.Default.Assignment, Color(0xFFE3F2FD), BluePrimary) }
+                    item { SummaryCard("Today's Tasks", "3", Icons.AutoMirrored.Filled.Assignment, Color(0xFFE3F2FD), BluePrimary) }
                     item { SummaryCard("Completed", "1", Icons.Default.CheckCircle, Color(0xFFE8F5E9), Color(0xFF2E7D32)) }
                     item { SummaryCard("Pending", "2", Icons.Default.PendingActions, Color(0xFFFFF3E0), OrangeSecondary) }
                     item { SummaryCard("Proposed", "5", Icons.Default.LocalOffer, Color(0xFFF3E5F5), Color(0xFF8E24AA)) }
@@ -145,14 +147,12 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                             color = SecondaryGrey
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        OutlinedButton(
-                            onClick = { /* Refresh */ },
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Refresh", fontWeight = FontWeight.Bold)
-                        }
+                        // The list updates by itself, so no Refresh button is needed.
+                        Text(
+                            text = "New jobs will appear here automatically.",
+                            fontSize = 14.sp,
+                            color = SecondaryGrey
+                        )
                     }
                 }
             } else {

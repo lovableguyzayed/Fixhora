@@ -93,11 +93,12 @@ fun HelperFlowContainer(
                                     tint = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
                                     modifier = Modifier.size(if (isSelected) 24.dp else 22.dp)
                                 )
-                                if (isSelected) {
+                                run {
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = screen.title,
-                                        color = BluePrimary,
+                                        color = if (isSelected) BluePrimary else com.example.ui.theme.SecondaryGrey,
+                                        maxLines = 1,
                                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                         style = MaterialTheme.typography.labelMedium
                                     )
@@ -109,6 +110,13 @@ fun HelperFlowContainer(
             }
         }
     ) { paddingValues ->
+        val goToJobs = {
+            navController.navigate(HelperScreen.Home.route) {
+                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
         NavHost(
             navController = navController,
             startDestination = HelperScreen.Home.route,
@@ -121,10 +129,10 @@ fun HelperFlowContainer(
                 WorkerMapScreen(viewModel = viewModel)
             }
             composable(HelperScreen.Chat.route) {
-                WorkerChatScreen(viewModel = viewModel)
+                WorkerChatScreen(viewModel = viewModel, onExploreJobs = goToJobs)
             }
             composable(HelperScreen.Tasks.route) {
-                WorkerTasksScreen(viewModel = viewModel)
+                WorkerTasksScreen(viewModel = viewModel, onExploreJobs = goToJobs)
             }
         }
     }

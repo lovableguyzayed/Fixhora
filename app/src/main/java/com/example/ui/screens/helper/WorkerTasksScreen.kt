@@ -14,6 +14,8 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +32,9 @@ import com.example.ui.screens.taskflow.dummyCategories
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerTasksScreen(viewModel: HelperViewModel) {
+fun WorkerTasksScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}) {
+    var sortByBudget by rememberSaveable { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
     val allTasks by viewModel.allTasks.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     // Only statuses that really exist are offered as filters.
@@ -43,14 +47,23 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
             TopAppBar(
                 title = { Text("My Tasks", fontWeight = FontWeight.Bold, color = DarkNavy) },
                 actions = {
-                    IconButton(onClick = { /* Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = DarkNavy)
-                    }
-                    IconButton(onClick = { /* Filter */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = DarkNavy)
-                    }
-                    IconButton(onClick = { /* Sort */ }) {
-                        Icon(Icons.Default.Sort, contentDescription = "Sort", tint = DarkNavy)
+                    // Search box and status chips are below; only Sort needs a menu.
+                    Box {
+                        IconButton(onClick = { showSortMenu = true }) {
+                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort tasks", tint = DarkNavy)
+                        }
+                        DropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Newest first") },
+                                leadingIcon = { if (!sortByBudget) Icon(Icons.Default.Check, contentDescription = null) },
+                                onClick = { sortByBudget = false; showSortMenu = false }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Highest budget first") },
+                                leadingIcon = { if (sortByBudget) Icon(Icons.Default.Check, contentDescription = null) },
+                                onClick = { sortByBudget = true; showSortMenu = false }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -123,6 +136,9 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                     task.descriptionDetails.contains(query, ignoreCase = true) ||
                     task.locationQuery.contains(query, ignoreCase = true)
                 statusMatch && searchMatch
+            }.let { list ->
+                // Database already returns newest first.
+                if (sortByBudget) list.sortedByDescending { (it.maxBudget.toLongOrNull() ?: it.minBudget.toLongOrNull()) ?: -1L } else list
             }
 
             if (filteredTasks.isEmpty()) {
@@ -144,7 +160,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel) {
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Button(
-                            onClick = { /* Explore */ },
+                            onClick = onExploreJobs,
                             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                         ) {
                             Text("Explore Nearby Jobs")

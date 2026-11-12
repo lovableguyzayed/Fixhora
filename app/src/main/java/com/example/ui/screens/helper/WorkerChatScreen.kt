@@ -30,7 +30,7 @@ import com.example.data.room.TaskEntity
 import com.example.ui.screens.taskflow.dummyCategories
 
 @Composable
-fun WorkerChatScreen(viewModel: HelperViewModel) {
+fun WorkerChatScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}) {
     val allTasks by viewModel.allTasks.collectAsState()
     val activeTasks = allTasks.filter { it.status == "accepted" || it.status == "completed" }
     var selectedTask by remember { mutableStateOf<TaskEntity?>(null) }
@@ -41,7 +41,8 @@ fun WorkerChatScreen(viewModel: HelperViewModel) {
     if (selectedTask == null) {
         WorkerChatListScreen(
             tasks = activeTasks,
-            onChatClick = { selectedTask = it }
+            onChatClick = { selectedTask = it },
+            onExploreJobs = onExploreJobs
         )
     } else {
         WorkerChatConversationScreen(
@@ -54,19 +55,21 @@ fun WorkerChatScreen(viewModel: HelperViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> Unit) {
+fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> Unit, onExploreJobs: () -> Unit = {}) {
     var searchQuery by remember { mutableStateOf("") }
-    val categories = listOf("All", "Unread", "Active Jobs", "Pending Bids", "Accepted", "Completed")
+    // Only filters the app can really answer today (no unread tracking or bids yet).
+    val categories = listOf("All", "Accepted", "Completed")
     var selectedCategory by remember { mutableStateOf("All") }
+    val query = searchQuery.trim()
+    val shown = tasks.filter { task ->
+        (selectedCategory == "All" || task.status == selectedCategory.lowercase()) &&
+            (query.isEmpty() || task.descriptionTitle.contains(query, ignoreCase = true) ||
+                task.locationQuery.contains(query, ignoreCase = true))
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         TopAppBar(
             title = { Text("Chats", fontWeight = FontWeight.Bold, color = DarkNavy) },
-            actions = {
-                IconButton(onClick = { /* Filter */ }) {
-                    Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = DarkNavy)
-                }
-            },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
         )
 
@@ -74,7 +77,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Search by customer, job...") },
+            placeholder = { Text("Search by job or place") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,22 +115,22 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
             }
         }
 
-        if (tasks.isEmpty()) {
+        if (shown.isEmpty()) {
             // Empty State
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.ChatBubbleOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = SecondaryGrey)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("You don't have any conversations yet.", color = SecondaryGrey, textAlign = TextAlign.Center)
+                    Text(if (tasks.isEmpty()) "Chats appear here after you accept a job." else "No chats match your search.", color = SecondaryGrey, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { /* Navigate to Jobs */ }) { Text("Explore Nearby Jobs") }
+                    if (tasks.isEmpty()) Button(onClick = onExploreJobs) { Text("Explore Nearby Jobs") }
                 }
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(tasks, key = { it.id }) { task ->
+                items(shown, key = { it.id }) { task ->
                     ChatListItem(task = task, onClick = { onChatClick(task) })
                 }
             }
