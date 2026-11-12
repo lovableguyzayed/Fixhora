@@ -197,7 +197,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | UI-07 | many | Text 10–12 sp is too small for older users | P3 | Design tokens / type scale | Open |
 | UI-08 | `MainActivity.kt:13`, `res/values/themes.xml` | Phone in dark mode → status-bar icons white on white app; MIUI force-dark may invert colours; window bg not set (black flash) | P1 | Force dark status-bar icons, `forceDarkAllowed=false`, white window bg, light Material theme | Fixed |
 | UI-09 | `Theme.kt:20-28` | `onSurface` = grey #6B7280; with 60 % alpha subtitles become ~2.6:1 contrast (fails 4.5:1; unreadable in sunlight) | P2 | `onSurface` = navy, `onSurfaceVariant` = grey | Fixed |
-| UI-10 | all | Tablets/landscape: single column stretched edge-to-edge (1,200 dp wide buttons) | P3 | Max content width 600 dp | Open |
+| UI-10 | all | Tablets/landscape: single column stretched edge-to-edge (1,200 dp wide buttons) | P3 | Content capped at 640 dp, centred (`ui/theme/AppFrame.kt`) (V screenshot) | Fixed |
 
 ### A5. Native feel & performance
 | ID | file:line | Problem | Sev | Fix | Status |
@@ -241,7 +241,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | BRK-09 | `TaskFlowContainer.kt:34-37` | Step 1 is labelled "Task Details" but only picks a category; details are on step 3 "Photos" | P3 | Labels → Category · Location · Details · Review | Fixed |
 | BRK-11 | `WorkerHomeScreen.kt` | Fake "Alex Worker", "Good Morning" at night, fake badges & stats, dead bell/bid/refresh | P1 | Remove fakes (visible) | Preview (batch 2) |
 | BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Decision |
-| BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "Pending"/"In Progress"/"Cancelled" chips can never match; search dead | P2 | "Rejected" label + chip; never-matching chips removed; search filters by title/details/place. Top-bar Search/Filter/Sort icons still dead | Fixed (partial) |
+| BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "Pending"/"In Progress"/"Cancelled" chips can never match; search dead | P2 | "Rejected" label + chip; never-matching chips removed; search filters by title/details/place. Sort menu (newest / highest budget) added; duplicate Search/Filter icons removed | Fixed |
 | BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Fixed (fakes) / Decision |
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
@@ -289,7 +289,7 @@ heavy for Ramesh ji; Hindi/Hinglish copy recommended (D13).
 | Map | — | Not a map | — | — | D7 |
 | Tasks | Status chips ✓ | Dead icons | 7 chips | — | Done (labels/search) |
 | Chat | Quick replies ✓ | Fake customer msg | 4 dead quick actions | Customer side | Backend |
-| Bottom nav | 4 tabs ✓ | Labels hidden on unselected tabs (icons alone confuse) | Floating pill | Labels | Batch 2 |
+| Bottom nav | 4 tabs ✓ | Labels hidden on unselected tabs (icons alone confuse) | Floating pill | Labels | Fixed (labels on all tabs) |
 
 Consistency: colours are partly central (`ui/theme/Color.kt`) but many screens hardcode `Color(0xFF…)`;
 corner radii 8/12/16/18/24/32 dp mixed; type sizes set inline everywhere → recommend a design-token pass
@@ -325,8 +325,16 @@ reviews; helper verification (KYC); FAQ; app version/about; offline banner + ret
 | D14 | Guest mode: may guests post tasks, or login required to post? | Browse as guest, login to post/accept |
 
 ## 6. Previews (mockups)
-See `docs/audit/mockups/index.html`. Batch 1 = Login (AUTH-02, -05, -06). Batch 2 = Account screen,
-helper home without fake data, customer "My tasks".
+See `docs/audit/mockups/index.html`.
+- **Batch 1 — Login** (AUTH-02, -05, -07, -11): waiting for your OK
+- **Batch 2 — Account / delete account, honest helper home, customer "My tasks"** (AUTH-13, SEC-05, BRK-11, PAY-04, BRK-17): waiting for your OK
+
+### Round 2 fixes (no decision needed)
+- Helper Chat list: search and chips now filter; "Explore Nearby Jobs" opens Home; dead Filter icon removed
+- Helper Tasks: Sort menu; Home: dead Refresh replaced by "New jobs will appear here automatically"; bell says "No notifications yet"
+- Bottom navigation shows every tab's name
+- "+91" visible in number fields before tapping
+- Tablet width cap (UI-10)
 
 ## 7. Verification (after fixes, commit `936a7c6`+)
 | Check | Before | After |
