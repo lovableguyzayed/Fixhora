@@ -6,12 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.ui.Modifier
 import com.example.ui.screens.FixhoraApp
-import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.theme.AppFrame
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,12 +18,7 @@ class MainActivity : ComponentActivity() {
       navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
     )
     setContent {
-      MyApplicationTheme {
-        // One white surface behind every screen, so no screen can show the bare window.
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          FixhoraApp()
-        }
-      }
+      AppFrame { FixhoraApp() }
     }
   }
 }

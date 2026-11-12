@@ -9,7 +9,9 @@ import com.example.ui.screens.auth.OtpVerificationScreen
 import com.example.ui.screens.auth.ProfileSetupScreen
 import com.example.ui.screens.auth.SignInScreen
 import com.example.ui.screens.auth.WelcomeScreen
-import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.screens.helper.HelperFlowContainer
+import com.example.ui.screens.helper.HelperViewModel
+import com.example.ui.theme.AppFrame
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,12 +36,21 @@ class ScreenshotTest {
         "profile_setup" to { ProfileSetupScreen({}) },
         "role_selection" to { RoleSelectionScreen({}) },
         "task_category" to { TaskFlowContainer({}) },
+        "helper_home" to {
+            val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<FixhoraApplication>()
+            HelperFlowContainer(
+                onBackToRoles = {},
+                viewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+                    factory = HelperViewModel.Factory(app.taskRepository, app.chatRepository)
+                )
+            )
+        },
     )
 
     private fun shoot(folder: String) {
         screens.forEach { (name, content) ->
             captureRoboImage("build/screenshots/$folder/$name.png") {
-                MyApplicationTheme { content() }
+                AppFrame { content() }
             }
         }
     }
@@ -51,6 +62,10 @@ class ScreenshotTest {
     @Test
     @Config(qualifiers = "w320dp-h568dp-xhdpi")
     fun smallPhone320x568() = shoot("320x568")
+
+    @Test
+    @Config(qualifiers = "w800dp-h1280dp-mdpi")
+    fun tablet800x1280() = shoot("tablet800x1280")
 
     @Test
     @Config(qualifiers = "w360dp-h800dp-xhdpi")
