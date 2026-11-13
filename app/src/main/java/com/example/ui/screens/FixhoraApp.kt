@@ -72,6 +72,21 @@ fun FixhoraApp() {
         val u = user
         if (authUi.signedIn && u != null) { authVm.consumeSignedIn(); afterLogin(u) }
     }
+    // Guests can browse; posting a task or sending an offer needs a login (decision D14).
+    var loginPrompt by remember { mutableStateOf(false) }
+    val requireLogin: (() -> Unit) -> Unit = { action -> if (auth.currentUser.value == null) loginPrompt = true else action() }
+    LaunchedEffect(user) { if (user != null) loginPrompt = false }
+    if (loginPrompt) {
+        val activity = LocalContext.current.findActivity()
+        LoginRequiredDialog(
+            googleBusy = authUi.googleBusy,
+            errorText = authErrorText(authUi.error),
+            onMobile = { loginPrompt = false; authVm.clearError(); nav.navigate(Routes.Mobile) },
+            onGoogle = { activity?.let { authVm.signInWithGoogle(it) } },
+            onDismiss = { loginPrompt = false; authVm.clearError() },
+        )
+    }
+
     val signOutAndWipe: () -> Unit = {
         scope.launch {
             auth.signOut(); app.wipeLocalData(); prefs.clear()
@@ -136,11 +151,11 @@ fun FixhoraApp() {
             )
         }
         composable(Routes.Customer) {
-            CustomerShell(app, user, nav, prefs, onSwitch = { prefs.lastRole = "helper"; go(Routes.Helper) },
+            CustomerShell(app, user, nav, prefs, requireLogin, onSwitch = { prefs.lastRole = "helper"; go(Routes.Helper) },
                 onLogin = { nav.navigate(Routes.Mobile) }, onSignOut = signOutAndWipe)
         }
         composable(Routes.Helper) {
-            HelperShell(app, user, nav, prefs, onSwitch = { prefs.lastRole = "customer"; go(Routes.Customer) },
+            HelperShell(app, user, nav, prefs, requireLogin, onSwitch = { prefs.lastRole = "customer"; go(Routes.Customer) },
                 onLogin = { nav.navigate(Routes.Mobile) }, onSignOut = signOutAndWipe)
         }
     }
@@ -162,19 +177,21 @@ private val helperTabs = listOf(
 @Composable
 private fun CustomerShell(
     app: FixhoraApplication, user: AppUser?, rootNav: NavHostController, prefs: AppPrefs,
+    requireLogin: (() -> Unit) -> Unit,
     onSwitch: () -> Unit, onLogin: () -> Unit, onSignOut: () -> Unit,
 ) {
+    val postTask: (String?) -> Unit = { cat -> requireLogin { rootNav.navigate(Routes.taskFlow(cat)) } }
     val ownerId = user?.uid ?: "guest"
     val vm: CustomerViewModel = viewModel(key = "customer-$ownerId", factory = CustomerViewModel.Factory(app.taskRepository, ownerId))
     val tasks by vm.myTasks.collectAsState()
     val scope = rememberCoroutineScope()
     var openChat by remember { mutableStateOf<Int?>(null) }
     ShellScaffold(customerTabs) { tabs ->
-        composable("c_home") { CustomerHomeScreen(user?.name) { rootNav.navigate(Routes.taskFlow(it)) } }
+        composable("c_home") { CustomerHomeScreen(user?.name) { postTask(it) } }
         composable("c_tasks") {
             MyTasksScreen(
                 tasks = tasks,
-                onPostTask = { rootNav.navigate(Routes.taskFlow()) },
+                onPostTask = { postTask(null) },
                 onChoose = vm::chooseOffer,
                 onMarkDone = { vm.markDone(it.task) },
                 onCancel = { vm.cancel(it.task) },
@@ -199,6 +216,7 @@ private fun CustomerShell(
 @Composable
 private fun HelperShell(
     app: FixhoraApplication, user: AppUser?, rootNav: NavHostController, prefs: AppPrefs,
+    requireLogin: (() -> Unit) -> Unit,
     onSwitch: () -> Unit, onLogin: () -> Unit, onSignOut: () -> Unit,
 ) {
     val helperId = user?.uid ?: "guest-helper"
@@ -213,7 +231,7 @@ private fun HelperShell(
     val quickReplies = listOf("I can do this today.", "I'll arrive in 20 minutes.", "Work has been completed.")
     ShellScaffold(helperTabs) { tabs ->
         composable("h_home") {
-            WorkerHomeScreen(helperName, online, jobs, myJobs, vm::setOnline, onSendOffer = { t, a, m -> vm.sendOffer(t, a, m) })
+            WorkerHomeScreen(helperName, online, jobs, myJobs, vm::setOnline, onSendOffer = { t, a, m -> requireLogin { vm.sendOffer(t, a, m) } })
         }
         composable("h_jobs") {
             MyJobsScreen(myJobs, onExploreJobs = { tabs.openTab("h_home") }, onChat = { openChat = it; tabs.openTab("h_chats") })

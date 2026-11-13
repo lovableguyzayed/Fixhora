@@ -111,6 +111,9 @@
     <string name="auth_name_hint">One name is fine.</string>
     <string name="auth_name_error">Please enter your name (at least 2 letters).</string>
     <string name="auth_continue">Continue</string>
+    <string name="login_required_title">Log in to continue</string>
+    <string name="login_required_body">To post a task or send an offer, please log in. It takes less than a minute — no password needed.</string>
+    <string name="login_required_later">Not now</string>
     <string name="auth_welcome_to">"Welcome to "</string>
     <string name="helper_default_name">Helper</string>
     <string name="auth_continue_mobile">Continue with mobile number</string>
