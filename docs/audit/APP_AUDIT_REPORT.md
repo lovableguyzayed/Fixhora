@@ -6,6 +6,16 @@ Evidence tags: **V** = Verified (built / ran / tested here) · **C** = Code evid
 
 ---
 
+## 0. Update — decisions taken (13 Nov 2026)
+You chose: **Batch 1 and Batch 2 built**, **Firebase** as backend (D1), **"FixoraX"** as the brand (D4).
+Built in commits `650a057` (data + login) and `86e0448` (screens):
+- Real login code with Firebase (phone OTP + Google). Until `app/google-services.json` is added, the app runs in a clearly marked **test mode** (OTP 123456). Setup steps: `docs/FIREBASE_SETUP.md`.
+- New login: Welcome → mobile (SIM picker) → OTP → name. Passwords, Forgot password, the 7-field profile and the empty permission screen are gone.
+- Customer: Home / My tasks (offers, choose helper, done, cancel) / Chats / Account. Helper: Home (real counts) / My jobs / Chats / Account.
+- Log out and Delete account (wipes this phone's tasks, offers, chats and photos).
+- Database upgraded safely (v2→v3, tested). 19 automated tests pass; release APK 3.4 MB; 16 KB check passes.
+- **Still one phone only:** tasks, offers and chats are not yet shared between phones. Next step: Cloud Firestore + security rules.
+
 ## 1. Executive summary
 
 **What the app is (inferred from code — nothing was filled in the prompt):** FixoraX is a
@@ -152,23 +162,23 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 ### A1. Sign up / sign in
 | ID | Screen / file:line | Problem | Persona | Sev | Fix | Effort | Status |
 |---|---|---|---|---|---|---|---|
-| AUTH-01 | `SignInAndSignUp.kt:118,264`, `MobileLoginFlow.kt:78,176` | No real auth: any number/OTP/password works; no SMS sent; no account stored (C) | All | P0 | Needs backend + OTP provider (D1–D3) | L | Decision |
-| AUTH-02 | `SplashAndWelcome.kt:84-108`, `SignInAndSignUp.kt` | Confusing: separate Sign In vs Create Account, passwords, 5 login buttons. Indian users expect one "Continue with mobile number" + "Continue with Google" | Ramesh, Priya | P1 | Single entry screen, new/returning detected automatically; drop passwords | M | Preview (batch 1) |
-| AUTH-03 | `SignInAndSignUp.kt:142,144,288` | Google & Email buttons only show "Coming soon" | Priya, Amit | P1 | Credential Manager "Sign in with Google" once backend chosen | M | Decision |
+| AUTH-01 | `SignInAndSignUp.kt:118,264`, `MobileLoginFlow.kt:78,176` | No real auth: any number/OTP/password works; no SMS sent; no account stored (C) | All | P0 | Needs backend + OTP provider (D1–D3) | L | Fixed in code (Firebase OTP, server-checked) — turns on when you add google-services.json; test mode until then |
+| AUTH-02 | `SplashAndWelcome.kt:84-108`, `SignInAndSignUp.kt` | Confusing: separate Sign In vs Create Account, passwords, 5 login buttons. Indian users expect one "Continue with mobile number" + "Continue with Google" | Ramesh, Priya | P1 | Single entry screen, new/returning detected automatically; drop passwords | M | Fixed (batch 1 built) |
+| AUTH-03 | `SignInAndSignUp.kt:142,144,288` | Google & Email buttons only show "Coming soon" | Priya, Amit | P1 | Credential Manager "Sign in with Google" once backend chosen | M | Fixed in code (Credential Manager) — needs Firebase setup + Play signing SHA |
 | AUTH-04 | `MobileLoginFlow.kt:62`, `SignInAndSignUp.kt:62,213` | Phone field accepts letters, any length, "+91"/"0"/spaces not cleaned; no 6-9 check | Ramesh | P2 | Normalise to 10 digits, validate, disable Send OTP until valid | S | Fixed |
-| AUTH-05 | `MobileLoginFlow.kt:130-151` | OTP: 6 separate boxes — no auto-advance, Backspace doesn't go back, paste impossible, no SMS autofill; 6×48dp overflows a 320dp phone | Ramesh, Amit | P2 | One input drawn as 6 boxes: typing, Backspace, paste, fits any width (V). Automatic SMS read (SMS Retriever) comes with the OTP provider | S | Fixed (auto-read: Preview/Decision) |
-| AUTH-06 | `MobileLoginFlow.kt:94,166-171` | OTP screen doesn't show which number; "Call Me Instead" dead; 60 s timer, no attempt limit | All | P2 | Show "+91 98xxx", 30 s timer; hide Call-me until supported; limits need backend | S | Fixed (UI part) |
-| AUTH-07 | `MobileLoginFlow.kt:176` | Verify: no loading, no wrong/expired message, can double-submit | All | P2 | Comes with real OTP backend; Verify disabled until 6 digits now | S | Fixed (partial) |
-| AUTH-08 | `FixhoraApp.kt:31-44` | No session: every launch starts at Welcome; nothing remembered | All | P1 | Store session (encrypted) once backend exists | M | Decision |
+| AUTH-05 | `MobileLoginFlow.kt:130-151` | OTP: 6 separate boxes — no auto-advance, Backspace doesn't go back, paste impossible, no SMS autofill; 6×48dp overflows a 320dp phone | Ramesh, Amit | P2 | One input drawn as 6 boxes: typing, Backspace, paste, fits any width (V). Automatic SMS read (SMS Retriever) comes with the OTP provider | S | Fixed (auto-read via Firebase on real devices — D) |
+| AUTH-06 | `MobileLoginFlow.kt:94,166-171` | OTP screen doesn't show which number; "Call Me Instead" dead; 60 s timer, no attempt limit | All | P2 | Show "+91 98xxx", 30 s timer; hide Call-me until supported; limits need backend | S | Fixed |
+| AUTH-07 | `MobileLoginFlow.kt:176` | Verify: no loading, no wrong/expired message, can double-submit | All | P2 | Comes with real OTP backend; Verify disabled until 6 digits now | S | Fixed (loading, wrong/expired messages, 3 tries) |
+| AUTH-08 | `FixhoraApp.kt:31-44` | No session: every launch starts at Welcome; nothing remembered | All | P1 | Store session (encrypted) once backend exists | M | Fixed (session kept; opens last used side) |
 | AUTH-09 | `FixhoraApp.kt:48,62,68,81` | After login/OTP, Back returns to Sign-in/OTP/Profile screens | All | P1 | Clear auth screens from back stack on success | S | Fixed |
-| AUTH-10 | `MobileLoginFlow.kt:256,282,290` | Forgot-password OTP & password fields can't be typed in | — | P2 | Made typeable now; recommend deleting screen with passwords (D2) | S | Fixed (interim) |
-| AUTH-11 | `ProfileAndPermissions.kt:28-147` | 7 free-text fields (gender, DOB as text, state, language); PIN without number pad; nothing saved | Ramesh | P2 | Number pad for PIN (done). Ask only Name (+ optional city) — D9 | S | Fixed (keyboard) / Preview |
-| AUTH-12 | `ProfileAndPermissions.kt:150-227` | "Allow Permissions" requests nothing; app has no location/notification permission at all | All | P1 | Remove screen, ask in context (D8) | S | Decision |
-| AUTH-13 | Profile/logout | No logout, profile, delete account (Play + App Store requirement) | All | P1 | Add Account screen (Profile, Language, Help, Policies, Logout, Delete) | M | Preview (batch 2) |
-| AUTH-14 | `SignInAndSignUp.kt:78` | "Keep me signed in" checkbox does nothing | — | P3 | Remove with passwords (D2) | S | Decision |
-| AUTH-15 | `SplashAndWelcome.kt:163`, `SignInAndSignUp.kt:233` | "Terms / Privacy Policy" are plain text, no pages exist | All | P1 | Host policy pages, link them (you supply text — D10) | S | Decision |
+| AUTH-10 | `MobileLoginFlow.kt:256,282,290` | Forgot-password OTP & password fields can't be typed in | — | P2 | Made typeable now; recommend deleting screen with passwords (D2) | S | Removed with passwords (D2) |
+| AUTH-11 | `ProfileAndPermissions.kt:28-147` | 7 free-text fields (gender, DOB as text, state, language); PIN without number pad; nothing saved | Ramesh | P2 | Number pad for PIN (done). Ask only Name (+ optional city) — D9 | S | Fixed (name only) |
+| AUTH-12 | `ProfileAndPermissions.kt:150-227` | "Allow Permissions" requests nothing; app has no location/notification permission at all | All | P1 | Remove screen, ask in context (D8) | S | Removed (screen asked for nothing) |
+| AUTH-13 | Profile/logout | No logout, profile, delete account (Play + App Store requirement) | All | P1 | Add Account screen (Profile, Language, Help, Policies, Logout, Delete) | M | Fixed (batch 2 built) |
+| AUTH-14 | `SignInAndSignUp.kt:78` | "Keep me signed in" checkbox does nothing | — | P3 | Remove with passwords (D2) | S | Removed with passwords |
+| AUTH-15 | `SplashAndWelcome.kt:163`, `SignInAndSignUp.kt:233` | "Terms / Privacy Policy" are plain text, no pages exist | All | P1 | Host policy pages, link them (you supply text — D10) | S | Partly fixed — links appear once you set them (FIREBASE_SETUP.md §7) |
 | AUTH-16 | `SignInAndSignUp.kt:22-24` etc. | Form input lost on screen rotation / app kill (`remember`) | Ramesh | P2 | `rememberSaveable` | S | Fixed |
-| AUTH-17 | Account linking | One person = one account (OTP + Google) can't be checked — no accounts | — | — | Design into backend (unique phone/email, link on match) | M | Decision |
+| AUTH-17 | Account linking | One person = one account (OTP + Google) can't be checked — no accounts | — | — | Design into backend (unique phone/email, link on match) | M | Partly — Firebase links same-email accounts; phone+Google linking is a later step |
 
 ### A2. Payments
 | ID | Screen / file:line | Problem | Persona | Sev | Fix | Effort | Status |
@@ -176,7 +186,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | PAY-01 | whole app | No payment gateway. Budget is only text. | — | Info | Decide model (D6) | — | Decision |
 | PAY-02 | `TaskPhotosScreen.kt:241-263` | Budget accepts letters/decimals, no number pad, min > max allowed | Ramesh, Priya | P2 | Digits only, number pad, max 7 digits, error if min > max | S | Fixed |
 | PAY-03 | `TaskReviewScreen.kt:473`, `WorkerHomeScreen.kt:150`, `WorkerTasksScreen.kt:126`, `WorkerChatScreen.kt:57` | ₹ shown without Indian grouping (₹125000 instead of ₹1,25,000); chat shows "₹ - ₹" when empty | All | P2 | Shared `formatRupees()` (en-IN), one `budgetLabel()` used everywhere | S | Fixed |
-| PAY-04 | `WorkerHomeScreen.kt:85-95` | Fake money: "Today's Earnings ₹1,250", 142 jobs, 4.9★, 95 % | Helpers | P1 | Hide until real data (visible change) | S | Preview (batch 2) |
+| PAY-04 | `WorkerHomeScreen.kt:85-95` | Fake money: "Today's Earnings ₹1,250", 142 jobs, 4.9★, 95 % | Helpers | P1 | Hide until real data (visible change) | S | Fixed (batch 2) |
 | PAY-05 | Policy | Real-world services → Play Billing NOT required; any Indian gateway (Razorpay/Cashfree/PhonePe PG) allowed. If you ever sell digital extras (e.g. "boost my task", helper subscription), those need Play Billing or user-choice billing | — | Info | — | — | Info |
 
 ### A3. PDFs
@@ -211,7 +221,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | PERF-07 | `WorkerChatScreen.kt:32-49` | In an open chat, system Back exits the whole helper area instead of closing the chat | P2 | `BackHandler` | Fixed |
 | PERF-08 | — | No crash reporting or funnel analytics | P2 | Crashlytics or similar (D11) | Decision |
 | PERF-09 | `TaskViewModel.kt:52,80,105` | `printStackTrace` in release | P4 | Log only in debug | Fixed |
-| PERF-10 | `FixhoraApplication.kt:21` | Destructive migration: any app update that changes tables wipes all user data | P2 | Real migrations before launch (D12) | Decision |
+| PERF-10 | `FixhoraApplication.kt:21` | Destructive migration: any app update that changes tables wipes all user data | P2 | Real migrations before launch (D12) | Fixed (proper v2→v3 upgrade, tested) |
 | PERF-11 | — | Bad-network handling, offline banner, retries | P2 | Comes with backend | Open |
 
 ### A6. Security & compliance
@@ -221,7 +231,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | SEC-02 | Photos stored as temporary picker links; after restart they vanish (also privacy: link to user's gallery) | P1 | Fixed (copied into app storage) — see BRK-04 |
 | SEC-03 | Privacy Policy, Terms, Refund, Contact, grievance officer — none exist (Play + DPDP) | P1 | Decision (D10) |
 | SEC-04 | DPDP gaps: no consent notice listing data (name, phone, location, photos), no withdraw-consent, no data view/correct/erase, no grievance contact, no breach plan, no age check (tutoring category ⇒ minors possible) | P1 | Decision (D10) |
-| SEC-05 | Delete account (in-app + web link) missing | P1 | Preview (batch 2) + needs backend |
+| SEC-05 | Delete account (in-app + web link) missing | P1 | Fixed in app (wipes phone data, deletes login); you must add the web deletion link |
 | SEC-06 | `allowBackup=true` with empty rules: fine today, but must exclude login tokens once added | P3 | Open |
 | SEC-07 | 16 KB pages: the APK has one native library (`libandroidx.graphics.path.so`, from Compose). All 4 ABIs are aligned to 16 KB (`0x4000`) and `zipalign -c -P 16` passes (V). Still test once on a 16 KB emulator (D) | — | OK |
 | SEC-08 | Package name `com.aistudio.fixhora.xyzkpa` is permanent once uploaded; `namespace com.example` | P1 | Decision (D5) |
@@ -239,13 +249,13 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | BRK-07 | `TaskViewModel.kt:18`, `TaskLocationScreen.kt:189`, `TaskReviewScreen.kt:83` | Current location ON by default, shows/posts fake "Sector 62, Noida" | P1 | Removed the fake GPS switch, fake map box and Noida text; address must be typed. **Visible change** made without preview because it posted wrong data. Real GPS needs D7 | Fixed (interim) |
 | BRK-08 | `TaskLocationScreen.kt:68,224,250` | Locate-me icon, "Within 5 km", "safe" card look tappable but aren't | P2 | Remove fake chevrons/icon; radius picker later | Fixed |
 | BRK-09 | `TaskFlowContainer.kt:34-37` | Step 1 is labelled "Task Details" but only picks a category; details are on step 3 "Photos" | P3 | Labels → Category · Location · Details · Review | Fixed |
-| BRK-11 | `WorkerHomeScreen.kt` | Fake "Alex Worker", "Good Morning" at night, fake badges & stats, dead bell/bid/refresh | P1 | Remove fakes (visible) | Preview (batch 2) |
-| BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Decision |
+| BRK-11 | `WorkerHomeScreen.kt` | Fake "Alex Worker", "Good Morning" at night, fake badges & stats, dead bell/bid/refresh | P1 | Remove fakes (visible) | Fixed (batch 2) |
+| BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Map tab removed (batch 2); offers are real on one phone; server sync next |
 | BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "Pending"/"In Progress"/"Cancelled" chips can never match; search dead | P2 | "Rejected" label + chip; never-matching chips removed; search filters by title/details/place. Sort menu (newest / highest budget) added; duplicate Search/Filter icons removed | Fixed |
-| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Fixed (fakes) / Decision |
+| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Two-way chat works on one phone; server sync next |
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
-| BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Preview (batch 2) |
+| BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Fixed (batch 2) |
 | I18N-01 | all `.kt` | All text hardcoded in Kotlin; only role screen has Hindi | P2 | ~220 user-facing texts now in `strings.xml`, including OTP messages with the number/countdown, step names, "1 photo / 3 photos" plural rules (32/32 screenshots pixel-identical). Not moved: category names (used in search logic), role screen (already has its own EN/हिंदी toggle), chat quick replies, sample addresses. Next: `values-hi` (D13) | Mostly fixed |
 
 ### B. QA walkthrough highlights (personas)
@@ -309,18 +319,18 @@ reviews; helper verification (KYC); FAQ; app version/about; offline banner + ret
 ## 5. Needs my decision
 | # | Decision | My recommendation |
 |---|---|---|
-| D1 | Backend: Firebase (Auth + Firestore + Storage + FCM) vs Supabase vs custom server | **Firebase** — fastest path, Indian phone OTP built in, free tier fits launch |
-| D2 | Drop passwords & "Forgot password"; only mobile OTP + Google | **Yes** |
+| D1 ✅ Firebase chosen | Backend: Firebase (Auth + Firestore + Storage + FCM) vs Supabase vs custom server | **Firebase** — fastest path, Indian phone OTP built in, free tier fits launch |
+| D2 ✅ Yes (batch 1) | Drop passwords & "Forgot password"; only mobile OTP + Google | **Yes** |
 | D3 | OTP provider: Firebase Phone Auth vs MSG91/2Factor (needs TRAI DLT registration) | Firebase first; switch if SMS costs grow |
-| D4 | Brand name: "FixoraX" (app) or "Fixhora" (repo/design) | Pick one before store listing |
+| D4 ✅ FixoraX | Brand name: "FixoraX" (app) or "Fixhora" (repo/design) | Pick one before store listing |
 | D5 | Final package name (permanent on Play), e.g. `in.fixhora.app` | Choose now, before first upload |
 | D6 | Money: do customers pay helpers inside the app (commission/escrow) or cash? | Start cash; add Razorpay UPI later. Play Billing not needed for real-world services |
 | D7 | Add Google Location + Maps SDK (new dependency, Maps API key with billing) — or hide the Map tab until then | Hide Map tab now; add location (no map) first |
-| D8 | Remove onboarding Permissions screen; ask location/notifications when needed | **Yes** |
-| D9 | Profile: ask only name (single name allowed) + optional city | **Yes** |
+| D8 ✅ Removed (batch 1 flow) | Remove onboarding Permissions screen; ask location/notifications when needed | **Yes** |
+| D9 ✅ Yes (batch 1) | Profile: ask only name (single name allowed) + optional city | **Yes** |
 | D10 | Policy texts (Privacy, Terms, Refund, Contact, grievance officer) — you provide/approve the legal text | Needed before launch |
 | D11 | Crash reporting/analytics service (e.g. Firebase Crashlytics) | Yes, with D1 |
-| D12 | Database migrations policy (stop wiping data on update) | Yes, before first release |
+| D12 ✅ Done | Database migrations policy (stop wiping data on update) | Yes, before first release |
 | D13 | Hindi translations — who writes/approves them | You/native speaker approve; I can draft |
 | D14 | Guest mode: may guests post tasks, or login required to post? | Browse as guest, login to post/accept |
 

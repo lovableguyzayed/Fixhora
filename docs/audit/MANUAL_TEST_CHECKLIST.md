@@ -26,7 +26,29 @@ Redmi/Realme), one mid-range Android, one tablet or foldable.
 - [ ] Android 16 phone: back gesture preview and edge-to-edge look right
 - [ ] 16 KB page-size emulator image (Android 15+): app starts
 
-## After the backend exists (not testable yet)
+## New login and screens (test mode — before Firebase is set up)
+- [ ] Fresh install → Welcome shows English/हिंदी, "Continue with mobile number", "Continue with Google", "Explore without login"
+- [ ] Mobile screen: "Pick number from my SIM" shows your SIM numbers (dual-SIM: both) and fills the field
+- [ ] OTP screen shows the yellow "Test mode" note; 000000 → "Wrong OTP … 2 tries left"; after 3 wrong → asks to resend
+- [ ] 123456 → asks your name (first time only) → role choice → the app remembers the side you chose on next launch
+- [ ] Reopen the app → you are still logged in (no login screen)
+- [ ] While on the OTP screen, switch to the SMS app, wait, come back (also with "Don't keep activities" on) → number and countdown still there
+- [ ] Customer: tap a category on Home → task form opens with it chosen → post → "See my tasks" shows it
+- [ ] Switch to helper (Account → Switch) → the task shows "Posted by you"; sample jobs (test builds only) show Send offer / Accept
+- [ ] Helper sends an offer → customer side shows it under the task → Choose → helper My jobs shows "Chosen" → Chat works both ways
+- [ ] Online switch off → jobs hidden with a message; stays off after restart
+- [ ] Back on the first tab → "Press back again to exit"; Back inside a chat closes the chat first
+- [ ] Log out → back to Welcome; tasks/offers/chats/photos gone from this phone
+- [ ] Delete my account → confirm dialog → back to Welcome, data gone
+
+## After Firebase is set up (docs/FIREBASE_SETUP.md)
+- [ ] Test number from Firebase console logs in with its fixed code
+- [ ] Real OTP on Jio, Airtel, Vi, BSNL: arrives, is read automatically (Android), resend after 30 s works
+- [ ] "Continue with Google" on a **release build from the Play internal testing track** (needs the Play signing SHA-1/SHA-256 in Firebase)
+- [ ] Cancel the Google popup → no error shown; phone with no Google account → clear message
+- [ ] Delete account right after logging in works; after a long time → "please log in again" message, then works
+
+## After tasks are stored on the server (next step)
 - [ ] Real OTP on Jio, Airtel, Vi, BSNL (arrival time, auto-read, resend, wrong OTP ×3)
 - [ ] Google sign-in on a **release build from the Play internal testing track** (needs Play App Signing SHA-1/SHA-256 in the console)
 - [ ] Same person via OTP and via Google → one account
