@@ -44,7 +44,12 @@ val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Ph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskFlowContainer(onBackToRoles: () -> Unit, ownerId: String = "guest", initialCategory: String? = null) {
+fun TaskFlowContainer(
+    onBackToRoles: () -> Unit,
+    ownerId: String = "guest",
+    initialCategory: String? = null,
+    ownerName: String? = null,
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -52,7 +57,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit, ownerId: String = "guest", init
     
     val application = LocalContext.current.applicationContext as FixhoraApplication
     val viewModel: TaskViewModel = viewModel(
-        factory = TaskViewModel.Factory(application.taskRepository, ownerId)
+        factory = TaskViewModel.Factory(application.taskRepository, ownerId, ownerName, application.market)
     )
     
     LaunchedEffect(initialCategory) { viewModel.preselectCategory(initialCategory) }

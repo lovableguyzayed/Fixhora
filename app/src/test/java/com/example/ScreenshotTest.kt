@@ -9,8 +9,8 @@ import com.example.ui.screens.auth.OtpVerificationScreen
 import com.example.ui.screens.auth.WelcomeScreen
 import com.example.data.auth.AppUser
 import com.example.data.auth.AuthError
-import com.example.data.room.OfferEntity
-import com.example.data.room.TaskEntity
+import com.example.data.market.Offer
+import com.example.data.market.Task
 import com.example.ui.screens.account.AccountScreen
 import com.example.ui.screens.auth.AuthUiState
 import com.example.ui.screens.auth.NameScreen
@@ -39,18 +39,20 @@ class ScreenshotTest {
 
     private val now = System.currentTimeMillis()
     private fun task(id: Int, title: String, place: String, status: String = "submitted", min: String = "300", max: String = "800", cat: String = "repairs", ago: Long = 20) =
-        TaskEntity(id = id, status = status, categoryId = cat, locationQuery = place, useCurrentLocation = false, selectedDistance = 5,
-            descriptionTitle = title, descriptionDetails = "Water drips all night. Need a plumber today evening.",
-            minBudget = min, maxBudget = max, photoUris = "", ownerId = "cust", createdAt = now - ago * 60_000)
+        Task(id = id.toString(), ownerId = "cust", ownerName = "Ramesh", status = status, categoryId = cat, locationQuery = place,
+            title = title, details = "Water drips all night. Need a plumber today evening.",
+            minBudget = min, maxBudget = max, createdAt = now - ago * 60_000)
+    private fun offer(id: Int, task: Int, helper: String, name: String, amount: Long, msg: String = "", status: String = "sent") =
+        Offer(id.toString(), task.toString(), helper, name, amount, msg, now, status)
     private val tap = task(1, "Kitchen tap is leaking", "Civil Lines, Kanpur")
     private val paint = task(2, "Paint one bedroom", "Vaishali Nagar, Jaipur", status = "accepted", min = "4000", max = "5000", cat = "painting", ago = 1500)
     private val clean = task(3, "Full house cleaning before Diwali", "Gomti Nagar, Lucknow", min = "1500", max = "2500", cat = "cleaning", ago = 60)
     private val myTasks = listOf(
         TaskWithOffers(tap, listOf(
-            OfferEntity(1, 1, "h1", "Suresh Kumar", 650, "Can come today 6 pm"),
-            OfferEntity(2, 1, "h2", "Anil", 500, "Tomorrow morning"),
-            OfferEntity(3, 1, "h3", "Raju", 800))),
-        TaskWithOffers(paint, listOf(OfferEntity(4, 2, "h4", "Raju (painter)", 4500, status = "accepted"))),
+            offer(1, 1, "h1", "Suresh Kumar", 650, "Can come today 6 pm"),
+            offer(2, 1, "h2", "Anil", 500, "Tomorrow morning"),
+            offer(3, 1, "h3", "Raju", 800))),
+        TaskWithOffers(paint, listOf(offer(4, 2, "h4", "Raju (painter)", 4500, status = "accepted"))),
     )
     private val ramesh = AppUser("u1", "+919876543210", null, "Ramesh")
 
@@ -67,8 +69,8 @@ class ScreenshotTest {
         "my_tasks_empty" to { MyTasksScreen(emptyList(), {}, { _, _ -> }, {}, {}, {}) },
         "helper_home" to {
             WorkerHomeScreen("Suresh", true,
-                listOf(JobItem(tap, null, false), JobItem(clean, OfferEntity(9, 3, "me", "Suresh", 2000), false)),
-                listOf(MyJob(OfferEntity(9, 3, "me", "Suresh", 2000), clean)), {}, { _, _, _ -> })
+                listOf(JobItem(tap, null, false), JobItem(clean, offer(9, 3, "me", "Suresh", 2000), false)),
+                listOf(MyJob(offer(9, 3, "me", "Suresh", 2000), clean)), {}, { _, _, _ -> })
         },
         "account" to { AccountScreen(ramesh, false, false, null, false, {}, {}, {}, {}, {}) },
         "account_guest" to { AccountScreen(null, true, true, null, false, {}, {}, {}, {}, {}) },

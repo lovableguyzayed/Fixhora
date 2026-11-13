@@ -5,6 +5,9 @@ import androidx.room.Room
 import com.example.data.auth.AuthRepository
 import com.example.data.auth.FirebaseAuthRepository
 import com.example.data.auth.TestModeAuthRepository
+import com.example.data.market.FirestoreMarketRepository
+import com.example.data.market.LocalMarketRepository
+import com.example.data.market.MarketRepository
 import com.example.data.repository.ChatRepository
 import com.example.data.repository.TaskRepository
 import com.example.data.room.AppDatabase
@@ -16,6 +19,8 @@ class FixhoraApplication : Application() {
     lateinit var taskRepository: TaskRepository
     lateinit var chatRepository: ChatRepository
     lateinit var authRepository: AuthRepository
+    /** Tasks, offers and chats: shared via Firestore when Firebase is set up, else only on this phone. */
+    lateinit var market: MarketRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -28,8 +33,9 @@ class FixhoraApplication : Application() {
         taskRepository = TaskRepository(database.taskDao(), database.offerDao())
         chatRepository = ChatRepository(database.chatDao())
         // Real Firebase login when google-services.json is in the project, otherwise test mode.
-        authRepository = if (FirebaseApp.getApps(this).isNotEmpty()) FirebaseAuthRepository(this)
-        else TestModeAuthRepository(this)
+        val firebaseReady = FirebaseApp.getApps(this).isNotEmpty()
+        authRepository = if (firebaseReady) FirebaseAuthRepository(this) else TestModeAuthRepository(this)
+        market = if (firebaseReady) FirestoreMarketRepository() else LocalMarketRepository(taskRepository, chatRepository)
     }
 
     /** Logout / delete account: remove everything this person left on the phone. */

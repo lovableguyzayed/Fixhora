@@ -83,6 +83,7 @@
     <string name="review_default_details">Looking for someone to help me out.</string>
     <string name="not_specified">Not specified</string>
     <string name="photos_none">No photos added</string>
+    <string name="review_post_failed">Could not post your task. Please check your internet and try again.</string>
     <string name="no_budget_set">No budget set</string>
         <string name="auth_err_invalid_number">This mobile number doesn\'t look right. Please check it.</string>
     <string name="auth_err_too_many">Too many tries from this phone. Please wait a while and try again.</string>

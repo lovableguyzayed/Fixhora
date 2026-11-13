@@ -148,6 +148,7 @@ fun FixhoraApp() {
                 onBackToRoles = { nav.popBackStack() },
                 ownerId = user?.uid ?: "guest",
                 initialCategory = entry.arguments?.getString("category"),
+                ownerName = user?.name,
             )
         }
         composable(Routes.Customer) {
@@ -182,17 +183,17 @@ private fun CustomerShell(
 ) {
     val postTask: (String?) -> Unit = { cat -> requireLogin { rootNav.navigate(Routes.taskFlow(cat)) } }
     val ownerId = user?.uid ?: "guest"
-    val vm: CustomerViewModel = viewModel(key = "customer-$ownerId", factory = CustomerViewModel.Factory(app.taskRepository, ownerId))
+    val vm: CustomerViewModel = viewModel(key = "customer-$ownerId", factory = CustomerViewModel.Factory(app.market, ownerId))
     val tasks by vm.myTasks.collectAsState()
     val scope = rememberCoroutineScope()
-    var openChat by remember { mutableStateOf<Int?>(null) }
+    var openChat by remember { mutableStateOf<String?>(null) }
     ShellScaffold(customerTabs) { tabs ->
         composable("c_home") { CustomerHomeScreen(user?.name) { postTask(it) } }
         composable("c_tasks") {
             MyTasksScreen(
                 tasks = tasks,
                 onPostTask = { postTask(null) },
-                onChoose = vm::chooseOffer,
+                onChoose = { t, o -> vm.chooseOffer(t, o) },
                 onMarkDone = { vm.markDone(it.task) },
                 onCancel = { vm.cancel(it.task) },
                 onChat = { openChat = it.task.id; tabs.openTab("c_chats") },
@@ -200,12 +201,12 @@ private fun CustomerShell(
         }
         composable("c_chats") {
             val threads = tasks?.filter { it.chosen != null && it.task.status == "accepted" }?.map {
-                ChatThread(it.task.id, it.task.descriptionTitle, it.chosen!!.helperName, IndiaFormat.rupees(it.chosen!!.amount))
+                ChatThread(it.task.id, it.task.title, it.chosen!!.helperName, IndiaFormat.rupees(it.chosen!!.amount))
             }
             ChatsScreen(
                 threads = threads, me = "customer", emptyText = stringResource(R.string.chats_empty_customer),
-                quickReplies = emptyList(), messagesFor = app.chatRepository::getMessagesForTask,
-                onSend = { id, text -> scope.launch { app.chatRepository.sendMessage(id, "customer", text) } },
+                quickReplies = emptyList(), messagesFor = app.market::messages,
+                onSend = { id, text -> scope.launch { app.market.sendMessage(id, "customer", text) } },
                 openTaskId = openChat, onOpenConsumed = { openChat = null },
             )
         }
@@ -222,12 +223,12 @@ private fun HelperShell(
     val helperId = user?.uid ?: "guest-helper"
     val helperName = user?.name ?: stringResource(R.string.helper_default_name)
     val vm: HelperViewModel = viewModel(key = "helper-$helperId",
-        factory = HelperViewModel.Factory(app.taskRepository, prefs, helperId, helperName))
+        factory = HelperViewModel.Factory(app.market, app.taskRepository, prefs, helperId, helperName))
     val jobs by vm.jobs.collectAsState()
     val myJobs by vm.myJobs.collectAsState()
     val online by vm.online.collectAsState()
     val scope = rememberCoroutineScope()
-    var openChat by remember { mutableStateOf<Int?>(null) }
+    var openChat by remember { mutableStateOf<String?>(null) }
     val quickReplies = listOf("I can do this today.", "I'll arrive in 20 minutes.", "Work has been completed.")
     ShellScaffold(helperTabs) { tabs ->
         composable("h_home") {
@@ -239,12 +240,12 @@ private fun HelperShell(
         composable("h_chats") {
             val customer = stringResource(R.string.chat_customer)
             val threads = myJobs?.filter { it.offer.status == "accepted" && it.task?.status == "accepted" }?.map {
-                ChatThread(it.offer.taskId, it.task?.descriptionTitle.orEmpty(), customer, IndiaFormat.rupees(it.offer.amount))
+                ChatThread(it.offer.taskId, it.task?.title.orEmpty(), it.task?.ownerName?.takeIf { n -> n.isNotBlank() } ?: customer, IndiaFormat.rupees(it.offer.amount))
             }
             ChatsScreen(
                 threads = threads, me = "worker", emptyText = stringResource(R.string.chats_empty_helper),
-                quickReplies = quickReplies, messagesFor = app.chatRepository::getMessagesForTask,
-                onSend = { id, text -> scope.launch { app.chatRepository.sendMessage(id, "worker", text) } },
+                quickReplies = quickReplies, messagesFor = app.market::messages,
+                onSend = { id, text -> scope.launch { app.market.sendMessage(id, "worker", text) } },
                 openTaskId = openChat, onOpenConsumed = { openChat = null },
             )
         }
@@ -270,6 +271,8 @@ private fun AccountTab(
         onDeleteAccount = {
             busy = true; error = null
             scope.launch {
+                // Remove what this person created on the server first (needs the login), then the login itself.
+                user?.let { app.market.deleteDataOf(it.uid) }
                 auth.deleteAccount()
                     .onSuccess { app.wipeLocalData(); onSignOut() }
                     .onFailure { error = (it as? AuthException)?.error }

@@ -27,13 +27,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.data.room.ChatMessageEntity
+import com.example.data.market.Message
 import com.example.ui.theme.*
 import com.example.util.IndiaFormat
 import kotlinx.coroutines.flow.Flow
 
 /** One conversation per task, between the customer and the chosen helper. */
-data class ChatThread(val taskId: Int, val taskTitle: String, val otherName: String, val budget: String)
+data class ChatThread(val taskId: String, val taskTitle: String, val otherName: String, val budget: String)
 
 /**
  * Chat list + conversation. [me] is "customer" or "worker" (the sender id stored with messages).
@@ -45,12 +45,12 @@ fun ChatsScreen(
     me: String,
     emptyText: String,
     quickReplies: List<String>,
-    messagesFor: (Int) -> Flow<List<ChatMessageEntity>>,
-    onSend: (taskId: Int, text: String) -> Unit,
-    openTaskId: Int? = null,
+    messagesFor: (String) -> Flow<List<Message>>,
+    onSend: (taskId: String, text: String) -> Unit,
+    openTaskId: String? = null,
     onOpenConsumed: () -> Unit = {},
 ) {
-    var openId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var openId by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(openTaskId) { if (openTaskId != null) { openId = openTaskId; onOpenConsumed() } }
     val open = threads?.firstOrNull { it.taskId == openId }
     // System Back closes the open conversation first.
@@ -94,7 +94,7 @@ private fun Conversation(
     thread: ChatThread,
     me: String,
     quickReplies: List<String>,
-    messagesFlow: Flow<List<ChatMessageEntity>>,
+    messagesFlow: Flow<List<Message>>,
     onSend: (String) -> Unit,
     onBack: () -> Unit,
 ) {
@@ -113,7 +113,7 @@ private fun Conversation(
         )
         LazyColumn(Modifier.weight(1f).padding(horizontal = 16.dp), reverseLayout = true) {
             item { Spacer(Modifier.height(12.dp)) }
-            items(messages, key = { it.id }) { m -> Bubble(m.text, m.senderId == me, IndiaFormat.chatTime(m.timestamp)) }
+            items(messages, key = { it.id }) { m -> Bubble(m.text, m.senderRole == me, IndiaFormat.chatTime(m.timestamp)) }
         }
         Column(Modifier.fillMaxWidth().background(Color.White)) {
             if (quickReplies.isNotEmpty()) {

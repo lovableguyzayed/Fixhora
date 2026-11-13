@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.data.room.TaskEntity
+import com.example.data.market.Task
 import com.example.ui.screens.shell.*
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.screens.taskflow.title
@@ -42,9 +42,9 @@ fun WorkerHomeScreen(
     jobs: List<JobItem>?,
     myJobs: List<MyJob>?,
     onOnlineChange: (Boolean) -> Unit,
-    onSendOffer: (TaskEntity, Long, String) -> Unit,
+    onSendOffer: (Task, Long, String) -> Unit,
 ) {
-    var offerFor by remember { mutableStateOf<TaskEntity?>(null) }
+    var offerFor by remember { mutableStateOf<Task?>(null) }
     val open = jobs.orEmpty().filter { !it.isOwn }
     val chosen = myJobs.orEmpty().count { it.offer.status == "accepted" }
     val completed = myJobs.orEmpty().count { it.offer.status == "accepted" && it.task?.status == "completed" }
@@ -143,9 +143,9 @@ private fun JobCard(job: JobItem, onSendOffer: () -> Unit, onQuickAccept: (Long)
                 else if (isNew) Badge(stringResource(R.string.helper_badge_new), GreenBg, GreenFg)
             }
             Spacer(Modifier.height(6.dp))
-            Text(t.descriptionTitle, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
-            if (t.descriptionDetails.isNotBlank()) {
-                Text(t.descriptionDetails, color = SecondaryGrey, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(t.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+            if (t.details.isNotBlank()) {
+                Text(t.details, color = SecondaryGrey, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -185,7 +185,7 @@ private fun JobCard(job: JobItem, onSendOffer: () -> Unit, onQuickAccept: (Long)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OfferSheet(task: TaskEntity, onDismiss: () -> Unit, onSubmit: (Long, String) -> Unit) {
+private fun OfferSheet(task: Task, onDismiss: () -> Unit, onSubmit: (Long, String) -> Unit) {
     var amount by rememberSaveable { mutableStateOf(task.maxBudget.ifBlank { task.minBudget }) }
     var message by rememberSaveable { mutableStateOf("") }
     var showError by rememberSaveable { mutableStateOf(false) }
@@ -193,7 +193,7 @@ private fun OfferSheet(task: TaskEntity, onDismiss: () -> Unit, onSubmit: (Long,
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.padding(horizontal = 24.dp).padding(bottom = 32.dp).imePadding()) {
             Text(stringResource(R.string.helper_offer_title), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
-            Text(task.descriptionTitle + " · " + IndiaFormat.budgetLabel(task.minBudget, task.maxBudget), color = SecondaryGrey, fontSize = 14.sp)
+            Text(task.title + " · " + IndiaFormat.budgetLabel(task.minBudget, task.maxBudget), color = SecondaryGrey, fontSize = 14.sp)
             Spacer(Modifier.height(20.dp))
             OutlinedTextField(
                 value = amount, onValueChange = { amount = IndiaFormat.cleanAmount(it); showError = false },
@@ -223,7 +223,7 @@ private fun OfferSheet(task: TaskEntity, onDismiss: () -> Unit, onSubmit: (Long,
 
 /** Offers this helper has sent and what happened to them. */
 @Composable
-fun MyJobsScreen(myJobs: List<MyJob>?, onExploreJobs: () -> Unit, onChat: (Int) -> Unit) {
+fun MyJobsScreen(myJobs: List<MyJob>?, onExploreJobs: () -> Unit, onChat: (String) -> Unit) {
     Column(Modifier.fillMaxSize().background(PageBg)) {
         Text(stringResource(R.string.nav_my_jobs), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DarkNavy,
             modifier = Modifier.fillMaxWidth().background(Color.White).padding(16.dp))
@@ -254,7 +254,7 @@ fun MyJobsScreen(myJobs: List<MyJob>?, onExploreJobs: () -> Unit, onChat: (Int) 
                                 }
                             }
                             Spacer(Modifier.height(6.dp))
-                            Text(task?.descriptionTitle ?: "—", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            Text(task?.title ?: "—", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                             task?.let { Text(it.locationQuery, color = SecondaryGrey, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
                             Text(stringResource(R.string.myjobs_your_offer, IndiaFormat.rupees(j.offer.amount)), color = DarkNavy,
                                 fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 6.dp))

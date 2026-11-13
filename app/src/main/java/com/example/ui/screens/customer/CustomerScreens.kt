@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
-import com.example.data.room.OfferEntity
+import com.example.data.market.Offer
 import com.example.ui.screens.shell.*
 import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.screens.taskflow.title
@@ -87,13 +87,13 @@ private enum class TaskFilter { Active, Done, Cancelled }
 fun MyTasksScreen(
     tasks: List<TaskWithOffers>?,
     onPostTask: () -> Unit,
-    onChoose: (taskId: Int, offerId: Int) -> Unit,
+    onChoose: (TaskWithOffers, Offer) -> Unit,
     onMarkDone: (TaskWithOffers) -> Unit,
     onCancel: (TaskWithOffers) -> Unit,
     onChat: (TaskWithOffers) -> Unit,
 ) {
     var filter by rememberSaveable { mutableStateOf(TaskFilter.Active) }
-    var choosing by remember { mutableStateOf<Pair<TaskWithOffers, OfferEntity>?>(null) }
+    var choosing by remember { mutableStateOf<Pair<TaskWithOffers, Offer>?>(null) }
     var cancelling by remember { mutableStateOf<TaskWithOffers?>(null) }
     val all = tasks.orEmpty()
     val active = all.filter { it.task.status == "submitted" || it.task.status == "accepted" }
@@ -147,7 +147,7 @@ fun MyTasksScreen(
             onDismissRequest = { choosing = null },
             title = { Text(stringResource(R.string.mytasks_choose_title, offer.helperName)) },
             text = { Text(stringResource(R.string.mytasks_choose_body, offer.helperName, IndiaFormat.rupees(offer.amount))) },
-            confirmButton = { Button(onClick = { onChoose(t.task.id, offer.id); choosing = null }) { Text(stringResource(R.string.mytasks_choose)) } },
+            confirmButton = { Button(onClick = { onChoose(t, offer); choosing = null }) { Text(stringResource(R.string.mytasks_choose)) } },
             dismissButton = { TextButton(onClick = { choosing = null }) { Text(stringResource(R.string.account_cancel)) } }
         )
     }
@@ -182,7 +182,7 @@ private fun EmptyTasks(onPostTask: () -> Unit) {
 @Composable
 private fun MyTaskCard(
     t: TaskWithOffers,
-    onChoose: (OfferEntity) -> Unit,
+    onChoose: (Offer) -> Unit,
     onMarkDone: () -> Unit,
     onCancel: () -> Unit,
     onChat: () -> Unit,
@@ -203,7 +203,7 @@ private fun MyTaskCard(
                 }
             }
             Spacer(Modifier.height(6.dp))
-            Text(t.task.descriptionTitle, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+            Text(t.task.title, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.LocationOn, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(14.dp))
                 Text(" " + t.task.locationQuery + " · " + stringResource(R.string.mytasks_budget,

@@ -54,6 +54,8 @@ class TaskRepository(private val taskDao: TaskDao, private val offerDao: OfferDa
         }
     }
 
+    suspend fun deleteDraft() { taskDao.getDraftTask()?.let { taskDao.deleteTaskById(it.id) } }
+
     suspend fun submitTask(task: TaskEntity) {
         // Remove the draft first, then store the posted task as a new row.
         taskDao.getDraftTask()?.let { taskDao.deleteTaskById(it.id) }

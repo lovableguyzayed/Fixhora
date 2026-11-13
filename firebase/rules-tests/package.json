@@ -3,7 +3,8 @@
   "private": true,
   "description": "Tests that the Firestore security rules allow exactly what the app needs. Run: npm test",
   "scripts": {
-    "test": "firebase emulators:exec --only firestore --project demo-fixorax \"node --test rules.test.mjs\""
+    "test": "firebase emulators:exec --only firestore --project demo-fixorax \"node --test rules.test.mjs\"",
+    "test:app": "firebase emulators:exec --only firestore,auth --project demo-fixorax \"cd ../.. && ./gradlew testDebugUnitTest --tests com.example.FirestoreMarketEmulatorTest\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "6.0.0",

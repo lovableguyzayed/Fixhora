@@ -194,6 +194,10 @@ fun TaskReviewScreen(
             }
         }
         
+        if (uiState.postFailed) {
+            Text(stringResource(R.string.review_post_failed), color = MaterialTheme.colorScheme.error, fontSize = 14.sp,
+                modifier = Modifier.padding(top = 16.dp))
+        }
         Button(
             onClick = { viewModel.submitTask(onPosted = onSubmit) },
             enabled = !uiState.isSubmitting,

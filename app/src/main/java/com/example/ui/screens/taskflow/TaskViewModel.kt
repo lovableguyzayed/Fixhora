@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.BuildConfig
+import com.example.data.market.MarketRepository
+import com.example.data.market.toTask
 import com.example.data.repository.TaskRepository
 import com.example.data.room.TaskEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +26,17 @@ data class TaskDraftState(
     val minBudget: String = "",
     val maxBudget: String = "",
     val photoUris: List<String> = emptyList(),
-    val isSubmitting: Boolean = false
+    val isSubmitting: Boolean = false,
+    /** Posting failed (e.g. not logged in any more); the screen asks to try again. */
+    val postFailed: Boolean = false
 )
 
-class TaskViewModel(private val repository: TaskRepository, private val ownerId: String = "guest") : ViewModel() {
+class TaskViewModel(
+    private val repository: TaskRepository,
+    private val ownerId: String = "guest",
+    private val ownerName: String? = null,
+    private val market: MarketRepository? = null,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(TaskDraftState())
     val uiState: StateFlow<TaskDraftState> = _uiState.asStateFlow()
 
@@ -90,29 +99,33 @@ class TaskViewModel(private val repository: TaskRepository, private val ownerId:
         val currentState = _uiState.value
         if (currentState.isSubmitting) return // ignore double taps
         saveJob?.cancel()
-        _uiState.update { it.copy(isSubmitting = true) }
+        _uiState.update { it.copy(isSubmitting = true, postFailed = false) }
         viewModelScope.launch {
             try {
-                repository.submitTask(
-                    TaskEntity(
-                        status = "submitted",
-                        categoryId = currentState.categoryId,
-                        locationQuery = currentState.locationQuery.trim(),
-                        useCurrentLocation = currentState.useCurrentLocation,
-                        selectedDistance = currentState.selectedDistance,
-                        descriptionTitle = currentState.descriptionTitle.trim(),
-                        descriptionDetails = currentState.descriptionDetails.trim(),
-                        minBudget = currentState.minBudget,
-                        maxBudget = currentState.maxBudget,
-                        photoUris = currentState.photoUris.joinToString(","),
-                        ownerId = ownerId
-                    )
+                val entity = TaskEntity(
+                    status = "submitted",
+                    categoryId = currentState.categoryId,
+                    locationQuery = currentState.locationQuery.trim(),
+                    useCurrentLocation = currentState.useCurrentLocation,
+                    selectedDistance = currentState.selectedDistance,
+                    descriptionTitle = currentState.descriptionTitle.trim(),
+                    descriptionDetails = currentState.descriptionDetails.trim(),
+                    minBudget = currentState.minBudget,
+                    maxBudget = currentState.maxBudget,
+                    photoUris = currentState.photoUris.joinToString(","),
+                    ownerId = ownerId
                 )
+                if (market != null && market.isShared) {
+                    market.postTask(entity.toTask().copy(ownerName = ownerName)).getOrThrow()
+                    repository.deleteDraft()
+                } else {
+                    repository.submitTask(entity)
+                }
                 clearDraft()
                 onPosted()
             } catch (e: Exception) {
                 if (BuildConfig.DEBUG) e.printStackTrace()
-                _uiState.update { it.copy(isSubmitting = false) }
+                _uiState.update { it.copy(isSubmitting = false, postFailed = true) }
             }
         }
     }
@@ -170,11 +183,16 @@ class TaskViewModel(private val repository: TaskRepository, private val ownerId:
         if (categoryId != null && _uiState.value.categoryId == null) updateCategory(categoryId)
     }
 
-    class Factory(private val repository: TaskRepository, private val ownerId: String = "guest") : ViewModelProvider.Factory {
+    class Factory(
+        private val repository: TaskRepository,
+        private val ownerId: String = "guest",
+        private val ownerName: String? = null,
+        private val market: MarketRepository? = null,
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-                return TaskViewModel(repository, ownerId) as T
+                return TaskViewModel(repository, ownerId, ownerName, market) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
