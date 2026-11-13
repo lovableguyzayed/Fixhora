@@ -14,7 +14,9 @@ Built in commits `650a057` (data + login) and `86e0448` (screens):
 - Customer: Home / My tasks (offers, choose helper, done, cancel) / Chats / Account. Helper: Home (real counts) / My jobs / Chats / Account.
 - Log out and Delete account (wipes this phone's tasks, offers, chats and photos).
 - Database upgraded safely (v2→v3, tested). 19 automated tests pass; release APK 3.4 MB; 16 KB check passes.
-- **Still one phone only:** tasks, offers and chats are not yet shared between phones. Next step: Cloud Firestore + security rules.
+- **Update 13 Nov (later):** package name `in.fixorax.app` (D5); guests browse only, posting or offering asks to log in (D14); Hindi draft of all 247 texts for review in `docs/i18n/` (D13, not in the app yet).
+- **Shared between phones (Cloud Firestore):** when Firebase is set up, tasks, offers and chats are shared live, and still work on a weak network (saved on the phone, sent later). Security rules are in `firebase/firestore.rules`, with **13 rule tests** and a **customer↔helper end-to-end test** that both pass on Google's emulators. In test mode everything stays on the phone as before.
+- Not shared yet: task photos (needs Firebase Storage), notifications, distance-based jobs (D7).
 
 ## 1. Executive summary
 
@@ -234,14 +236,14 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | SEC-05 | Delete account (in-app + web link) missing | P1 | Fixed in app (wipes phone data, deletes login); you must add the web deletion link |
 | SEC-06 | `allowBackup=true` with empty rules: fine today, but must exclude login tokens once added | P3 | Open |
 | SEC-07 | 16 KB pages: the APK has one native library (`libandroidx.graphics.path.so`, from Compose). All 4 ABIs are aligned to 16 KB (`0x4000`) and `zipalign -c -P 16` passes (V). Still test once on a 16 KB emulator (D) | — | OK |
-| SEC-08 | Package name `com.aistudio.fixhora.xyzkpa` is permanent once uploaded; `namespace com.example` | P1 | Decision (D5) |
+| SEC-08 | Package name `com.aistudio.fixhora.xyzkpa` is permanent once uploaded; `namespace com.example` | P1 | Fixed: in.fixorax.app (D5) |
 | SEC-09 | Personal Play account → closed test with 12 testers × 14 days before production | Info | — |
 
 ### A7. Broken, fake and half-built features
 | ID | file:line | Problem | Sev | Fix | Status |
 |---|---|---|---|---|---|
 | ICON-01 | `app/src/main/res/mipmap-*/*.png` (20 files) | Launcher icons corrupted (image bytes saved as text; no image tool can open them) → blank app icon; release build fails when PNG processing is on (V) | P0 | Restored from the valid copies in `android/res` | Fixed |
-| ARCH-01 | whole app | No server: tasks/bids/chat only on one phone | P0 | Backend (D1) | Decision |
+| ARCH-01 | whole app | No server: tasks/bids/chat only on one phone | P0 | Backend (D1) | Fixed in code (Firestore, tested on emulator) — goes live when you set up Firebase (FIREBASE_SETUP.md §8) |
 | BRK-01 | `TaskRepository.kt:13-35`, `TaskViewModel.kt:32`, `HelperViewModel.kt:23` | Every time a screen opens with < 50 tasks, inserts 100 fake US tasks ("New York, NY"); two screens can do it at once → 200 | P0 | Never in release; debug-only, once, Indian sample data | Fixed |
 | BRK-03 | `TaskViewModel.kt:57-108`, `TaskReviewScreen.kt:131` | Pending auto-save (0.5 s) runs after "Post Task" → posted task comes back as a draft; double-tap posts twice; screen leaves before save finishes | P1 | Cancel pending save, post once, navigate after save | Fixed |
 | BRK-04 | `TaskPhotosScreen.kt:42-50` | Photo links expire → grey boxes after restart | P1 | Copy picked photos into app storage | Fixed |
@@ -250,9 +252,9 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | BRK-08 | `TaskLocationScreen.kt:68,224,250` | Locate-me icon, "Within 5 km", "safe" card look tappable but aren't | P2 | Remove fake chevrons/icon; radius picker later | Fixed |
 | BRK-09 | `TaskFlowContainer.kt:34-37` | Step 1 is labelled "Task Details" but only picks a category; details are on step 3 "Photos" | P3 | Labels → Category · Location · Details · Review | Fixed |
 | BRK-11 | `WorkerHomeScreen.kt` | Fake "Alex Worker", "Good Morning" at night, fake badges & stats, dead bell/bid/refresh | P1 | Remove fakes (visible) | Fixed (batch 2) |
-| BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Map tab removed (batch 2); offers are real on one phone; server sync next |
+| BRK-12 | `WorkerMapScreen.kt` | "Map" is a grey box; bid = accept (bid lost); dead buttons | P1 | Real map (D7) or hide tab; bids need backend | Map tab removed; offers shared via Firestore (emulator-tested) |
 | BRK-13 | `WorkerTasksScreen.kt:96,137` | Rejected tasks labelled "Draft"; "Pending"/"In Progress"/"Cancelled" chips can never match; search dead | P2 | "Rejected" label + chip; never-matching chips removed; search filters by title/details/place. Sort menu (newest / highest budget) added; duplicate Search/Filter icons removed | Fixed |
-| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Two-way chat works on one phone; server sync next |
+| BRK-14 | `WorkerChatScreen.kt` | Fake customer message & "Online"; customers have no chat; times all "Just now" | P1 | Removed fake message/Online; real IST times. Two-way chat needs backend | Two-way chat shared via Firestore (emulator-tested); notifications still missing |
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
 | BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Fixed (batch 2) |
@@ -323,7 +325,7 @@ reviews; helper verification (KYC); FAQ; app version/about; offline banner + ret
 | D2 ✅ Yes (batch 1) | Drop passwords & "Forgot password"; only mobile OTP + Google | **Yes** |
 | D3 | OTP provider: Firebase Phone Auth vs MSG91/2Factor (needs TRAI DLT registration) | Firebase first; switch if SMS costs grow |
 | D4 ✅ FixoraX | Brand name: "FixoraX" (app) or "Fixhora" (repo/design) | Pick one before store listing |
-| D5 | Final package name (permanent on Play), e.g. `in.fixhora.app` | Choose now, before first upload |
+| D5 ✅ in.fixorax.app | Final package name (permanent on Play), e.g. `in.fixhora.app` | Choose now, before first upload |
 | D6 | Money: do customers pay helpers inside the app (commission/escrow) or cash? | Start cash; add Razorpay UPI later. Play Billing not needed for real-world services |
 | D7 | Add Google Location + Maps SDK (new dependency, Maps API key with billing) — or hide the Map tab until then | Hide Map tab now; add location (no map) first |
 | D8 ✅ Removed (batch 1 flow) | Remove onboarding Permissions screen; ask location/notifications when needed | **Yes** |
@@ -331,8 +333,8 @@ reviews; helper verification (KYC); FAQ; app version/about; offline banner + ret
 | D10 | Policy texts (Privacy, Terms, Refund, Contact, grievance officer) — you provide/approve the legal text | Needed before launch |
 | D11 | Crash reporting/analytics service (e.g. Firebase Crashlytics) | Yes, with D1 |
 | D12 ✅ Done | Database migrations policy (stop wiping data on update) | Yes, before first release |
-| D13 | Hindi translations — who writes/approves them | You/native speaker approve; I can draft |
-| D14 | Guest mode: may guests post tasks, or login required to post? | Browse as guest, login to post/accept |
+| D13 ⏳ Draft ready for your review (docs/i18n/HINDI_REVIEW.md) | Hindi translations — who writes/approves them | You/native speaker approve; I can draft |
+| D14 ✅ Browse only; login to post/offer | Guest mode: may guests post tasks, or login required to post? | Browse as guest, login to post/accept |
 
 ## 6. Previews (mockups)
 See `docs/audit/mockups/index.html`.

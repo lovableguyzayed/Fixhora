@@ -66,5 +66,15 @@ fixorax.accountDeletionUrl=https://your-site/delete-account
 ```
 The Play Store requires a **privacy policy link** and a **web page where people can ask to delete their account** without installing the app.
 
-## What still stays on one phone
-Login is real once Firebase is on. **Tasks, offers and chats are still saved only on the phone where they were made**, so a helper on another phone cannot see a customer's task yet. The next step is to store tasks, offers and chats in **Cloud Firestore**, with security rules so people can read only what they should. Ask for this as the next piece of work once Firebase is set up.
+## 8. Switch on the shared database (Cloud Firestore)
+Once this is on, tasks, offers and chats are shared between phones: a customer posts on one phone, and helpers see it on theirs.
+1. Firebase console → **Build → Firestore Database → Create database**. Location: **asia-south1 (Mumbai)**, so it is close to your users and data stays in India. Start in **production mode**.
+2. Open the **Rules** tab and replace everything with the contents of `firebase/firestore.rules` from this project. Click **Publish**.
+   - These rules decide who may read and change what. Example: only the customer and the chosen helper can read their chat.
+   - They were tested with 13 checks on Google's emulator (`cd firebase/rules-tests && npm test`).
+3. Rebuild the app. Nothing else is needed: with `google-services.json` present, the app uses the shared database automatically.
+
+## What is not shared yet
+- **Task photos** stay on the customer's phone; helpers don't see them yet. Sharing them needs Firebase Storage (a small next step).
+- **"Jobs near you"** shows the newest 200 open tasks from everywhere, not by distance. Distance needs real location (decision D7).
+- **Notifications** (for example "You got a new offer") are not built yet. They need Firebase Cloud Messaging and a small server function.

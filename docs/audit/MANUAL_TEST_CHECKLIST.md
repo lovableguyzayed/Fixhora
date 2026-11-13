@@ -48,7 +48,14 @@ Redmi/Realme), one mid-range Android, one tablet or foldable.
 - [ ] Cancel the Google popup → no error shown; phone with no Google account → clear message
 - [ ] Delete account right after logging in works; after a long time → "please log in again" message, then works
 
-## After tasks are stored on the server (next step)
+## After Firestore is switched on (FIREBASE_SETUP.md §8) — two phones needed
+- [ ] Phone A (customer) posts a task → Phone B (helper, other account) sees it within seconds
+- [ ] B sends an offer → A sees it in My tasks without refreshing; A chooses → B's My jobs shows "Chosen"
+- [ ] Chat A↔B both ways; a third account cannot see the chat
+- [ ] Airplane mode on A, post a task → it shows at once; turn network on → B receives it
+- [ ] A deletes account → A's tasks disappear on B
+
+## Older server items
 - [ ] Real OTP on Jio, Airtel, Vi, BSNL (arrival time, auto-read, resend, wrong OTP ×3)
 - [ ] Google sign-in on a **release build from the Play internal testing track** (needs Play App Signing SHA-1/SHA-256 in the console)
 - [ ] Same person via OTP and via Google → one account
