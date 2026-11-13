@@ -180,7 +180,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
                     shape = RoundedCornerShape(4.dp),
                     modifier = Modifier.padding(end = 6.dp)
                 ) {
-                    Text(category, color = BluePrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                    Text(category, color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -387,7 +387,7 @@ fun MessageBubble(text: String, isSender: Boolean, time: String, status: String?
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(time, fontSize = 11.sp, color = SecondaryGrey)
+                Text(time, fontSize = 12.sp, color = SecondaryGrey)
                 if (isSender && status != null) {
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(

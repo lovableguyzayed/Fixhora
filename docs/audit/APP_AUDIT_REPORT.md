@@ -193,8 +193,8 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | UI-03 | `MobileLoginFlow.kt`, `ProfileAndPermissions.kt:150` | Mobile, OTP, Forgot, Permission screens not scrollable; keyboard hides buttons at large font | P2 | Scroll + keyboard padding | Fixed |
 | UI-04 | `MobileLoginFlow.kt:58`, `SignInAndSignUp.kt:99-115`, `TaskFlowContainer.kt:228` | Max font: "+91" box wraps to 2 lines, "Forgot Password?" becomes a vertical strip, step labels break mid-word (V — `mockups/before/*_font200_before.png`) | P2 | Flexible widths, wrap rows, single-line labels | Fixed |
 | UI-05 | `RoleSelectionScreen.kt:281` | Role card fixed 160 dp height → text clipped at max font size (V) | P2 | `heightIn(min = 160.dp)` | Fixed |
-| UI-06 | `TaskCategoryScreen.kt:69-77` | Category tiles fixed 0.8 ratio, 10 sp text → clipped at max font; 3 columns even on tablets | P2 | Adaptive columns, min height | Fixed |
-| UI-07 | many | Text 10–12 sp is too small for older users | P3 | Design tokens / type scale | Open |
+| UI-06 | `TaskCategoryScreen.kt:69-77` | Category tiles fixed 0.8 ratio, 10 sp text → clipped at max font; 3 columns even on tablets; on 320×568 phones the tiles were stuck in a ~60 dp strip under a fixed heading | P2 | Adaptive columns, min height; heading + search now scroll with the tiles | Fixed |
+| UI-07 | many | Text 10–12 sp is too small for older users | P3 | No text below 12 sp now; category subtitles got proper line spacing. Full design-token pass still open | Partly fixed |
 | UI-08 | `MainActivity.kt:13`, `res/values/themes.xml` | Phone in dark mode → status-bar icons white on white app; MIUI force-dark may invert colours; window bg not set (black flash) | P1 | Force dark status-bar icons, `forceDarkAllowed=false`, white window bg, light Material theme | Fixed |
 | UI-09 | `Theme.kt:20-28` | `onSurface` = grey #6B7280; with 60 % alpha subtitles become ~2.6:1 contrast (fails 4.5:1; unreadable in sunlight) | P2 | `onSurface` = navy, `onSurfaceVariant` = grey | Fixed |
 | UI-10 | all | Tablets/landscape: single column stretched edge-to-edge (1,200 dp wide buttons) | P3 | Content capped at 640 dp, centred (`ui/theme/AppFrame.kt`) (V screenshot) | Fixed |
@@ -246,7 +246,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
 | BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Preview (batch 2) |
-| I18N-01 | all `.kt` | All text hardcoded in Kotlin; only role screen has Hindi | P2 | Move to `strings.xml`, add `values-hi` (D13) | Open |
+| I18N-01 | all `.kt` | All text hardcoded in Kotlin; only role screen has Hindi | P2 | 116 texts of login, role and task-posting screens moved to `strings.xml` (screens pixel-identical). Left: ~50 texts built from values / pop-ups / role-screen Hindi pairs, all helper screens, then `values-hi` (D13) | Partly fixed |
 
 ### B. QA walkthrough highlights (personas)
 | # | Persona | Steps | Expected | Actual | Sev | ID |

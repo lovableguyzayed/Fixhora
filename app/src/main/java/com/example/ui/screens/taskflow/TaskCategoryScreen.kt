@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
@@ -42,48 +43,12 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .fillMaxSize()
             .padding(horizontal = 24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.taskcategory_what_do_you_need_help_with),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-        )
-        
-        Text(
-            text = stringResource(R.string.taskcategory_choose_a_category_that_best_fits),
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
-        )
-        
         var showError by remember { mutableStateOf(false) }
         val filteredCategories = dummyCategories.filter {
             it.title.contains(uiState.searchCategoryQuery, ignoreCase = true) ||
             it.subtitle.contains(uiState.searchCategoryQuery, ignoreCase = true)
         }
 
-        OutlinedTextField(
-            value = uiState.searchCategoryQuery,
-            onValueChange = { viewModel.updateSearchCategoryQuery(it) },
-            placeholder = { Text(stringResource(R.string.taskcategory_search_category)) },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            )
-        )
-        
-        Text(
-            text = stringResource(R.string.taskcategory_popular_categories),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
-        )
-        
         LazyVerticalGrid(
             // 3 columns on phones, more on tablets, fewer when the user's font size is large
             columns = GridCells.Adaptive(minSize = 96.dp * LocalConfiguration.current.fontScale.coerceIn(1f, 1.6f)),
@@ -91,6 +56,46 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f)
         ) {
+            // Heading and search scroll together with the tiles, so small phones show more tiles.
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column {
+                Text(
+                    text = stringResource(R.string.taskcategory_what_do_you_need_help_with),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                )
+        
+                Text(
+                    text = stringResource(R.string.taskcategory_choose_a_category_that_best_fits),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 24.dp)
+                )
+        
+                OutlinedTextField(
+                    value = uiState.searchCategoryQuery,
+                    onValueChange = { viewModel.updateSearchCategoryQuery(it) },
+                    placeholder = { Text(stringResource(R.string.taskcategory_search_category)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    )
+                )
+        
+                Text(
+                    text = stringResource(R.string.taskcategory_popular_categories),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
+                )
+                }
+            }
             items(filteredCategories) { category ->
                 val isSelected = selectedCategory == category.id
                 
@@ -155,10 +160,10 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             
                             Text(
                                 text = category.subtitle,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
-                                lineHeight = 12.sp
+                                lineHeight = 15.sp
                             )
                         }
                     }

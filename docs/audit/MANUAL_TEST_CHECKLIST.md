@@ -15,6 +15,8 @@ Redmi/Realme), one mid-range Android, one tablet or foldable.
 - [ ] 3-button navigation and gesture navigation: nothing hidden under the bars
 - [ ] Post a task: tap "Post Task" twice quickly → only one task; then "I need help" again → empty form (no old draft)
 - [ ] Add 2 photos to a task, force-stop the app, reopen → photos still show
+- [ ] Small phone (or largest font): on "What do you need help with?" swipe up → heading scrolls away and all 9 categories are reachable; Continue stays at the bottom
+- [ ] Category search still keeps the keyboard open while typing
 - [ ] Budget: letters not accepted; Min 2000 / Max 500 shows an error; review shows ₹1,25,000 style
 - [ ] Helper → Chat → open a chat → Back closes the chat (does not leave the helper area)
 - [ ] Helper → Tasks: reject a task → it shows "Rejected"; search box filters the list
