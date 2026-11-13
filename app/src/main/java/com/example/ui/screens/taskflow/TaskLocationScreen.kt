@@ -160,7 +160,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Within ${uiState.selectedDistance} km", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text(stringResource(R.string.within_km, uiState.selectedDistance), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                     Text(stringResource(R.string.tasklocation_you_will_receive_offers_from_helpers), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

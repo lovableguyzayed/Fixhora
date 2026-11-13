@@ -33,11 +33,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.screens.taskflow.TaskViewModel
 import com.example.FixhoraApplication
 
-sealed class TaskScreen(val route: String, val index: Int, val title: String) {
-    object Category : TaskScreen("category", 1, "Category")
-    object Location : TaskScreen("location", 2, "Location")
-    object Photos : TaskScreen("photos", 3, "Details")
-    object Review : TaskScreen("review", 4, "Review")
+sealed class TaskScreen(val route: String, val index: Int, @androidx.annotation.StringRes val title: Int) {
+    object Category : TaskScreen("category", 1, R.string.step_category)
+    object Location : TaskScreen("location", 2, R.string.step_location)
+    object Photos : TaskScreen("photos", 3, R.string.step_details)
+    object Review : TaskScreen("review", 4, R.string.step_review)
 }
 
 val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Photos, TaskScreen.Review)
@@ -233,7 +233,7 @@ fun StepProgressBar(currentStep: Int) {
         ) {
             taskScreens.forEachIndexed { index, screen ->
                 Text(
-                    text = screen.title,
+                    text = stringResource(screen.title),
                     fontSize = 12.sp,
                     color = if (index + 1 <= currentStep) BluePrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,

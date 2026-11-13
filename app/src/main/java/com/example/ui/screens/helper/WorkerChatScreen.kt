@@ -124,7 +124,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.ChatBubbleOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = SecondaryGrey)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(if (tasks.isEmpty()) "Chats appear here after you accept a job." else "No chats match your search.", color = SecondaryGrey, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
+                    Text(if (tasks.isEmpty()) stringResource(R.string.chat_empty_no_chats) else stringResource(R.string.chat_empty_no_match), color = SecondaryGrey, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
                     Spacer(modifier = Modifier.height(16.dp))
                     if (tasks.isEmpty()) Button(onClick = onExploreJobs) { Text(stringResource(R.string.workertasks_explore_nearby_jobs)) }
                 }

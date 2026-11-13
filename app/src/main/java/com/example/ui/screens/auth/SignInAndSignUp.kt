@@ -93,7 +93,7 @@ fun SignInScreen(
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = if (passwordVisible) "Hide password" else "Show password")
+                    Icon(imageVector = image, contentDescription = if (passwordVisible) stringResource(R.string.password_hide) else stringResource(R.string.password_show))
                 }
             },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -149,11 +149,12 @@ fun SignInScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         val context = androidx.compose.ui.platform.LocalContext.current
-        AlternativeLoginButton("Continue with Mobile OTP", onMobileLoginClick)
+        val comingSoon = stringResource(R.string.coming_soon)
+        AlternativeLoginButton(stringResource(R.string.login_continue_mobile_otp), onMobileLoginClick)
         Spacer(modifier = Modifier.height(12.dp))
-        AlternativeLoginButton("Continue with Google", { android.widget.Toast.makeText(context, "Coming soon", android.widget.Toast.LENGTH_SHORT).show() })
+        AlternativeLoginButton(stringResource(R.string.login_continue_google), { android.widget.Toast.makeText(context, comingSoon, android.widget.Toast.LENGTH_SHORT).show() })
         Spacer(modifier = Modifier.height(12.dp))
-        AlternativeLoginButton("Continue with Email", { android.widget.Toast.makeText(context, "Coming soon", android.widget.Toast.LENGTH_SHORT).show() })
+        AlternativeLoginButton(stringResource(R.string.login_continue_email), { android.widget.Toast.makeText(context, comingSoon, android.widget.Toast.LENGTH_SHORT).show() })
 
         Spacer(modifier = Modifier.height(32.dp))
         FlowRow(
@@ -302,9 +303,10 @@ fun CreateAccountScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         val context = androidx.compose.ui.platform.LocalContext.current
-        AlternativeLoginButton("Sign Up with Mobile OTP", onMobileOtpClick)
+        val comingSoon = stringResource(R.string.coming_soon)
+        AlternativeLoginButton(stringResource(R.string.signup_mobile_otp), onMobileOtpClick)
         Spacer(modifier = Modifier.height(12.dp))
-        AlternativeLoginButton("Sign Up with Google", { android.widget.Toast.makeText(context, "Coming soon", android.widget.Toast.LENGTH_SHORT).show() })
+        AlternativeLoginButton(stringResource(R.string.signup_google), { android.widget.Toast.makeText(context, comingSoon, android.widget.Toast.LENGTH_SHORT).show() })
         
         Spacer(modifier = Modifier.height(32.dp))
         FlowRow(

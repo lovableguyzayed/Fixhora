@@ -97,8 +97,8 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
             supportingText = {
                 if (showError && !isValid) {
                     Text(
-                        if (mobile.length == 10) "Mobile number should start with 6, 7, 8 or 9"
-                        else "Enter your 10-digit mobile number"
+                        if (mobile.length == 10) stringResource(R.string.mobile_error_start_digit)
+                        else stringResource(R.string.mobile_error_ten_digits)
                     )
                 }
             },
@@ -158,8 +158,8 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = if (mobile.isNotEmpty()) "Enter the 6-digit OTP sent to ${IndiaFormat.displayMobile(mobile)}"
-            else "Enter the 6-digit OTP sent to your mobile.",
+            text = if (mobile.isNotEmpty()) stringResource(R.string.otp_sent_to_number, IndiaFormat.displayMobile(mobile))
+            else stringResource(R.string.otp_sent_to_mobile),
             fontSize = 16.sp,
             color = SecondaryGrey
         )
@@ -215,7 +215,7 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
             contentPadding = PaddingValues(0.dp)
         ) {
             Text(
-                text = if (timer > 0) "Resend OTP in ${timer}s" else "Resend OTP",
+                text = if (timer > 0) stringResource(R.string.otp_resend_in, timer) else stringResource(R.string.otp_resend),
                 color = if (timer > 0) SecondaryGrey else BluePrimary,
                 fontWeight = FontWeight.SemiBold
             )

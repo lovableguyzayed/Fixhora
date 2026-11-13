@@ -177,4 +177,36 @@
     <string name="workerchat_attach">Attach</string>
     <string name="workerchat_voice_message">Voice Message</string>
     <string name="workerchat_send">Send</string>
+    <string name="mobile_error_start_digit">Mobile number should start with 6, 7, 8 or 9</string>
+    <string name="mobile_error_ten_digits">Enter your 10-digit mobile number</string>
+    <string name="otp_sent_to_number">Enter the 6-digit OTP sent to %1$s</string>
+    <string name="otp_sent_to_mobile">Enter the 6-digit OTP sent to your mobile.</string>
+    <string name="otp_resend_in">Resend OTP in %1$ds</string>
+    <string name="otp_resend">Resend OTP</string>
+    <string name="password_hide">Hide password</string>
+    <string name="password_show">Show password</string>
+    <string name="login_continue_mobile_otp">Continue with Mobile OTP</string>
+    <string name="login_continue_google">Continue with Google</string>
+    <string name="login_continue_email">Continue with Email</string>
+    <string name="signup_mobile_otp">Sign Up with Mobile OTP</string>
+    <string name="signup_google">Sign Up with Google</string>
+    <string name="coming_soon">Coming soon</string>
+    <string name="step_category">Category</string>
+    <string name="step_location">Location</string>
+    <string name="step_details">Details</string>
+    <string name="step_review">Review</string>
+    <string name="within_km">Within %1$d km</string>
+    <string name="photo_add_failed">Could not add a photo. Please check phone storage and try again.</string>
+    <string name="photo_count">%1$d/%2$d</string>
+    <string name="review_need_help_with">Need Help with %1$s</string>
+    <string name="review_default_details">Looking for someone to help me out.</string>
+    <string name="not_specified">Not specified</string>
+    <string name="photos_none">No photos added</string>
+    <string name="no_budget_set">No budget set</string>
+    <string name="chat_empty_no_chats">Chats appear here after you accept a job.</string>
+    <string name="chat_empty_no_match">No chats match your search.</string>
+    <plurals name="photos_added">
+        <item quantity="one">%1$d photo added</item>
+        <item quantity="other">%1$d photos added</item>
+    </plurals>
 </resources>

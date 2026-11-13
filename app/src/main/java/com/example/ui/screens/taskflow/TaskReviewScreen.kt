@@ -1,5 +1,6 @@
 package com.example.ui.screens.taskflow
 
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.R
 
@@ -84,8 +85,8 @@ fun TaskReviewScreen(
         // Description Card
         ReviewCard(
             label = stringResource(R.string.taskreview_task_description),
-            title = uiState.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
-            subtitle = uiState.descriptionDetails.ifEmpty { "Looking for someone to help me out." },
+            title = uiState.descriptionTitle.ifEmpty { stringResource(R.string.review_need_help_with, category.title) },
+            subtitle = uiState.descriptionDetails.ifEmpty { stringResource(R.string.review_default_details) },
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             icon = {
                 Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(BluePrimary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
@@ -99,7 +100,7 @@ fun TaskReviewScreen(
         // Location Card
         ReviewCard(
             label = stringResource(R.string.taskreview_location),
-            title = uiState.locationQuery.ifBlank { "Not specified" },
+            title = uiState.locationQuery.ifBlank { stringResource(R.string.not_specified) },
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Location.route) },
             extraContent = {
@@ -111,7 +112,7 @@ fun TaskReviewScreen(
                     Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.MyLocation, contentDescription = null, tint = BluePrimary, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Within ${uiState.selectedDistance} km", color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.within_km, uiState.selectedDistance), color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             },
@@ -127,7 +128,7 @@ fun TaskReviewScreen(
         // Photos Card
         ReviewCard(
             label = stringResource(R.string.taskreview_photos),
-            title = if (uiState.photoUris.isEmpty()) "No photos added" else if (uiState.photoUris.size == 1) "1 photo added" else "${uiState.photoUris.size} photos added",
+            title = if (uiState.photoUris.isEmpty()) stringResource(R.string.photos_none) else pluralStringResource(R.plurals.photos_added, uiState.photoUris.size, uiState.photoUris.size),
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             extraContent = {
@@ -157,7 +158,7 @@ fun TaskReviewScreen(
         Spacer(modifier = Modifier.height(12.dp))
         
         // Budget Card
-        val budgetTitle = IndiaFormat.budgetLabel(uiState.minBudget, uiState.maxBudget, none = "No budget set")
+        val budgetTitle = IndiaFormat.budgetLabel(uiState.minBudget, uiState.maxBudget, none = stringResource(R.string.no_budget_set))
         
         ReviewCard(
             label = stringResource(R.string.taskreview_your_budget),

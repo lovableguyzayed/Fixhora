@@ -69,7 +69,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 }
             }
             if (failed) {
-                Toast.makeText(context, "Could not add a photo. Please check phone storage and try again.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.photo_add_failed), Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -140,7 +140,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(stringResource(R.string.taskphotos_added_photos), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Text("${uiState.photoUris.size}/$MAX_PHOTOS", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.photo_count, uiState.photoUris.size, MAX_PHOTOS), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         
         Spacer(modifier = Modifier.height(12.dp))
