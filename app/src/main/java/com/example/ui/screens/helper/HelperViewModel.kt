@@ -3,78 +3,58 @@ package com.example.ui.screens.helper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.BuildConfig
 import com.example.data.repository.TaskRepository
+import com.example.data.room.OfferEntity
 import com.example.data.room.TaskEntity
+import com.example.util.AppPrefs
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-
 import kotlinx.coroutines.launch
 
-import com.example.data.repository.ChatRepository
-import com.example.data.room.ChatMessageEntity
-import kotlinx.coroutines.flow.Flow
+data class JobItem(val task: TaskEntity, val myOffer: OfferEntity?, val isOwn: Boolean)
+data class MyJob(val offer: OfferEntity, val task: TaskEntity?)
 
 class HelperViewModel(
-    private val repository: TaskRepository,
-    private val chatRepository: ChatRepository
+    private val repo: TaskRepository,
+    private val prefs: AppPrefs,
+    val helperId: String,
+    val helperName: String,
 ) : ViewModel() {
 
     init {
-        viewModelScope.launch {
-            // Sample jobs only in test (debug) builds; real users never see fake jobs.
-            if (com.example.BuildConfig.DEBUG) repository.seedDemoTasksIfEmpty()
-        }
+        // Sample jobs only in test (debug) builds; real users never see fake jobs.
+        if (BuildConfig.DEBUG) viewModelScope.launch { repo.seedDemoTasksIfEmpty() }
     }
 
-    /** Jobs open for helpers. `null` means "still loading" (so screens can show a skeleton). */
-    val availableTasks: StateFlow<List<TaskEntity>?> = repository.completedTasks
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = null
-        )
+    private val _online = MutableStateFlow(prefs.helperOnline)
+    val online: StateFlow<Boolean> = _online.asStateFlow()
 
-    val allTasks: StateFlow<List<TaskEntity>> = repository.allTasks
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    /** Open jobs (`null` = still loading). */
+    val jobs: StateFlow<List<JobItem>?> = combine(repo.completedTasks, repo.allOffers) { tasks, offers ->
+        tasks.map { t -> JobItem(t, offers.firstOrNull { it.taskId == t.id && it.helperId == helperId }, t.ownerId == helperId) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    fun acceptTask(task: TaskEntity) {
-        viewModelScope.launch {
-            repository.updateTaskStatus(task, "accepted")
-        }
+    /** Offers this helper has sent, newest first, with their task. */
+    val myJobs: StateFlow<List<MyJob>?> = combine(repo.allTasks, repo.allOffers) { tasks, offers ->
+        offers.filter { it.helperId == helperId }.map { o -> MyJob(o, tasks.firstOrNull { it.id == o.taskId }) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun setOnline(on: Boolean) { prefs.helperOnline = on; _online.value = on }
+
+    fun sendOffer(task: TaskEntity, amount: Long, message: String) = viewModelScope.launch {
+        repo.sendOffer(OfferEntity(taskId = task.id, helperId = helperId, helperName = helperName, amount = amount, message = message.trim()))
     }
 
-    fun rejectTask(task: TaskEntity) {
-        viewModelScope.launch {
-            repository.updateTaskStatus(task, "rejected")
-        }
-    }
-    
-    fun completeTask(task: TaskEntity) {
-        viewModelScope.launch {
-            repository.updateTaskStatus(task, "completed")
-        }
-    }
-
-    fun getChatMessages(taskId: Int): Flow<List<ChatMessageEntity>> = chatRepository.getMessagesForTask(taskId)
-
-    fun sendMessage(taskId: Int, text: String) {
-        viewModelScope.launch {
-            chatRepository.sendMessage(taskId, "worker", text)
-        }
-    }
-
-    class Factory(private val repository: TaskRepository, private val chatRepository: ChatRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val repo: TaskRepository, private val prefs: AppPrefs,
+        private val helperId: String, private val helperName: String,
+    ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(HelperViewModel::class.java)) {
-                return HelperViewModel(repository, chatRepository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = HelperViewModel(repo, prefs, helperId, helperName) as T
     }
 }

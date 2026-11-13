@@ -44,7 +44,7 @@ val taskScreens = listOf(TaskScreen.Category, TaskScreen.Location, TaskScreen.Ph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskFlowContainer(onBackToRoles: () -> Unit) {
+fun TaskFlowContainer(onBackToRoles: () -> Unit, ownerId: String = "guest", initialCategory: String? = null) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -52,9 +52,11 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
     
     val application = LocalContext.current.applicationContext as FixhoraApplication
     val viewModel: TaskViewModel = viewModel(
-        factory = TaskViewModel.Factory(application.taskRepository)
+        factory = TaskViewModel.Factory(application.taskRepository, ownerId)
     )
     
+    LaunchedEffect(initialCategory) { viewModel.preselectCategory(initialCategory) }
+
     Scaffold(
         topBar = {
             if (currentRoute != "success") {

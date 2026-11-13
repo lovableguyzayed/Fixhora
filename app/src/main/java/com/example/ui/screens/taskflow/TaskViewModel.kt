@@ -27,7 +27,7 @@ data class TaskDraftState(
     val isSubmitting: Boolean = false
 )
 
-class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
+class TaskViewModel(private val repository: TaskRepository, private val ownerId: String = "guest") : ViewModel() {
     private val _uiState = MutableStateFlow(TaskDraftState())
     val uiState: StateFlow<TaskDraftState> = _uiState.asStateFlow()
 
@@ -104,7 +104,8 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
                         descriptionDetails = currentState.descriptionDetails.trim(),
                         minBudget = currentState.minBudget,
                         maxBudget = currentState.maxBudget,
-                        photoUris = currentState.photoUris.joinToString(",")
+                        photoUris = currentState.photoUris.joinToString(","),
+                        ownerId = ownerId
                     )
                 )
                 clearDraft()
@@ -164,11 +165,16 @@ class TaskViewModel(private val repository: TaskRepository) : ViewModel() {
         _uiState.value = TaskDraftState()
     }
 
-    class Factory(private val repository: TaskRepository) : ViewModelProvider.Factory {
+    /** Starts a new task with [categoryId] already chosen (from the Home screen tiles). */
+    fun preselectCategory(categoryId: String?) {
+        if (categoryId != null && _uiState.value.categoryId == null) updateCategory(categoryId)
+    }
+
+    class Factory(private val repository: TaskRepository, private val ownerId: String = "guest") : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
-                return TaskViewModel(repository) as T
+                return TaskViewModel(repository, ownerId) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

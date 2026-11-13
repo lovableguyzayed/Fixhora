@@ -1,409 +1,270 @@
 package com.example.ui.screens.helper
 
-import androidx.compose.ui.res.stringResource
-import com.example.R
-
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
 import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
+import com.example.data.room.TaskEntity
+import com.example.ui.screens.shell.*
+import com.example.ui.screens.taskflow.dummyCategories
 import com.example.ui.theme.*
 import com.example.util.IndiaFormat
 
-import com.example.data.room.TaskEntity
-import com.example.ui.screens.taskflow.dummyCategories
+/** Helper Home: real name, real counts, real jobs. No made-up ratings or earnings. */
+@Composable
+fun WorkerHomeScreen(
+    name: String,
+    online: Boolean,
+    jobs: List<JobItem>?,
+    myJobs: List<MyJob>?,
+    onOnlineChange: (Boolean) -> Unit,
+    onSendOffer: (TaskEntity, Long, String) -> Unit,
+) {
+    var offerFor by remember { mutableStateOf<TaskEntity?>(null) }
+    val open = jobs.orEmpty().filter { !it.isOwn }
+    val chosen = myJobs.orEmpty().count { it.offer.status == "accepted" }
+    val completed = myJobs.orEmpty().count { it.offer.status == "accepted" && it.task?.status == "completed" }
+
+    LazyColumn(
+        Modifier.fillMaxSize().background(PageBg),
+        contentPadding = PaddingValues(bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Row(Modifier.fillMaxWidth().background(Color.White).padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(stringResource(R.string.helper_greeting), color = SecondaryGrey, fontSize = 14.sp)
+                    Text(name, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = DarkNavy, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Text(stringResource(if (online) R.string.helper_online else R.string.helper_offline),
+                    color = if (online) GreenFg else SecondaryGrey, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Spacer(Modifier.width(8.dp))
+                Switch(checked = online, onCheckedChange = onOnlineChange,
+                    colors = SwitchDefaults.colors(checkedTrackColor = GreenFg))
+            }
+        }
+        item {
+            Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Stat(open.size, stringResource(R.string.helper_stat_jobs_near), Color(0xFFEEF4FF), Modifier.weight(1f))
+                Stat(chosen, stringResource(R.string.helper_stat_accepted), GreenBg, Modifier.weight(1f))
+                Stat(completed, stringResource(R.string.helper_stat_completed), AmberBg, Modifier.weight(1f))
+            }
+        }
+        if (completed == 0) item {
+            Row(Modifier.padding(horizontal = 16.dp).fillMaxWidth().background(Color.White, RoundedCornerShape(12.dp)).padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.helper_ratings_note), color = SecondaryGrey, fontSize = 13.sp)
+            }
+        }
+        item {
+            Text(stringResource(R.string.helper_jobs_near_you), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = DarkNavy,
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp))
+        }
+        when {
+            !online -> item { InfoText(stringResource(R.string.helper_offline_body)) }
+            jobs == null -> items(2) { SkeletonCard() }
+            jobs.isEmpty() -> item { InfoText(stringResource(R.string.helper_no_jobs)) }
+            else -> items(jobs, key = { it.task.id }) { job ->
+                JobCard(job, onSendOffer = { offerFor = job.task },
+                    onQuickAccept = { amount -> onSendOffer(job.task, amount, "") })
+            }
+        }
+    }
+
+    offerFor?.let { task ->
+        OfferSheet(task, onDismiss = { offerFor = null }, onSubmit = { amount, msg -> onSendOffer(task, amount, msg); offerFor = null })
+    }
+}
+
+@Composable
+private fun Stat(value: Int, label: String, bg: Color, modifier: Modifier) {
+    Column(modifier.background(bg, RoundedCornerShape(14.dp)).padding(12.dp)) {
+        Text(value.toString(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text(label, fontSize = 12.sp, color = SecondaryGrey, lineHeight = 15.sp)
+    }
+}
+
+@Composable
+private fun InfoText(text: String) {
+    Text(text, color = SecondaryGrey, fontSize = 15.sp, textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp, vertical = 24.dp))
+}
+
+@Composable
+private fun SkeletonCard() {
+    Surface(Modifier.padding(horizontal = 16.dp).fillMaxWidth().height(150.dp), shape = RoundedCornerShape(16.dp), color = Color.White) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            listOf(0.4f, 0.8f, 1f, 0.6f).forEach { w ->
+                Box(Modifier.fillMaxWidth(w).height(14.dp).background(Color(0xFFE9ECEF), RoundedCornerShape(4.dp)))
+            }
+        }
+    }
+}
+
+@Composable
+private fun JobCard(job: JobItem, onSendOffer: () -> Unit, onQuickAccept: (Long) -> Unit) {
+    val t = job.task
+    val cat = dummyCategories.firstOrNull { it.id == t.categoryId }
+    val posted = timeAgo(t.createdAt)
+    val isNew = t.createdAt > 0 && System.currentTimeMillis() - t.createdAt < 24 * 3600_000L
+    Surface(Modifier.padding(horizontal = 16.dp).fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = Color.White,
+        border = BorderStroke(1.dp, BorderGrey)) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (cat != null) Icon(cat.icon, contentDescription = null, tint = cat.iconTint, modifier = Modifier.size(16.dp))
+                Text(" " + listOfNotNull(cat?.title, posted).joinToString(" · "), color = SecondaryGrey, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                if (job.isOwn) Badge(stringResource(R.string.helper_posted_by_you), GreyBg, SecondaryGrey)
+                else if (isNew) Badge(stringResource(R.string.helper_badge_new), GreenBg, GreenFg)
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(t.descriptionTitle, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+            if (t.descriptionDetails.isNotBlank()) {
+                Text(t.descriptionDetails, color = SecondaryGrey, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(15.dp))
+                Text(" " + t.locationQuery, color = SecondaryGrey, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                Text(IndiaFormat.budgetLabel(t.minBudget, t.maxBudget), fontWeight = FontWeight.Bold, color = DarkNavy, fontSize = 15.sp)
+            }
+            val offer = job.myOffer
+            when {
+                job.isOwn -> Unit
+                offer != null -> {
+                    Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = GreenFg, modifier = Modifier.size(18.dp))
+                        Text(" " + stringResource(R.string.helper_offer_sent, IndiaFormat.rupees(offer.amount)), color = GreenFg,
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+                else -> {
+                    Spacer(Modifier.height(12.dp))
+                    val max = t.maxBudget.toLongOrNull() ?: t.minBudget.toLongOrNull()
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedButton(onClick = onSendOffer, modifier = Modifier.weight(1f).heightIn(min = 48.dp), shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, BluePrimary)) {
+                            Text(stringResource(R.string.helper_send_offer), fontWeight = FontWeight.Bold, color = BluePrimary)
+                        }
+                        if (max != null) Button(onClick = { onQuickAccept(max) }, modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)) {
+                            Text(stringResource(R.string.helper_accept_for, IndiaFormat.rupees(max)), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkerHomeScreen(viewModel: HelperViewModel) {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val loadedTasks by viewModel.availableTasks.collectAsState()
-    var isOnline by remember { mutableStateOf(true) }
-    // Skeleton is shown only while the list is really loading (no artificial delay).
-    val isLoading = loadedTasks == null
-    val tasks = loadedTasks.orEmpty()
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(BorderGrey),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Person, contentDescription = stringResource(R.string.workerhome_profile), tint = SecondaryGrey)
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(text = stringResource(R.string.workerhome_good_morning), fontSize = 12.sp, color = SecondaryGrey)
-                            Text(text = stringResource(R.string.workerhome_alex_worker), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
-                        }
-                    }
-                },
-                actions = {
-                    Surface(
-                        color = if (isOnline) Color(0xFFE8F5E9) else Color(0xFFFFEBEE),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.clickable { isOnline = !isOnline }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(if (isOnline) Color(0xFF2E7D32) else Color(0xFFD32F2F)))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(if (isOnline) "Online" else "Offline", color = if (isOnline) Color(0xFF2E7D32) else Color(0xFFD32F2F), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    IconButton(onClick = { android.widget.Toast.makeText(context, "No notifications yet", android.widget.Toast.LENGTH_SHORT).show() }) {
-                        Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.workerhome_notifications), tint = DarkNavy)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+private fun OfferSheet(task: TaskEntity, onDismiss: () -> Unit, onSubmit: (Long, String) -> Unit) {
+    var amount by rememberSaveable { mutableStateOf(task.maxBudget.ifBlank { task.minBudget }) }
+    var message by rememberSaveable { mutableStateOf("") }
+    var showError by rememberSaveable { mutableStateOf(false) }
+    val value = amount.toLongOrNull()
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.padding(horizontal = 24.dp).padding(bottom = 32.dp).imePadding()) {
+            Text(stringResource(R.string.helper_offer_title), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+            Text(task.descriptionTitle + " · " + IndiaFormat.budgetLabel(task.minBudget, task.maxBudget), color = SecondaryGrey, fontSize = 14.sp)
+            Spacer(Modifier.height(20.dp))
+            OutlinedTextField(
+                value = amount, onValueChange = { amount = IndiaFormat.cleanAmount(it); showError = false },
+                label = { Text(stringResource(R.string.helper_offer_amount)) }, singleLine = true, isError = showError,
+                supportingText = { if (showError) Text(stringResource(R.string.helper_offer_amount_error)) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth()
             )
-        },
-        containerColor = Color(0xFFF8F9FA)
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item {
-                PerformanceOverviewCard()
-            }
-
-            item {
-                Text(
-                    text = stringResource(R.string.workerhome_today_s_summary),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkNavy
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    item { SummaryCard("Today's Tasks", "3", Icons.AutoMirrored.Filled.Assignment, Color(0xFFE3F2FD), BluePrimary) }
-                    item { SummaryCard("Completed", "1", Icons.Default.CheckCircle, Color(0xFFE8F5E9), Color(0xFF2E7D32)) }
-                    item { SummaryCard("Pending", "2", Icons.Default.PendingActions, Color(0xFFFFF3E0), OrangeSecondary) }
-                    item { SummaryCard("Proposed", "5", Icons.Default.LocalOffer, Color(0xFFF3E5F5), Color(0xFF8E24AA)) }
-                    item { SummaryCard("Missed", "0", Icons.Default.Cancel, Color(0xFFFFEBEE), Color(0xFFD32F2F)) }
-                }
-            }
-
-            item {
-                Text(
-                    text = stringResource(R.string.workerhome_available_nearby_jobs),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DarkNavy
-                )
-            }
-
-            if (isLoading) {
-                items(3) {
-                    JobCardSkeleton()
-                }
-            } else if (tasks.isEmpty()) {
-                item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SearchOff,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = SecondaryGrey.copy(alpha = 0.3f)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.workerhome_no_nearby_jobs_available_at_the),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = SecondaryGrey
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        // The list updates by itself, so no Refresh button is needed.
-                        Text(
-                            text = stringResource(R.string.workerhome_new_jobs_will_appear_here_automatically),
-                            fontSize = 14.sp,
-                            color = SecondaryGrey
-                        )
-                    }
-                }
-            } else {
-                items(tasks, key = { it.id }) { task ->
-                    WorkerJobCard(
-                        task = task, 
-                        onSubmitProposalClick = { /* Handle Proposal */ },
-                        onAccept = { viewModel.acceptTask(task) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SummaryCard(title: String, count: String, icon: ImageVector, bgColor: Color, iconColor: Color) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.width(120.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = count, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = title, fontSize = 12.sp, color = DarkNavy.copy(alpha = 0.7f))
-        }
-    }
-}
-
-@Composable
-fun PerformanceOverviewCard() {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkNavy),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            OutlinedTextField(
+                value = message, onValueChange = { message = it.take(200) },
+                label = { Text(stringResource(R.string.helper_offer_message)) },
+                placeholder = { Text(stringResource(R.string.helper_offer_message_hint)) },
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 96.dp)
+            )
+            Spacer(Modifier.height(20.dp))
+            Button(
+                onClick = { if (value != null && value > 0) onSubmit(value, message) else showError = true },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp), shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text(stringResource(R.string.workerhome_performance_overview), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("4.9", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(if (value != null && value > 0) stringResource(R.string.helper_offer_submit, IndiaFormat.rupees(value))
+                    else stringResource(R.string.helper_send_offer), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+        }
+    }
+}
+
+/** Offers this helper has sent and what happened to them. */
+@Composable
+fun MyJobsScreen(myJobs: List<MyJob>?, onExploreJobs: () -> Unit, onChat: (Int) -> Unit) {
+    Column(Modifier.fillMaxSize().background(PageBg)) {
+        Text(stringResource(R.string.nav_my_jobs), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = DarkNavy,
+            modifier = Modifier.fillMaxWidth().background(Color.White).padding(16.dp))
+        when {
+            myJobs == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+            myJobs.isEmpty() -> Column(Modifier.fillMaxSize().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center) {
+                Icon(Icons.AutoMirrored.Filled.Assignment, contentDescription = null, tint = BorderGrey, modifier = Modifier.size(72.dp))
+                Spacer(Modifier.height(12.dp))
+                Text(stringResource(R.string.myjobs_empty), color = SecondaryGrey, fontSize = 15.sp, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = onExploreJobs, colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)) {
+                    Text(stringResource(R.string.myjobs_explore))
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                PerformanceStat("Today's Earnings", "₹1,250")
-                PerformanceStat("Jobs Completed", "142")
-                PerformanceStat("Response Time", "< 5m")
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                ProgressStat("Acceptance", 0.95f, "95%")
-                ProgressStat("Completion", 0.98f, "98%")
-                ProgressStat("Satisfaction", 0.96f, "96%")
-            }
-        }
-    }
-}
-
-@Composable
-fun PerformanceStat(label: String, value: String) {
-    Column {
-        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = label, fontSize = 12.sp, color = Color.White.copy(alpha = 0.6f))
-    }
-}
-
-@Composable
-fun ProgressStat(label: String, progress: Float, percentage: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                progress = { 1f },
-                color = Color.White.copy(alpha = 0.1f),
-                modifier = Modifier.size(48.dp),
-                strokeWidth = 4.dp
-            )
-            CircularProgressIndicator(
-                progress = { progress },
-                color = BluePrimary,
-                modifier = Modifier.size(48.dp),
-                strokeWidth = 4.dp
-            )
-            Text(text = percentage, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = label, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
-    }
-}
-
-@Composable
-fun JobCardSkeleton() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Color.LightGray.copy(alpha = 0.5f)))
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Box(modifier = Modifier.height(16.dp).width(120.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.height(12.dp).width(80.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = Modifier.height(20.dp).fillMaxWidth(0.8f).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(modifier = Modifier.height(14.dp).fillMaxWidth().background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.height(4.dp))
-            Box(modifier = Modifier.height(14.dp).fillMaxWidth(0.6f).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Box(modifier = Modifier.height(14.dp).width(100.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-                Box(modifier = Modifier.height(14.dp).width(60.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(4.dp)))
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderGrey)
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(modifier = Modifier.weight(1f).height(48.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp)))
-                Box(modifier = Modifier.weight(1f).height(48.dp).background(Color.LightGray.copy(alpha = 0.5f), RoundedCornerShape(12.dp)))
-            }
-        }
-    }
-}
-
-@Composable
-fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept: () -> Unit) {
-    val category = dummyCategories.find { it.id == task.categoryId } ?: dummyCategories.first()
-    
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier.size(40.dp).clip(CircleShape).background(BorderGrey),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(24.dp))
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(stringResource(R.string.workerhome_customer_name), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(Icons.Default.Verified, contentDescription = stringResource(R.string.workerhome_verified), tint = BluePrimary, modifier = Modifier.size(14.dp))
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("4.8", fontSize = 12.sp, color = SecondaryGrey)
-                            Text(stringResource(R.string.workerhome_10_mins_ago), fontSize = 12.sp, color = SecondaryGrey)
+            else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(myJobs, key = { it.offer.id }) { j ->
+                    val task = j.task
+                    Surface(shape = RoundedCornerShape(16.dp), color = Color.White, border = BorderStroke(1.dp, BorderGrey)) {
+                        Column(Modifier.padding(16.dp).fillMaxWidth()) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(timeAgo(j.offer.createdAt) ?: "", color = SecondaryGrey, fontSize = 13.sp, modifier = Modifier.weight(1f))
+                                when {
+                                    j.offer.status == "accepted" && task?.status == "completed" -> Badge(stringResource(R.string.myjobs_done), GreenBg, GreenFg)
+                                    j.offer.status == "accepted" -> Badge(stringResource(R.string.myjobs_chosen), BlueBg, BluePrimary)
+                                    j.offer.status == "declined" || task?.status == "cancelled" -> Badge(stringResource(R.string.myjobs_not_chosen), GreyBg, SecondaryGrey)
+                                    else -> Badge(stringResource(R.string.myjobs_waiting), AmberBg, AmberFg)
+                                }
+                            }
+                            Spacer(Modifier.height(6.dp))
+                            Text(task?.descriptionTitle ?: "—", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            task?.let { Text(it.locationQuery, color = SecondaryGrey, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+                            Text(stringResource(R.string.myjobs_your_offer, IndiaFormat.rupees(j.offer.amount)), color = DarkNavy,
+                                fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(top = 6.dp))
+                            if (j.offer.status == "accepted" && task?.status == "accepted") {
+                                Button(onClick = { onChat(j.offer.taskId) }, modifier = Modifier.padding(top = 10.dp).fillMaxWidth().heightIn(min = 48.dp),
+                                    shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)) {
+                                    Text(stringResource(R.string.mytasks_chat), fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
-                }
-                Surface(
-                    color = Color(0xFFE3F2FD),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(stringResource(R.string.workerhome_available), color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = task.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = DarkNavy
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = task.descriptionDetails.ifEmpty { "Looking for someone to help me out with this task." },
-                color = SecondaryGrey,
-                fontSize = 14.sp,
-                maxLines = 2
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(task.locationQuery.ifBlank { "Location not shared" }, color = SecondaryGrey, fontSize = 13.sp, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.AccessTime, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(stringResource(R.string.workerhome_urgent), color = OrangeSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            val budgetText = IndiaFormat.budgetLabel(task.minBudget, task.maxBudget)
-            
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = DarkNavy, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(budgetText, color = DarkNavy, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderGrey)
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(
-                    onClick = onSubmitProposalClick,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary)
-                ) {
-                    Text(stringResource(R.string.workerhome_place_bid), fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onAccept,
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
-                ) {
-                    Text(stringResource(R.string.workerhome_accept_job), fontWeight = FontWeight.Bold)
                 }
             }
         }
