@@ -20,6 +20,15 @@ import com.example.ui.screens.customer.TaskWithOffers
 import com.example.ui.screens.helper.JobItem
 import com.example.ui.screens.helper.MyJob
 import com.example.ui.screens.helper.WorkerHomeScreen
+import com.example.data.market.Message
+import com.example.ui.screens.helper.MyJobsScreen
+import com.example.ui.screens.shell.ChatThread
+import com.example.ui.screens.shell.ChatsScreen
+import com.example.ui.screens.taskflow.TaskLocationScreen
+import com.example.ui.screens.taskflow.TaskPhotosScreen
+import com.example.ui.screens.taskflow.TaskReviewScreen
+import com.example.ui.screens.taskflow.TaskViewModel
+import kotlinx.coroutines.flow.flowOf
 import com.example.ui.theme.AppFrame
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Test
@@ -74,7 +83,43 @@ class ScreenshotTest {
         },
         "account" to { AccountScreen(ramesh, false, false, null, false, {}, {}, {}, {}, {}) },
         "account_guest" to { AccountScreen(null, true, true, null, false, {}, {}, {}, {}, {}) },
+        "task_location" to { TaskLocationScreen({}, filledTaskVm()) },
+        "task_details" to { TaskPhotosScreen({}, filledTaskVm()) },
+        "task_review" to { TaskReviewScreen({}, {}, filledTaskVm()) },
+        "my_jobs" to {
+            MyJobsScreen(listOf(
+                MyJob(offer(9, 3, "me", "Suresh", 2000), clean),
+                MyJob(offer(10, 2, "me", "Suresh", 4500, status = "accepted"), paint),
+                MyJob(offer(11, 1, "me", "Suresh", 900, status = "declined"), tap.copy(status = "accepted")),
+            ), {}, {})
+        },
+        "chats_list" to { ChatsScreen(threads, "customer", "", emptyList(), { flowOf(messages) }, { _, _ -> }) },
+        "chat_conversation" to {
+            ChatsScreen(threads, "customer", "", emptyList(), { flowOf(messages) }, { _, _ -> }, openTaskId = "2")
+        },
+        "chat_helper" to {
+            ChatsScreen(threads, "worker", "", listOf("I can do this today.", "I'll arrive in 20 minutes."),
+                { flowOf(messages) }, { _, _ -> }, openTaskId = "2")
+        },
     )
+
+    private val threads = listOf(ChatThread("2", "Paint one bedroom", "Raju (painter)", "₹4,500"))
+    private val messages = listOf(
+        Message("3", "2", "worker", "Theek hai, kal subah 10 baje aata hoon.", now - 2 * 60_000),
+        Message("2", "2", "customer", "Kya aap kal subah aa sakte hain? Paint main le aaunga.", now - 10 * 60_000),
+        Message("1", "2", "worker", "Namaste! Main Raju. 1 room ka kaam 1 din mein ho jayega.", now - 30 * 60_000),
+    )
+
+    /** Task form already filled in, like Ramesh ji would. */
+    private fun filledTaskVm(): TaskViewModel {
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<FixhoraApplication>()
+        return TaskViewModel(app.taskRepository).apply {
+            updateCategory("repairs")
+            updateLocationQuery("12, Near Hanuman Mandir, Civil Lines, Kanpur 208001")
+            updateDescription("Kitchen tap is leaking", "Water drips all night. Need a plumber today evening.")
+            updateBudget("300", "800")
+        }
+    }
 
     private fun shoot(folder: String) {
         screens.forEach { (name, content) ->
