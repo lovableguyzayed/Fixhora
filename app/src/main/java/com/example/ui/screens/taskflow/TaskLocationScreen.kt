@@ -1,5 +1,8 @@
 package com.example.ui.screens.taskflow
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.clickable
 
 import androidx.compose.foundation.BorderStroke
@@ -42,7 +45,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "Where do you need help?",
+            text = stringResource(R.string.tasklocation_where_do_you_need_help),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -51,7 +54,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Set the location for your task",
+            text = stringResource(R.string.tasklocation_set_the_location_for_your_task),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -66,8 +69,8 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 viewModel.updateLocationQuery(it)
                 if (it.isNotBlank()) showError = false
             },
-            label = { Text("Address") },
-            placeholder = { Text("House no., area, landmark, city") },
+            label = { Text(stringResource(R.string.tasklocation_address)) },
+            placeholder = { Text(stringResource(R.string.tasklocation_house_no_area_landmark_city)) },
             isError = showError,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
@@ -135,7 +138,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         Spacer(modifier = Modifier.height(24.dp))
         
         Text(
-            text = "Set your service area",
+            text = stringResource(R.string.tasklocation_set_your_service_area),
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 12.dp)
         )
@@ -158,7 +161,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text("Within ${uiState.selectedDistance} km", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    Text("You will receive offers from helpers nearby", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.tasklocation_you_will_receive_offers_from_helpers), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -182,15 +185,15 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 16.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Your location is safe with us", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("We never share your exact address with anyone.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.tasklocation_your_location_is_safe_with_us), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(stringResource(R.string.tasklocation_we_never_share_your_exact_address), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
         
         if (showError) {
             Text(
-                text = "Please enter the address where you need help",
+                text = stringResource(R.string.tasklocation_please_enter_the_address_where_you),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -213,7 +216,7 @@ fun TaskLocationScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.profileandpermissions_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )

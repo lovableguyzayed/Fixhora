@@ -1,5 +1,8 @@
 package com.example.ui.screens.auth
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -50,7 +53,7 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Profile Setup",
+            text = stringResource(R.string.profileandpermissions_profile_setup),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy,
@@ -58,7 +61,7 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Complete your profile to get started.",
+            text = stringResource(R.string.profileandpermissions_complete_your_profile_to_get_started),
             fontSize = 16.sp,
             color = SecondaryGrey,
             modifier = Modifier.align(Alignment.Start)
@@ -73,17 +76,17 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
                 .background(BorderGrey),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.CameraAlt, contentDescription = "Upload Photo", tint = SecondaryGrey, modifier = Modifier.size(40.dp))
+            Icon(Icons.Default.CameraAlt, contentDescription = stringResource(R.string.profileandpermissions_upload_photo), tint = SecondaryGrey, modifier = Modifier.size(40.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Upload Profile Picture (Optional)", fontSize = 14.sp, color = BluePrimary, fontWeight = FontWeight.Medium)
+        Text(stringResource(R.string.profileandpermissions_upload_profile_picture_optional), fontSize = 14.sp, color = BluePrimary, fontWeight = FontWeight.Medium)
         
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
-            label = { Text("Full Name") },
+            label = { Text(stringResource(R.string.signinandsignup_full_name)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             modifier = Modifier.fillMaxWidth(),
@@ -94,14 +97,14 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
             OutlinedTextField(
                 value = gender,
                 onValueChange = { gender = it },
-                label = { Text("Gender") },
+                label = { Text(stringResource(R.string.profileandpermissions_gender)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = dob,
                 onValueChange = { dob = it },
-                label = { Text("Date of Birth") },
+                label = { Text(stringResource(R.string.profileandpermissions_date_of_birth)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -111,14 +114,14 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
             OutlinedTextField(
                 value = city,
                 onValueChange = { city = it },
-                label = { Text("City") },
+                label = { Text(stringResource(R.string.profileandpermissions_city)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = state,
                 onValueChange = { state = it },
-                label = { Text("State") },
+                label = { Text(stringResource(R.string.profileandpermissions_state)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -128,7 +131,7 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
             OutlinedTextField(
                 value = pinCode,
                 onValueChange = { pinCode = it.filter(Char::isDigit).take(6) },
-                label = { Text("PIN Code") },
+                label = { Text(stringResource(R.string.profileandpermissions_pin_code)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.weight(1f),
@@ -137,7 +140,7 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
             OutlinedTextField(
                 value = language,
                 onValueChange = { language = it },
-                label = { Text("Preferred Language") },
+                label = { Text(stringResource(R.string.profileandpermissions_preferred_language)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -152,7 +155,7 @@ fun ProfileSetupScreen(onProfileComplete: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Continue", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.profileandpermissions_continue), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -183,14 +186,14 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Enable Location",
+            text = stringResource(R.string.profileandpermissions_enable_location),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "We need your location to show tasks and helpers near you.",
+            text = stringResource(R.string.profileandpermissions_we_need_your_location_to_show),
             fontSize = 16.sp,
             color = SecondaryGrey,
             textAlign = TextAlign.Center
@@ -209,14 +212,14 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Enable Notifications",
+            text = stringResource(R.string.profileandpermissions_enable_notifications),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Get instant updates about your tasks, messages, and offers.",
+            text = stringResource(R.string.profileandpermissions_get_instant_updates_about_your_tasks),
             fontSize = 16.sp,
             color = SecondaryGrey,
             textAlign = TextAlign.Center
@@ -232,11 +235,11 @@ fun PermissionRequestScreen(onPermissionsHandled: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Allow Permissions", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.profileandpermissions_allow_permissions), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(16.dp))
         TextButton(onClick = onPermissionsHandled) {
-            Text("Skip for Now", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.profileandpermissions_skip_for_now), color = SecondaryGrey, fontWeight = FontWeight.Medium)
         }
         Spacer(modifier = Modifier.height(24.dp))
     }

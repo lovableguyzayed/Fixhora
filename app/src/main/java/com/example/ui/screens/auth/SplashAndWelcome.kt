@@ -1,5 +1,7 @@
 package com.example.ui.screens.auth
 
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -51,7 +53,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.img_logo),
-                contentDescription = "FixoraX Logo",
+                contentDescription = stringResource(R.string.splashandwelcome_fixorax_logo),
                 modifier = Modifier
                     .size(120.dp)
                     .alpha(alpha.value)
@@ -74,7 +76,7 @@ fun SplashScreen(onSplashComplete: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Connecting Skilled Workers with People Who Need Help.",
+                text = stringResource(R.string.splashandwelcome_connecting_skilled_workers_with_people_who),
                 fontSize = 14.sp,
                 color = SecondaryGrey,
                 textAlign = TextAlign.Center,
@@ -138,7 +140,7 @@ fun WelcomeScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Find trusted local workers or offer your skills to people nearby.",
+            text = stringResource(R.string.splashandwelcome_find_trusted_local_workers_or_offer),
             fontSize = 16.sp,
             color = SecondaryGrey,
             textAlign = TextAlign.Center
@@ -153,7 +155,7 @@ fun WelcomeScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.splashandwelcome_sign_in), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
@@ -165,15 +167,15 @@ fun WelcomeScreen(
             border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary)
         ) {
-            Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.splashandwelcome_create_account), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
         Spacer(modifier = Modifier.height(24.dp))
         TextButton(onClick = onGuestClick) {
-            Text("Continue as Guest", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.splashandwelcome_continue_as_guest), color = SecondaryGrey, fontWeight = FontWeight.Medium)
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "By continuing, you agree to our Terms of Service and Privacy Policy.",
+            text = stringResource(R.string.splashandwelcome_by_continuing_you_agree_to_our),
             fontSize = 12.sp,
             color = SecondaryGrey,
             textAlign = TextAlign.Center,

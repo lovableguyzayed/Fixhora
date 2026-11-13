@@ -48,6 +48,9 @@ class ScreenshotTest {
     )
 
     private fun shoot(folder: String) {
+        // Fill sample jobs before drawing, so the helper screen never shows a half-loaded list.
+        val app = androidx.test.core.app.ApplicationProvider.getApplicationContext<FixhoraApplication>()
+        kotlinx.coroutines.runBlocking { app.taskRepository.seedDemoTasksIfEmpty() }
         screens.forEach { (name, content) ->
             captureRoboImage("build/screenshots/$folder/$name.png") {
                 AppFrame { content() }

@@ -1,5 +1,8 @@
 package com.example.ui.screens.auth
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -54,14 +57,14 @@ fun SignInScreen(
     ) {
         Spacer(modifier = Modifier.height(40.dp))
         Text(
-            text = "Welcome Back",
+            text = stringResource(R.string.signinandsignup_welcome_back),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Sign in to continue",
+            text = stringResource(R.string.signinandsignup_sign_in_to_continue),
             fontSize = 16.sp,
             color = SecondaryGrey
         )
@@ -71,7 +74,7 @@ fun SignInScreen(
             value = mobile,
             onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
                         singleLine = true,
-            label = { Text("Mobile Number") },
+            label = { Text(stringResource(R.string.signinandsignup_mobile_number)) },
             leadingIcon = { Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 12.dp, end = 4.dp)) { Icon(Icons.Default.Phone, contentDescription = null); Spacer(Modifier.width(8.dp)); Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
@@ -85,7 +88,7 @@ fun SignInScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.signinandsignup_password)) },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff
@@ -115,10 +118,10 @@ fun SignInScreen(
                     onCheckedChange = { keepSignedIn = it },
                     colors = CheckboxDefaults.colors(checkedColor = BluePrimary)
                 )
-                Text("Keep me signed in", fontSize = 14.sp, color = DarkNavy)
+                Text(stringResource(R.string.signinandsignup_keep_me_signed_in), fontSize = 14.sp, color = DarkNavy)
             }
             TextButton(onClick = onForgotPasswordClick) {
-                Text("Forgot Password?", color = BluePrimary, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.signinandsignup_forgot_password), color = BluePrimary, fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -131,7 +134,7 @@ fun SignInScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.splashandwelcome_sign_in), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -140,7 +143,7 @@ fun SignInScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-            Text(" OR ", color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
+            Text(stringResource(R.string.signinandsignup_or), color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
             HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -157,9 +160,9 @@ fun SignInScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text("Don't have an account? ", color = SecondaryGrey)
+            Text(stringResource(R.string.signinandsignup_don_t_have_an_account), color = SecondaryGrey)
             Text(
-                "Create New Account",
+                stringResource(R.string.signinandsignup_create_new_account),
                 color = BluePrimary,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { onCreateAccountClick() }
@@ -208,7 +211,7 @@ fun CreateAccountScreen(
     ) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Create Your Account",
+            text = stringResource(R.string.signinandsignup_create_your_account),
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
             color = DarkNavy
@@ -218,7 +221,7 @@ fun CreateAccountScreen(
         OutlinedTextField(
             value = fullName,
             onValueChange = { fullName = it },
-            label = { Text("Full Name") },
+            label = { Text(stringResource(R.string.signinandsignup_full_name)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             modifier = Modifier.fillMaxWidth(),
@@ -229,7 +232,7 @@ fun CreateAccountScreen(
             value = mobile,
             onValueChange = { mobile = IndiaFormat.cleanMobile(it) },
                         singleLine = true,
-            label = { Text("Mobile Number") },
+            label = { Text(stringResource(R.string.signinandsignup_mobile_number)) },
             leadingIcon = { Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 4.dp)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
@@ -239,7 +242,7 @@ fun CreateAccountScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email Address (Optional)") },
+            label = { Text(stringResource(R.string.signinandsignup_email_address_optional)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
@@ -248,7 +251,7 @@ fun CreateAccountScreen(
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Password") },
+            label = { Text(stringResource(R.string.signinandsignup_password)) },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
@@ -258,7 +261,7 @@ fun CreateAccountScreen(
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
+            label = { Text(stringResource(R.string.signinandsignup_confirm_password)) },
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
@@ -272,7 +275,7 @@ fun CreateAccountScreen(
                 onCheckedChange = { agreed = it },
                 colors = CheckboxDefaults.colors(checkedColor = BluePrimary)
             )
-            Text("I agree to the Terms & Privacy Policy", fontSize = 14.sp, color = DarkNavy)
+            Text(stringResource(R.string.signinandsignup_i_agree_to_the_terms_privacy), fontSize = 14.sp, color = DarkNavy)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -284,7 +287,7 @@ fun CreateAccountScreen(
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Create Account", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.splashandwelcome_create_account), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -293,7 +296,7 @@ fun CreateAccountScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
-            Text(" OR ", color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
+            Text(stringResource(R.string.signinandsignup_or), color = SecondaryGrey, modifier = Modifier.padding(horizontal = 8.dp))
             HorizontalDivider(modifier = Modifier.weight(1f), color = BorderGrey)
         }
         Spacer(modifier = Modifier.height(24.dp))
@@ -308,9 +311,9 @@ fun CreateAccountScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text("Already have an account? ", color = SecondaryGrey)
+            Text(stringResource(R.string.signinandsignup_already_have_an_account), color = SecondaryGrey)
             Text(
-                "Sign In",
+                stringResource(R.string.splashandwelcome_sign_in),
                 color = BluePrimary,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable { onBack() }

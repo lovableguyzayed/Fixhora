@@ -1,5 +1,8 @@
 package com.example.ui.screens.taskflow
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import com.example.ui.screens.TaskScreen
 
 import androidx.compose.foundation.BorderStroke
@@ -47,7 +50,7 @@ fun TaskReviewScreen(
             .verticalScroll(scrollState)
     ) {
         Text(
-            text = "Review your task",
+            text = stringResource(R.string.taskreview_review_your_task),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -56,7 +59,7 @@ fun TaskReviewScreen(
         )
         
         Text(
-            text = "Please review all details before posting",
+            text = stringResource(R.string.taskreview_please_review_all_details_before_posting),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -65,7 +68,7 @@ fun TaskReviewScreen(
         
         // Category Card
         ReviewCard(
-            label = "Category",
+            label = stringResource(R.string.taskreview_category),
             title = category.title,
             subtitle = category.subtitle,
             onEditClick = { onNavigateToStep(TaskScreen.Category.route) },
@@ -80,7 +83,7 @@ fun TaskReviewScreen(
         
         // Description Card
         ReviewCard(
-            label = "Task Description",
+            label = stringResource(R.string.taskreview_task_description),
             title = uiState.descriptionTitle.ifEmpty { "Need Help with ${category.title}" },
             subtitle = uiState.descriptionDetails.ifEmpty { "Looking for someone to help me out." },
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
@@ -95,7 +98,7 @@ fun TaskReviewScreen(
         
         // Location Card
         ReviewCard(
-            label = "Location",
+            label = stringResource(R.string.taskreview_location),
             title = uiState.locationQuery.ifBlank { "Not specified" },
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Location.route) },
@@ -123,7 +126,7 @@ fun TaskReviewScreen(
         
         // Photos Card
         ReviewCard(
-            label = "Photos",
+            label = stringResource(R.string.taskreview_photos),
             title = if (uiState.photoUris.isEmpty()) "No photos added" else if (uiState.photoUris.size == 1) "1 photo added" else "${uiState.photoUris.size} photos added",
             subtitle = null,
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
@@ -133,7 +136,7 @@ fun TaskReviewScreen(
                         uiState.photoUris.take(4).forEach { uriString ->
                             AsyncImage(
                                 model = uriString,
-                                contentDescription = "Review image",
+                                contentDescription = stringResource(R.string.taskreview_review_image),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .size(60.dp)
@@ -157,9 +160,9 @@ fun TaskReviewScreen(
         val budgetTitle = IndiaFormat.budgetLabel(uiState.minBudget, uiState.maxBudget, none = "No budget set")
         
         ReviewCard(
-            label = "Your Budget",
+            label = stringResource(R.string.taskreview_your_budget),
             title = budgetTitle,
-            subtitle = "Helpers will submit their offers within this range",
+            subtitle = stringResource(R.string.taskreview_helpers_will_submit_their_offers_within),
             onEditClick = { onNavigateToStep(TaskScreen.Photos.route) },
             icon = {
                 Box(modifier = Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(Color(0xFFE8F0FE)), contentAlignment = Alignment.Center) {
@@ -184,8 +187,8 @@ fun TaskReviewScreen(
                     modifier = Modifier.padding(end = 16.dp).size(28.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("You're in control", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("You'll receive offers from nearby helpers and choose the best one for your task.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.taskreview_you_re_in_control), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(stringResource(R.string.taskreview_you_ll_receive_offers_from_nearby), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -201,7 +204,7 @@ fun TaskReviewScreen(
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
             Text(
-                text = "Post Task",
+                text = stringResource(R.string.taskreview_post_task),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -216,7 +219,7 @@ fun TaskReviewScreen(
         ) {
             Icon(Icons.Default.Lock, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Your details are safe and secure", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.taskreview_your_details_are_safe_and_secure), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -254,7 +257,7 @@ fun ReviewCard(
                 }
             }
             TextButton(onClick = onEditClick, contentPadding = PaddingValues(0.dp)) {
-                Text("Edit", color = BluePrimary, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.taskcontainer_edit), color = BluePrimary, fontWeight = FontWeight.Medium)
             }
         }
     }

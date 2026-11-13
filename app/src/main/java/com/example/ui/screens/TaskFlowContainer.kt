@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -58,7 +61,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                 TopAppBar(
                     title = { 
                         Text(
-                            "I need help", 
+                            stringResource(R.string.taskcontainer_i_need_help), 
                             modifier = Modifier.fillMaxWidth(), 
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             fontWeight = FontWeight.SemiBold
@@ -74,7 +77,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                         }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
-                                contentDescription = "Back",
+                                contentDescription = stringResource(R.string.mobilelogin_back),
                                 modifier = Modifier
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -86,7 +89,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                         if (currentScreen == TaskScreen.Photos) {
                             TextButton(onClick = { navController.navigate(TaskScreen.Review.route) }) {
                                 Text(
-                                    text = "Skip",
+                                    text = stringResource(R.string.taskcontainer_skip),
                                     color = BluePrimary,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
@@ -99,7 +102,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                                 }
                             }) {
                                 Text(
-                                    text = "Edit",
+                                    text = stringResource(R.string.taskcontainer_edit),
                                     color = BluePrimary,
                                     fontWeight = FontWeight.Medium,
                                     fontSize = 16.sp
@@ -160,9 +163,9 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                                 Icon(Icons.Default.Check, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(40.dp))
                             }
                             Spacer(modifier = Modifier.height(24.dp))
-                            Text("Task Posted successfully!", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.taskcontainer_task_posted_successfully), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("We are finding helpers nearby. You will be notified once someone accepts your task.", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.taskcontainer_we_are_finding_helpers_nearby_you), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(48.dp))
                             Button(
                                 onClick = onBackToRoles,
@@ -170,7 +173,7 @@ fun TaskFlowContainer(onBackToRoles: () -> Unit) {
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                             ) {
-                                Text("Return to Home", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.taskcontainer_return_to_home), fontSize = 16.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

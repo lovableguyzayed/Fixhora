@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -72,7 +74,7 @@ fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
                 // Branding Area
                 Image(
                     painter = painterResource(id = R.drawable.img_logo),
-                    contentDescription = "FixoraX Logo",
+                    contentDescription = stringResource(R.string.splashandwelcome_fixorax_logo),
                     modifier = Modifier.size(120.dp),
                     contentScale = ContentScale.Fit
                 )
@@ -170,7 +172,7 @@ fun RoleSelectionScreen(onRoleSelected: (String) -> Unit) {
                 ) {
                     LanguagePill(
                         modifier = Modifier.weight(1f),
-                        text = "English",
+                        text = stringResource(R.string.roleselection_english),
                         isSelected = selectedLanguage == "English",
                         onClick = { selectedLanguage = "English" }
                     )
@@ -324,7 +326,7 @@ fun WideRoleSelectionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Get Started",
+                        text = stringResource(R.string.roleselection_get_started),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = buttonColor
@@ -392,7 +394,7 @@ fun LanguagePill(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(R.string.roleselection_selected),
                         tint = Color.White,
                         modifier = Modifier.size(12.dp)
                     )

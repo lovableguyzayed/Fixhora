@@ -1,5 +1,8 @@
 package com.example.ui.screens.taskflow
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -78,7 +81,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "Add photos (optional)",
+            text = stringResource(R.string.taskphotos_add_photos_optional),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -87,7 +90,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Add photos to help helpers understand the task better.",
+            text = stringResource(R.string.taskphotos_add_photos_to_help_helpers_understand),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -123,8 +126,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     Icon(Icons.Default.Add, contentDescription = null, tint = BluePrimary)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("Upload photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                Text("Tap to select photos from gallery", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.taskphotos_upload_photos), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Text(stringResource(R.string.taskphotos_tap_to_select_photos_from_gallery), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         
@@ -136,7 +139,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Added photos", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Text(stringResource(R.string.taskphotos_added_photos), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Text("${uiState.photoUris.size}/$MAX_PHOTOS", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         
@@ -155,7 +158,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 ) {
                     AsyncImage(
                         model = uriString,
-                        contentDescription = "Uploaded photo",
+                        contentDescription = stringResource(R.string.taskphotos_uploaded_photo),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -173,7 +176,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "Remove photo", modifier = Modifier.size(14.dp), tint = Color.Black)
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.taskphotos_remove_photo), modifier = Modifier.size(14.dp), tint = Color.Black)
                     }
                 }
             }
@@ -209,14 +212,14 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 },
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Text("⚡ Add high-quality sample photos for testing", fontSize = 13.sp, color = BluePrimary)
+                Text(stringResource(R.string.taskphotos_add_high_quality_sample_photos_for), fontSize = 13.sp, color = BluePrimary)
             }
         }
         
         Spacer(modifier = Modifier.height(32.dp))
         
         // --- Task Details & Budget inputs ---
-        Text("Task Details", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(stringResource(R.string.taskphotos_task_details), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(12.dp))
 
         var titleError by remember { mutableStateOf(false) }
@@ -227,8 +230,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 viewModel.updateDescription(it, uiState.descriptionDetails)
                 if (it.isNotBlank()) titleError = false
             },
-            label = { Text("Task Title *") },
-            placeholder = { Text("e.g. Clean my kitchen sink / fix wood drawer") },
+            label = { Text(stringResource(R.string.taskphotos_task_title)) },
+            placeholder = { Text(stringResource(R.string.taskphotos_e_g_clean_my_kitchen_sink)) },
             isError = titleError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next),
@@ -239,7 +242,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             )
         )
         if (titleError) {
-            Text("Title is required to post the task", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
+            Text(stringResource(R.string.taskphotos_title_is_required_to_post_the), color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -247,8 +250,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         OutlinedTextField(
             value = uiState.descriptionDetails,
             onValueChange = { viewModel.updateDescription(uiState.descriptionTitle, it) },
-            label = { Text("Detailed Description") },
-            placeholder = { Text("Provide details like what tools are needed, special requests, size of work etc.") },
+            label = { Text(stringResource(R.string.taskphotos_detailed_description)) },
+            placeholder = { Text(stringResource(R.string.taskphotos_provide_details_like_what_tools_are)) },
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
             shape = RoundedCornerShape(12.dp),
@@ -260,7 +263,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        Text("Set Budget Range (Optional)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(stringResource(R.string.taskphotos_set_budget_range_optional), fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(12.dp))
 
         val budgetInvalid = IndiaFormat.isBudgetRangeInvalid(uiState.minBudget, uiState.maxBudget)
@@ -274,8 +277,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 isError = budgetInvalid,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                label = { Text("Min Budget (₹)") },
-                placeholder = { Text("e.g. 500") },
+                label = { Text(stringResource(R.string.taskphotos_min_budget)) },
+                placeholder = { Text(stringResource(R.string.taskphotos_e_g_500)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -289,8 +292,8 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                 isError = budgetInvalid,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                label = { Text("Max Budget (₹)") },
-                placeholder = { Text("e.g. 1500") },
+                label = { Text(stringResource(R.string.taskphotos_max_budget)) },
+                placeholder = { Text(stringResource(R.string.taskphotos_e_g_1500)) },
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -300,7 +303,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         }
 
         if (budgetInvalid) {
-            Text("Max budget should be more than min budget", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
+            Text(stringResource(R.string.taskphotos_max_budget_should_be_more_than), color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp, top = 4.dp))
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -319,13 +322,13 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
                     modifier = Modifier.padding(end = 12.dp)
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Tips for better responses", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Text(stringResource(R.string.taskphotos_tips_for_better_responses), fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("• Add clear, well-lit photos", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.taskphotos_add_clear_well_lit_photos), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("• Provide an accurate budget range so helpers can bid effectively", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.taskphotos_provide_an_accurate_budget_range_so), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("• Detail any special equipment/tools required", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.taskphotos_detail_any_special_equipment_tools_required), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -346,7 +349,7 @@ fun TaskPhotosScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.profileandpermissions_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )

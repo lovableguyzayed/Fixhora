@@ -1,5 +1,8 @@
 package com.example.ui.screens.auth
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -64,11 +67,11 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
 
     AuthScreenColumn {
         IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.mobilelogin_back))
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Login with Mobile Number",
+            text = stringResource(R.string.mobilelogin_login_with_mobile_number),
             fontSize = 28.sp,
             lineHeight = 34.sp,
             fontWeight = FontWeight.Bold,
@@ -76,7 +79,7 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Enter your mobile number to receive a verification code.",
+            text = stringResource(R.string.mobilelogin_enter_your_mobile_number_to_receive),
             fontSize = 16.sp,
             color = SecondaryGrey
         )
@@ -88,7 +91,7 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
                 mobile = IndiaFormat.cleanMobile(it)
                 if (IndiaFormat.isValidMobile(mobile)) showError = false
             },
-            label = { Text("Mobile number") },
+            label = { Text(stringResource(R.string.mobilelogin_mobile_number)) },
             leadingIcon = { Text("+91", color = DarkNavy, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 16.dp, end = 4.dp)) },
             isError = showError && !isValid,
             supportingText = {
@@ -119,7 +122,7 @@ fun MobileLoginScreen(onSendOtp: (String) -> Unit, onBack: () -> Unit) {
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Send OTP", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.mobilelogin_send_otp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -143,11 +146,11 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
 
     AuthScreenColumn {
         IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.mobilelogin_back))
         }
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Verify Your Mobile Number",
+            text = stringResource(R.string.mobilelogin_verify_your_mobile_number),
             fontSize = 28.sp,
             lineHeight = 34.sp,
             fontWeight = FontWeight.Bold,
@@ -164,6 +167,7 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
 
         // One real text field drawn as 6 boxes: typing, Backspace, paste and keyboard
         // OTP suggestions all work, and the boxes shrink to fit small phones.
+        val otpDescription = stringResource(R.string.mobilelogin_6_digit_otp)
         BasicTextField(
             value = otp,
             onValueChange = { otp = it.filter(Char::isDigit).take(OTP_LENGTH) },
@@ -175,7 +179,7 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
-                .semantics { contentDescription = "6-digit OTP" },
+                .semantics { contentDescription = otpDescription },
             decorationBox = {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     repeat(OTP_LENGTH) { index ->
@@ -227,12 +231,12 @@ fun OtpVerificationScreen(onVerified: () -> Unit, onBack: () -> Unit, mobile: St
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
-            Text("Verify", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.mobilelogin_verify), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
         TextButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text("Change mobile number", color = SecondaryGrey, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.mobilelogin_change_mobile_number), color = SecondaryGrey, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -248,20 +252,20 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
 
     AuthScreenColumn {
         IconButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.mobilelogin_back))
         }
         Spacer(modifier = Modifier.height(24.dp))
         
         if (step == 1) {
             Text(
-                text = "Forgot Password",
+                text = stringResource(R.string.mobilelogin_forgot_password),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkNavy
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Enter your registered Mobile Number or Email to receive an OTP.",
+                text = stringResource(R.string.mobilelogin_enter_your_registered_mobile_number_or),
                 fontSize = 16.sp,
                 color = SecondaryGrey
             )
@@ -270,7 +274,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it },
-                label = { Text("Mobile or Email") },
+                label = { Text(stringResource(R.string.mobilelogin_mobile_or_email)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -284,11 +288,11 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Send OTP", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.mobilelogin_send_otp), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         } else if (step == 2) {
             Text(
-                text = "Verify OTP",
+                text = stringResource(R.string.mobilelogin_verify_otp),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkNavy
@@ -297,7 +301,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             OutlinedTextField(
                 value = otp,
                 onValueChange = { otp = it.filter(Char::isDigit).take(6) },
-                label = { Text("Enter OTP") },
+                label = { Text(stringResource(R.string.mobilelogin_enter_otp)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier.fillMaxWidth(),
@@ -312,11 +316,11 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Verify", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.mobilelogin_verify), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         } else {
              Text(
-                text = "Reset Password",
+                text = stringResource(R.string.mobilelogin_reset_password),
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkNavy
@@ -325,7 +329,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             OutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                label = { Text("New Password") },
+                label = { Text(stringResource(R.string.mobilelogin_new_password)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -336,7 +340,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                label = { Text(stringResource(R.string.signinandsignup_confirm_password)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -352,7 +356,7 @@ fun ForgotPasswordScreen(onPasswordReset: () -> Unit, onBack: () -> Unit) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Confirm", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.mobilelogin_confirm), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }

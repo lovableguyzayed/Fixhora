@@ -1,5 +1,8 @@
 package com.example.ui.screens.taskflow
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,7 +43,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             .padding(horizontal = 24.dp)
     ) {
         Text(
-            text = "What do you need help with?",
+            text = stringResource(R.string.taskcategory_what_do_you_need_help_with),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -49,7 +52,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Choose a category that best fits your task",
+            text = stringResource(R.string.taskcategory_choose_a_category_that_best_fits),
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -65,7 +68,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         OutlinedTextField(
             value = uiState.searchCategoryQuery,
             onValueChange = { viewModel.updateSearchCategoryQuery(it) },
-            placeholder = { Text("Search category") },
+            placeholder = { Text(stringResource(R.string.taskcategory_search_category)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
@@ -75,7 +78,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         )
         
         Text(
-            text = "Popular Categories",
+            text = stringResource(R.string.taskcategory_popular_categories),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(top = 24.dp, bottom = 16.dp)
@@ -165,7 +168,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
         
         if (showError) {
             Text(
-                text = "Please select a category to continue",
+                text = stringResource(R.string.taskcategory_please_select_a_category_to_continue),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -188,7 +191,7 @@ fun TaskCategoryScreen(onNext: () -> Unit, viewModel: TaskViewModel) {
             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
         ) {
             Text(
-                text = "Continue",
+                text = stringResource(R.string.profileandpermissions_continue),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
