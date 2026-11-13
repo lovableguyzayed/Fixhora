@@ -1,0 +1,94 @@
+rules_version = '2';
+
+// FixoraX Cloud Firestore security rules.
+// Paste into Firebase console -> Firestore Database -> Rules (or deploy with the Firebase CLI).
+// Tested by firebase/rules-tests (npm test).
+//
+// Data:
+//   tasks/{taskId}                       a customer's task (readable by every logged-in user)
+//   tasks/{taskId}/offers/{helperUid}    one offer per helper; seen only by that helper and the task owner
+//   tasks/{taskId}/messages/{msgId}      chat between the owner and the chosen helper only
+//   users/{uid}/offers/{taskId}          a helper's own list of tasks they sent offers to
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function taskDoc(taskId) { return get(/databases/$(database)/documents/tasks/$(taskId)); }
+    function isTaskOwner(taskId) { return signedIn() && taskDoc(taskId).data.ownerId == me(); }
+    function isChosenHelper(taskId) {
+      return signedIn() && taskDoc(taskId).data.get('chosenHelperId', null) == me();
+    }
+    function isText(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+    function isRupees(v) { return v == null || (v is int && v >= 0 && v <= 9999999); }
+
+    function validTask(d) {
+      return d.keys().hasOnly(['ownerId', 'ownerName', 'status', 'categoryId', 'locationQuery', 'title',
+                               'details', 'minBudget', 'maxBudget', 'createdAt', 'chosenHelperId', 'chosenAmount'])
+        && d.ownerId is string
+        && isText(d.ownerName, 0, 40)
+        && d.status in ['submitted', 'accepted', 'completed', 'cancelled']
+        && isText(d.categoryId, 1, 30)
+        && isText(d.locationQuery, 2, 300)
+        && isText(d.title, 2, 120)
+        && isText(d.details, 0, 2000)
+        && isRupees(d.minBudget) && isRupees(d.maxBudget)
+        && d.createdAt is timestamp;
+    }
+
+    match /tasks/{taskId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.ownerId == me()
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.get('chosenHelperId', null) == null
+        && request.resource.data.createdAt == request.time
+        && validTask(request.resource.data);
+      // Only the owner edits; owner and posting time never change.
+      allow update: if signedIn()
+        && resource.data.ownerId == me()
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validTask(request.resource.data);
+      allow delete: if signedIn() && resource.data.ownerId == me();
+
+      match /offers/{helperId} {
+        allow get: if signedIn() && (me() == helperId || isTaskOwner(taskId));
+        allow list: if isTaskOwner(taskId);
+        allow create: if signedIn()
+          && me() == helperId
+          && request.resource.data.keys().hasOnly(['helperId', 'helperName', 'amount', 'message', 'createdAt', 'status'])
+          && request.resource.data.helperId == helperId
+          && isText(request.resource.data.helperName, 1, 40)
+          && request.resource.data.amount is int
+          && request.resource.data.amount > 0 && request.resource.data.amount <= 9999999
+          && isText(request.resource.data.message, 0, 200)
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.status == 'sent'
+          && taskDoc(taskId).data.status == 'submitted'
+          && taskDoc(taskId).data.ownerId != me();
+        // The task owner chooses or declines; only the status may change.
+        allow update: if isTaskOwner(taskId)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status in ['accepted', 'declined'];
+        allow delete: if signedIn() && (me() == helperId || isTaskOwner(taskId));
+      }
+
+      match /messages/{messageId} {
+        allow read: if isTaskOwner(taskId) || isChosenHelper(taskId);
+        allow create: if (isTaskOwner(taskId) || isChosenHelper(taskId))
+          && request.resource.data.keys().hasOnly(['senderUid', 'senderRole', 'text', 'createdAt'])
+          && request.resource.data.senderUid == me()
+          && request.resource.data.senderRole in ['customer', 'worker']
+          && isText(request.resource.data.text, 1, 1000)
+          && request.resource.data.createdAt == request.time;
+        allow delete: if isTaskOwner(taskId)
+          || (signedIn() && resource.data.senderUid == me());
+      }
+    }
+
+    match /users/{uid}/offers/{taskId} {
+      allow read, write: if signedIn() && me() == uid;
+    }
+  }
+}

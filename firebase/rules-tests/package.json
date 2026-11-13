@@ -1,0 +1,13 @@
+{
+  "name": "fixorax-firestore-rules-tests",
+  "private": true,
+  "description": "Tests that the Firestore security rules allow exactly what the app needs. Run: npm test",
+  "scripts": {
+    "test": "firebase emulators:exec --only firestore --project demo-fixorax \"node --test rules.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "firebase": "13.1.0",
+    "firebase-tools": "15.34.1"
+  }
+}
