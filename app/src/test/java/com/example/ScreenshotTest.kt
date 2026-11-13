@@ -90,6 +90,11 @@ class ScreenshotTest {
     @Config(qualifiers = "w320dp-h568dp-xhdpi")
     fun smallPhone320x568() = shoot("320x568")
 
+    /** Shows the Hindi texts once values-hi exists (English until then). */
+    @Test
+    @Config(qualifiers = "hi-w360dp-h800dp-xhdpi")
+    fun phoneHindi() = shoot("360x800_hi")
+
     @Test
     @Config(qualifiers = "w800dp-h1280dp-mdpi")
     fun tablet800x1280() = shoot("tablet800x1280")
