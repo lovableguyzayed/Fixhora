@@ -2,6 +2,7 @@ package com.example.util
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,7 @@ object PhotoStore {
 
     /** Deletes a private copy made by [copyToAppStorage]; ignores anything else. */
     suspend fun delete(context: Context, link: String) = withContext(Dispatchers.IO) {
-        val path = Uri.parse(link).path ?: return@withContext
+        val path = link.toUri().path ?: return@withContext
         val file = File(path)
         if (file.parentFile == File(context.filesDir, DIR)) file.delete()
     }

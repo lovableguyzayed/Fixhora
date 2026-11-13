@@ -24,6 +24,6 @@ See the Status column of the issue table in the report. Updated after each commi
 
 ## Still open (no decision needed, not done yet)
 - UI-07 design-token pass (minimum 12 sp done)
-- I18N-01: login/role/task screens moved to strings.xml (5316d8e); helper screens + values-hi still to do (Hindi wording needs D13)
+- I18N-01: login/role/task + helper screens moved to strings.xml; left: text built from values, Toasts, category names, then values-hi (Hindi wording needs D13)
 - Still dead (need backend or batch-2 screens): Place Bid on helper Home card, chat Call/Attach/Mic/quick actions, Map tab
 - SEC-06 backup rules (when login tokens exist)

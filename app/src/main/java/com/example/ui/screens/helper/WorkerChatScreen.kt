@@ -1,5 +1,8 @@
 package com.example.ui.screens.helper
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -69,7 +72,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
 
     Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
         TopAppBar(
-            title = { Text("Chats", fontWeight = FontWeight.Bold, color = DarkNavy) },
+            title = { Text(stringResource(R.string.workerchat_chats), fontWeight = FontWeight.Bold, color = DarkNavy) },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
         )
 
@@ -77,7 +80,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
         OutlinedTextField(
             value = searchQuery,
             onValueChange = { searchQuery = it },
-            placeholder = { Text("Search by job or place") },
+            placeholder = { Text(stringResource(R.string.workerchat_search_by_job_or_place)) },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
             modifier = Modifier
                 .fillMaxWidth()
@@ -123,7 +126,7 @@ fun WorkerChatListScreen(tasks: List<TaskEntity>, onChatClick: (TaskEntity) -> U
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(if (tasks.isEmpty()) "Chats appear here after you accept a job." else "No chats match your search.", color = SecondaryGrey, textAlign = TextAlign.Center, modifier = Modifier.padding(horizontal = 32.dp))
                     Spacer(modifier = Modifier.height(16.dp))
-                    if (tasks.isEmpty()) Button(onClick = onExploreJobs) { Text("Explore Nearby Jobs") }
+                    if (tasks.isEmpty()) Button(onClick = onExploreJobs) { Text(stringResource(R.string.workertasks_explore_nearby_jobs)) }
                 }
             }
         } else {
@@ -170,7 +173,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                    Text(stringResource(R.string.workertasks_customer_request), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -186,7 +189,7 @@ fun ChatListItem(task: TaskEntity, onClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Tap to view conversation",
+                    text = stringResource(R.string.workerchat_tap_to_view_conversation),
                     fontSize = 14.sp,
                     color = SecondaryGrey,
                     fontWeight = FontWeight.Normal,
@@ -222,22 +225,22 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            Text(stringResource(R.string.workerchat_customer), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                         }
                     }
                 }
             },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.mobilelogin_back))
                 }
             },
             actions = {
                 IconButton(onClick = { /* Call */ }) {
-                    Icon(Icons.Default.Call, contentDescription = "Call", tint = BluePrimary)
+                    Icon(Icons.Default.Call, contentDescription = stringResource(R.string.workerchat_call), tint = BluePrimary)
                 }
                 IconButton(onClick = { /* More */ }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = DarkNavy)
+                    Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.workerchat_more), tint = DarkNavy)
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -260,7 +263,7 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                     Text(IndiaFormat.budgetLabel(task.minBudget, task.maxBudget), fontSize = 12.sp, color = SecondaryGrey)
                 }
                 TextButton(onClick = { /* View Details */ }) {
-                    Text("View Details", fontSize = 12.sp)
+                    Text(stringResource(R.string.workertasks_view_details), fontSize = 12.sp)
                 }
             }
         }
@@ -324,13 +327,13 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { /* Attach */ }) {
-                    Icon(Icons.Default.AttachFile, contentDescription = "Attach", tint = SecondaryGrey)
+                    Icon(Icons.Default.AttachFile, contentDescription = stringResource(R.string.workerchat_attach), tint = SecondaryGrey)
                 }
                 
                 OutlinedTextField(
                     value = messageText,
                     onValueChange = { messageText = it },
-                    placeholder = { Text("Type a message...") },
+                    placeholder = { Text(stringResource(R.string.workerchat_type_a_message)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -344,14 +347,14 @@ fun WorkerChatConversationScreen(task: TaskEntity, viewModel: HelperViewModel, o
 
                 if (messageText.isBlank()) {
                     IconButton(onClick = { /* Voice */ }) {
-                        Icon(Icons.Default.Mic, contentDescription = "Voice Message", tint = BluePrimary)
+                        Icon(Icons.Default.Mic, contentDescription = stringResource(R.string.workerchat_voice_message), tint = BluePrimary)
                     }
                 } else {
                     IconButton(onClick = {
                         viewModel.sendMessage(task.id, messageText)
                         messageText = ""
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = BluePrimary)
+                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.workerchat_send), tint = BluePrimary)
                     }
                 }
             }

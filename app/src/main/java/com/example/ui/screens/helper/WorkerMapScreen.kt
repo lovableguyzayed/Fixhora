@@ -1,5 +1,8 @@
 package com.example.ui.screens.helper
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,10 +47,10 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Interactive Map View", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(R.string.workermap_interactive_map_view), fontWeight = FontWeight.SemiBold) },
                 actions = {
                     IconButton(onClick = { /* Open Filters */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filters", tint = DarkNavy)
+                        Icon(Icons.Default.FilterList, contentDescription = stringResource(R.string.workermap_filters), tint = DarkNavy)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -66,7 +69,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(4.dp)
                 ) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Refresh Nearby Jobs")
+                    Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.workermap_refresh_nearby_jobs))
                 }
                 FloatingActionButton(
                     onClick = { /* Current Location */ },
@@ -75,7 +78,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(4.dp)
                 ) {
-                    Icon(Icons.Default.MyLocation, contentDescription = "Current Location")
+                    Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.workermap_current_location))
                 }
             }
         }
@@ -94,7 +97,7 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(100.dp), tint = SecondaryGrey.copy(alpha = 0.3f))
-                    Text("Interactive Map View", color = SecondaryGrey, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.workermap_interactive_map_view), color = SecondaryGrey, fontWeight = FontWeight.Bold)
                 }
 
                 // Mock Markers
@@ -137,9 +140,9 @@ fun WorkerMapScreen(viewModel: HelperViewModel) {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search jobs...") },
+                        placeholder = { Text(stringResource(R.string.workermap_search_jobs)) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.Mic, contentDescription = "Voice Search") },
+                        trailingIcon = { Icon(Icons.Default.Mic, contentDescription = stringResource(R.string.workermap_voice_search)) },
                         modifier = Modifier
                             .weight(1f)
                             .shadow(2.dp, RoundedCornerShape(24.dp))
@@ -276,9 +279,9 @@ fun JobDetailsContent(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Customer Name", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.workerhome_customer_name), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Icon(Icons.Default.Verified, contentDescription = "Verified", tint = BluePrimary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Verified, contentDescription = stringResource(R.string.workerhome_verified), tint = BluePrimary, modifier = Modifier.size(16.dp))
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
@@ -291,7 +294,7 @@ fun JobDetailsContent(
                 color = OrangeSecondary.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Urgent", color = OrangeSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                Text(stringResource(R.string.workerhome_urgent), color = OrangeSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
             }
         }
 
@@ -314,11 +317,11 @@ fun JobDetailsContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            JobDetailItem(icon = Icons.Default.LocationOn, title = "Distance", value = "2.5 km away")
-            JobDetailItem(icon = Icons.Default.AccessTime, title = "Posted", value = "10 mins ago")
+            JobDetailItem(icon = Icons.Default.LocationOn, title = stringResource(R.string.workermap_distance), value = "2.5 km away")
+            JobDetailItem(icon = Icons.Default.AccessTime, title = stringResource(R.string.workermap_posted), value = "10 mins ago")
             JobDetailItem(
                 icon = Icons.Default.AccountBalanceWallet,
-                title = "Budget",
+                title = stringResource(R.string.workermap_budget),
                 value = IndiaFormat.rupeesOrNull(task.maxBudget) ?: "Negotiable",
                 valueColor = DarkNavy,
                 valueWeight = FontWeight.Bold
@@ -334,7 +337,7 @@ fun JobDetailsContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Accept Job", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.workerhome_accept_job), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Button(
                 onClick = onPlaceBidClick,
@@ -342,7 +345,7 @@ fun JobDetailsContent(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = DarkNavy)
             ) {
-                Text("Place Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.workerhome_place_bid), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
         
@@ -352,7 +355,7 @@ fun JobDetailsContent(
             TextButton(onClick = onChatClick) {
                 Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Chat with Customer", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.workermap_chat_with_customer), fontSize = 16.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -393,9 +396,9 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
             .padding(24.dp)
             .padding(bottom = 24.dp)
     ) {
-        Text("Place Bid", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+        Text(stringResource(R.string.workerhome_place_bid), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Submit a competitive bid for this task.", fontSize = 16.sp, color = SecondaryGrey)
+        Text(stringResource(R.string.workermap_submit_a_competitive_bid_for_this), fontSize = 16.sp, color = SecondaryGrey)
         
         Spacer(modifier = Modifier.height(32.dp))
         
@@ -403,7 +406,7 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
             value = bidAmount,
             onValueChange = { bidAmount = IndiaFormat.cleanAmount(it) },
             singleLine = true,
-            label = { Text("Bid Amount (₹)") },
+            label = { Text(stringResource(R.string.workermap_bid_amount)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
@@ -414,8 +417,8 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
         OutlinedTextField(
             value = estimatedTime,
             onValueChange = { estimatedTime = it },
-            label = { Text("Estimated Completion Time") },
-            placeholder = { Text("e.g., 2 hours, Today at 5 PM") },
+            label = { Text(stringResource(R.string.workermap_estimated_completion_time)) },
+            placeholder = { Text(stringResource(R.string.workermap_e_g_2_hours_today_at)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         )
@@ -425,8 +428,8 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
         OutlinedTextField(
             value = message,
             onValueChange = { message = it },
-            label = { Text("Message to Customer (Optional)") },
-            placeholder = { Text("I have 5 years of experience...") },
+            label = { Text(stringResource(R.string.workermap_message_to_customer_optional)) },
+            placeholder = { Text(stringResource(R.string.workermap_i_have_5_years_of_experience)) },
             modifier = Modifier.fillMaxWidth().height(100.dp),
             shape = RoundedCornerShape(12.dp),
             maxLines = 4
@@ -440,7 +443,7 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
                 modifier = Modifier.weight(1f).height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Cancel", fontSize = 16.sp)
+                Text(stringResource(R.string.workermap_cancel), fontSize = 16.sp)
             }
             Button(
                 onClick = onSubmit,
@@ -448,7 +451,7 @@ fun PlaceBidContent(task: TaskEntity, onSubmit: () -> Unit, onCancel: () -> Unit
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
             ) {
-                Text("Submit Bid", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.workermap_submit_bid), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

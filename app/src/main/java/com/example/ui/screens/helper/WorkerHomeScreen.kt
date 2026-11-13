@@ -1,5 +1,8 @@
 package com.example.ui.screens.helper
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -49,12 +52,12 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                                 .background(BorderGrey),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Person, contentDescription = "Profile", tint = SecondaryGrey)
+                            Icon(Icons.Default.Person, contentDescription = stringResource(R.string.workerhome_profile), tint = SecondaryGrey)
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text(text = "Good Morning,", fontSize = 12.sp, color = SecondaryGrey)
-                            Text(text = "Alex Worker", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
+                            Text(text = stringResource(R.string.workerhome_good_morning), fontSize = 12.sp, color = SecondaryGrey)
+                            Text(text = stringResource(R.string.workerhome_alex_worker), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = DarkNavy)
                         }
                     }
                 },
@@ -75,7 +78,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     IconButton(onClick = { android.widget.Toast.makeText(context, "No notifications yet", android.widget.Toast.LENGTH_SHORT).show() }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notifications", tint = DarkNavy)
+                        Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.workerhome_notifications), tint = DarkNavy)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                 },
@@ -97,7 +100,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
 
             item {
                 Text(
-                    text = "Today's Summary",
+                    text = stringResource(R.string.workerhome_today_s_summary),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkNavy
@@ -114,7 +117,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
 
             item {
                 Text(
-                    text = "Available Nearby Jobs",
+                    text = stringResource(R.string.workerhome_available_nearby_jobs),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = DarkNavy
@@ -141,7 +144,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            text = "No nearby jobs available at the moment.",
+                            text = stringResource(R.string.workerhome_no_nearby_jobs_available_at_the),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = SecondaryGrey
@@ -149,7 +152,7 @@ fun WorkerHomeScreen(viewModel: HelperViewModel) {
                         Spacer(modifier = Modifier.height(16.dp))
                         // The list updates by itself, so no Refresh button is needed.
                         Text(
-                            text = "New jobs will appear here automatically.",
+                            text = stringResource(R.string.workerhome_new_jobs_will_appear_here_automatically),
                             fontSize = 14.sp,
                             color = SecondaryGrey
                         )
@@ -200,7 +203,7 @@ fun PerformanceOverviewCard() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Performance Overview", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(stringResource(R.string.workerhome_performance_overview), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
@@ -319,15 +322,15 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer Name", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(stringResource(R.string.workerhome_customer_name), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Icon(Icons.Default.Verified, contentDescription = "Verified", tint = BluePrimary, modifier = Modifier.size(14.dp))
+                            Icon(Icons.Default.Verified, contentDescription = stringResource(R.string.workerhome_verified), tint = BluePrimary, modifier = Modifier.size(14.dp))
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(12.dp))
                             Spacer(modifier = Modifier.width(2.dp))
                             Text("4.8", fontSize = 12.sp, color = SecondaryGrey)
-                            Text(" • 10 mins ago", fontSize = 12.sp, color = SecondaryGrey)
+                            Text(stringResource(R.string.workerhome_10_mins_ago), fontSize = 12.sp, color = SecondaryGrey)
                         }
                     }
                 }
@@ -335,7 +338,7 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
                     color = Color(0xFFE3F2FD),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Available", color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                    Text(stringResource(R.string.workerhome_available), color = BluePrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
                 }
             }
             
@@ -366,7 +369,7 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.AccessTime, contentDescription = null, tint = SecondaryGrey, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Urgent", color = OrangeSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.workerhome_urgent), color = OrangeSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
             
@@ -392,7 +395,7 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = BluePrimary),
                     border = androidx.compose.foundation.BorderStroke(1.dp, BluePrimary)
                 ) {
-                    Text("Place Bid", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.workerhome_place_bid), fontWeight = FontWeight.Bold)
                 }
                 Button(
                     onClick = onAccept,
@@ -400,7 +403,7 @@ fun WorkerJobCard(task: TaskEntity, onSubmitProposalClick: () -> Unit, onAccept:
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                 ) {
-                    Text("Accept Job", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.workerhome_accept_job), fontWeight = FontWeight.Bold)
                 }
             }
         }

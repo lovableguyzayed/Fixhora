@@ -1,5 +1,8 @@
 package com.example.ui.screens.helper
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -45,21 +48,21 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}
         modifier = Modifier.fillMaxSize().background(Color(0xFFF8F9FA)),
         topBar = {
             TopAppBar(
-                title = { Text("My Tasks", fontWeight = FontWeight.Bold, color = DarkNavy) },
+                title = { Text(stringResource(R.string.workertasks_my_tasks), fontWeight = FontWeight.Bold, color = DarkNavy) },
                 actions = {
                     // Search box and status chips are below; only Sort needs a menu.
                     Box {
                         IconButton(onClick = { showSortMenu = true }) {
-                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort tasks", tint = DarkNavy)
+                            Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = stringResource(R.string.workertasks_sort_tasks), tint = DarkNavy)
                         }
                         DropdownMenu(expanded = showSortMenu, onDismissRequest = { showSortMenu = false }) {
                             DropdownMenuItem(
-                                text = { Text("Newest first") },
+                                text = { Text(stringResource(R.string.workertasks_newest_first)) },
                                 leadingIcon = { if (!sortByBudget) Icon(Icons.Default.Check, contentDescription = null) },
                                 onClick = { sortByBudget = false; showSortMenu = false }
                             )
                             DropdownMenuItem(
-                                text = { Text("Highest budget first") },
+                                text = { Text(stringResource(R.string.workertasks_highest_budget_first)) },
                                 leadingIcon = { if (sortByBudget) Icon(Icons.Default.Check, contentDescription = null) },
                                 onClick = { sortByBudget = true; showSortMenu = false }
                             )
@@ -75,7 +78,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search tasks or locations", color = SecondaryGrey, fontSize = 14.sp) },
+                placeholder = { Text(stringResource(R.string.workertasks_search_tasks_or_locations), color = SecondaryGrey, fontSize = 14.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = SecondaryGrey) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -153,7 +156,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
-                            "No tasks found. New customer requests will appear here as soon as they are available.",
+                            stringResource(R.string.workertasks_no_tasks_found_new_customer_requests),
                             color = SecondaryGrey,
                             textAlign = TextAlign.Center,
                             fontSize = 14.sp
@@ -163,7 +166,7 @@ fun WorkerTasksScreen(viewModel: HelperViewModel, onExploreJobs: () -> Unit = {}
                             onClick = onExploreJobs,
                             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                         ) {
-                            Text("Explore Nearby Jobs")
+                            Text(stringResource(R.string.workertasks_explore_nearby_jobs))
                         }
                     }
                 }
@@ -223,13 +226,13 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Customer Request", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
+                            Text(stringResource(R.string.workertasks_customer_request), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = DarkNavy)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Star, contentDescription = "Rating", tint = OrangeSecondary, modifier = Modifier.size(14.dp))
+                            Icon(Icons.Default.Star, contentDescription = stringResource(R.string.workertasks_rating), tint = OrangeSecondary, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("New User", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
-                            Text(" • Just now", fontSize = 12.sp, color = SecondaryGrey)
+                            Text(stringResource(R.string.workertasks_new_user), fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
+                            Text(stringResource(R.string.workertasks_just_now), fontSize = 12.sp, color = SecondaryGrey)
                         }
                     }
                 }
@@ -301,7 +304,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (displayStatus == "New") {
-                    Text("0 bids", fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.workertasks_0_bids), fontSize = 12.sp, color = SecondaryGrey, fontWeight = FontWeight.Medium)
                     Row(horizontalArrangement = Arrangement.End, modifier = Modifier.weight(1f)) {
                         OutlinedButton(
                             onClick = onReject,
@@ -309,7 +312,7 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
                             modifier = Modifier.weight(1f).padding(end = 8.dp)
                         ) {
-                            Text("Reject", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.workertasks_reject), fontWeight = FontWeight.Bold)
                         }
                         Button(
                             onClick = onAccept,
@@ -317,14 +320,14 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                             colors = ButtonDefaults.buttonColors(containerColor = BluePrimary),
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Accept", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.workertasks_accept), fontWeight = FontWeight.Bold)
                         }
                     }
                 } else if (displayStatus == "Accepted") {
                     TextButton(onClick = { /* Chat */ }) {
                         Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Chat")
+                        Text(stringResource(R.string.workertasks_chat))
                     }
                     Button(
                         onClick = { /* Navigate / Start */ },
@@ -333,18 +336,18 @@ fun WorkerTaskCard(task: TaskEntity, onAccept: () -> Unit, onReject: () -> Unit)
                     ) {
                         Icon(Icons.Default.Navigation, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Navigate", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.workertasks_navigate), fontWeight = FontWeight.Bold)
                     }
                 } else {
                     TextButton(onClick = { /* Details */ }) {
-                        Text("View Details")
+                        Text(stringResource(R.string.workertasks_view_details))
                     }
                     Button(
                         onClick = { /* Place Bid */ },
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = BluePrimary)
                     ) {
-                        Text("Place Bid", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.workerhome_place_bid), fontWeight = FontWeight.Bold)
                     }
                 }
             }

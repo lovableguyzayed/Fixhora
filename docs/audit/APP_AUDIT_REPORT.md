@@ -246,7 +246,7 @@ Status: **Open** · **Fixed** (commit on branch) · **Preview** (mockup waiting 
 | BRK-15 | `HelperFlowContainer.kt:53` | Chat badge always "3" | P3 | Remove fake badge | Fixed |
 | BRK-16 | `RoleSelectionScreen.kt:50` | Hindi choice not saved, not app-wide; "change later in settings" — no settings | P2 | App-wide i18n (I18N-01) | Open |
 | BRK-17 | — | Customer can't see posted tasks or offers | P1 | "My tasks" screen | Preview (batch 2) |
-| I18N-01 | all `.kt` | All text hardcoded in Kotlin; only role screen has Hindi | P2 | 116 texts of login, role and task-posting screens moved to `strings.xml` (screens pixel-identical). Left: ~50 texts built from values / pop-ups / role-screen Hindi pairs, all helper screens, then `values-hi` (D13) | Partly fixed |
+| I18N-01 | all `.kt` | All text hardcoded in Kotlin; only role screen has Hindi | P2 | 189 texts of login, role, task-posting and helper screens moved to `strings.xml` (screens pixel-identical). Left: ~50 texts built from values / pop-ups / role-screen Hindi pairs / category names, then `values-hi` (D13) | Partly fixed |
 
 ### B. QA walkthrough highlights (personas)
 | # | Persona | Steps | Expected | Actual | Sev | ID |
@@ -342,9 +342,11 @@ See `docs/audit/mockups/index.html`.
 | `assembleDebug` | ❌ fails (debug.keystore missing) | ✅ |
 | `assembleRelease` (R8 on) | ❌ fails (corrupted icons / keystore) | ✅ 1.9 MB unsigned APK |
 | Unit tests | 1 placeholder test | ✅ 13 pass (number cleaning, ₹ format, IST time, task posting, sample-data seeding, screenshots) |
-| Android Lint | 0 errors, 47 warnings | 0 errors, 47 warnings (40 are "newer library version available") |
+| Android Lint | 0 errors, 47 warnings | 0 errors, 46 warnings (most are "newer library version available") |
 | 16 KB page size | — | ✅ aligned |
 | PDF script | — | 0 PDFs, nothing broken |
 | Screenshots | `mockups/before/` | `mockups/after/` — see `mockups/index.html` |
+
+Known test quirk: the helper-home screenshot can catch the loading placeholder before the list appears (render timing in the test, not an app bug).
 
 Not verifiable here (no phone/emulator): everything in `MANUAL_TEST_CHECKLIST.md`.
