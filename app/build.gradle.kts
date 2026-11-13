@@ -6,6 +6,13 @@ plugins {
   alias(libs.plugins.secrets)
 }
 
+// Firebase is switched on only when the project's google-services.json is present
+// (download it from the Firebase console into app/). Without it the app runs in test mode.
+val hasFirebaseConfig = file("google-services.json").exists()
+if (hasFirebaseConfig) {
+  apply(plugin = "com.google.gms.google-services")
+}
+
 android {
   namespace = "com.example"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
@@ -18,6 +25,16 @@ android {
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    // Contact and policy links shown in the Account screen. Set them in gradle.properties
+    // (e.g. fixorax.supportWhatsApp=919876543210). Empty = the row is hidden.
+    fun prop(name: String) = (project.findProperty(name) as String?).orEmpty().replace("\"", "")
+    buildConfigField("String", "SUPPORT_WHATSAPP", "\"${prop("fixorax.supportWhatsApp")}\"")
+    buildConfigField("String", "SUPPORT_PHONE", "\"${prop("fixorax.supportPhone")}\"")
+    buildConfigField("String", "PRIVACY_URL", "\"${prop("fixorax.privacyUrl")}\"")
+    buildConfigField("String", "TERMS_URL", "\"${prop("fixorax.termsUrl")}\"")
+    buildConfigField("String", "FAQ_URL", "\"${prop("fixorax.faqUrl")}\"")
+    buildConfigField("String", "ACCOUNT_DELETION_URL", "\"${prop("fixorax.accountDeletionUrl")}\"")
   }
 
   // Custom keystores are used only when they exist, so the project builds on any machine.
@@ -74,12 +91,17 @@ secrets {
   defaultPropertiesFileName = ".env.example"
 }
 
-// Networking (Retrofit/OkHttp/Moshi) and Firebase are commented out until a backend exists.
+// Networking (Retrofit/OkHttp/Moshi) is commented out; Firebase is the backend.
 // Some unused dependencies are commented out below instead of being removed.
 // This makes it easy to add them back in the future if needed.
 dependencies {
   implementation(platform(libs.androidx.compose.bom))
-  // implementation(platform(libs.firebase.bom))
+  implementation(platform(libs.firebase.bom))
+  implementation(libs.firebase.auth)
+  implementation(libs.androidx.credentials)
+  implementation(libs.androidx.credentials.play.services.auth)
+  implementation(libs.googleid)
+  implementation(libs.play.services.auth)
   // implementation(libs.accompanist.permissions)
   implementation(libs.androidx.activity.compose)
   // implementation(libs.androidx.camera.camera2)
@@ -116,6 +138,7 @@ dependencies {
   testImplementation(libs.junit)
   testImplementation(libs.kotlinx.coroutines.test)
   testImplementation(libs.robolectric)
+  testImplementation(libs.androidx.room.testing)
   testImplementation(libs.roborazzi)
   testImplementation(libs.roborazzi.compose)
   testImplementation(libs.roborazzi.junit.rule)

@@ -1,5 +1,6 @@
 package com.example.data.room
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -15,5 +16,9 @@ data class TaskEntity(
     val descriptionDetails: String,
     val minBudget: String,
     val maxBudget: String,
-    val photoUris: String // Stored as comma-separated string for simplicity
+    val photoUris: String, // Stored as comma-separated string for simplicity
+    /** Account that posted the task ("guest" when posted without login; null for sample jobs). */
+    val ownerId: String? = null,
+    /** When the task was posted (epoch millis). 0 for tasks saved before version 3. */
+    @ColumnInfo(defaultValue = "0") val createdAt: Long = 0L
 )

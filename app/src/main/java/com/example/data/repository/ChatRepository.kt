@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 class ChatRepository(private val chatDao: ChatDao) {
     fun getMessagesForTask(taskId: Int): Flow<List<ChatMessageEntity>> = chatDao.getMessagesForTask(taskId)
 
+    suspend fun deleteAll() = chatDao.deleteAll()
+
     suspend fun sendMessage(taskId: Int, senderId: String, text: String) {
         chatDao.insertMessage(
             ChatMessageEntity(

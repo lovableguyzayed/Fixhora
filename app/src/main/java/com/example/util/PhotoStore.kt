@@ -29,6 +29,11 @@ object PhotoStore {
         }
     }
 
+    /** Deletes all private photo copies (logout / delete account). */
+    suspend fun deleteAll(context: Context) = withContext(Dispatchers.IO) {
+        File(context.filesDir, DIR).deleteRecursively()
+    }
+
     /** Deletes a private copy made by [copyToAppStorage]; ignores anything else. */
     suspend fun delete(context: Context, link: String) = withContext(Dispatchers.IO) {
         val path = link.toUri().path ?: return@withContext
