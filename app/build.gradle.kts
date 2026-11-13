@@ -18,7 +18,8 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.fixhora.xyzkpa"
+    // Final Play Store package name (permanent once uploaded). The code namespace below is internal only.
+    applicationId = "in.fixorax.app"
     minSdk = 24
     targetSdk = 36
     versionCode = 1

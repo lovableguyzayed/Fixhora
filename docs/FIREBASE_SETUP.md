@@ -7,13 +7,13 @@ Until you finish these steps, the app runs in **test mode**:
 
 Nothing in the code needs to change when you switch Firebase on. You add one file and rebuild.
 
-You need a Google account, about 30–45 minutes, and the app's **package name**. Today the package name is `com.aistudio.fixhora.xyzkpa`. **Decide the final package name first (decision D5)**, because the Play Store never lets you change it and Firebase is tied to it.
+You need a Google account and about 30–45 minutes. The app's package name is **`in.fixorax.app`** (decided; the Play Store never lets you change it).
 
 ## 1. Create the Firebase project
 1. Go to https://console.firebase.google.com and click **Create a project**. Name it **FixoraX**.
 2. Google Analytics: you can say **No** for now (add it later with crash reporting, D11).
 3. In the project, click the **Android** icon (**Add app**).
-   - **Android package name:** your final package name (see above).
+   - **Android package name:** `in.fixorax.app`
    - **App nickname:** FixoraX.
    - **SHA-1:** leave it empty for now; it is added in step 3.
 4. Download **google-services.json** and put it in the project's `app/` folder (next to `app/build.gradle.kts`).
